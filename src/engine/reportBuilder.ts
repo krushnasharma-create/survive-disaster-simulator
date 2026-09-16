@@ -2,6 +2,7 @@
 // Pure function for assembling comprehensive preparedness reports.
 
 import type { DecisionRecord } from '../store/gameStore';
+import type { DisasterType } from '../data/types';
 import { calculateScore, type ScoreSummary } from './scoreCalculator';
 
 export interface DecisionReviewItem {
@@ -32,11 +33,24 @@ export const EARTHQUAKE_TAKEAWAYS: string[] = [
   'USE SMS & KEEP 112 CLEAR: Cellular voice networks congest quickly. Use text messages to reach family, and reserve 112 for urgent life-threatening emergencies.',
 ];
 
+export const FIRE_TAKEAWAYS: string[] = [
+  'TEST DOORS BEFORE OPENING: Always test closed doors and doorknobs with the back of your hand. A warm door indicates intense heat and fire on the other side.',
+  'CRAWL LOW UNDER SMOKE: Superheated toxic smoke rises toward the ceiling. Cooler, breathable air and visibility remain in the lowest 30 to 60 cm.',
+  'SEAL DOORS IF TRAPPED: If your exit path is impassable, close doors, seal bottom crevices with damp cloth to block toxic smoke, and signal your location from a window.',
+  'NEVER USE ELEVATORS: Electrical failure frequently stalls elevator cars between floors, and elevator shafts act as natural chimneys for lethal smoke.',
+  'CALL 112 ERSS WITH PRECISE DETAILS: Give the dispatcher the exact address, floor of the fire, trapped individuals, and nearest landmarks immediately.',
+];
+
 export const INDIA_EMERGENCY_HELPLINES = [
   {
     title: 'National Emergency Response Support System (ERSS)',
     number: '112',
     purpose: 'Unified emergency phone number for Police, Fire, and Medical emergency services across India.',
+  },
+  {
+    title: 'Fire Emergency Service (Direct)',
+    number: '101',
+    purpose: 'Direct national fire brigade emergency helpline (integrated with 112).',
   },
   {
     title: 'NDMA Disaster Helpline',
@@ -52,8 +66,9 @@ export const INDIA_EMERGENCY_HELPLINES = [
 
 /**
  * Builds a structured preparedness report from decision history.
+ * Optionally tailors key takeaways to the active disaster type.
  */
-export function buildReport(decisions: DecisionRecord[]): PreparednessReport {
+export function buildReport(decisions: DecisionRecord[], disasterType?: DisasterType): PreparednessReport {
   const scoreSummary = calculateScore(decisions);
 
   const decisionReviews: DecisionReviewItem[] = decisions.map((d, index) => ({
@@ -69,10 +84,14 @@ export function buildReport(decisions: DecisionRecord[]): PreparednessReport {
     insightSource: d.insightSource,
   }));
 
+  // Infer disaster type from decision node IDs if not explicitly passed
+  const isFire = disasterType === 'fire' || decisions.some((d) => d.nodeId.startsWith('fire-'));
+  const keyTakeaways = isFire ? FIRE_TAKEAWAYS : EARTHQUAKE_TAKEAWAYS;
+
   return {
     scoreSummary,
     decisionReviews,
-    keyTakeaways: EARTHQUAKE_TAKEAWAYS,
+    keyTakeaways,
     officialHelplines: INDIA_EMERGENCY_HELPLINES,
   };
 }

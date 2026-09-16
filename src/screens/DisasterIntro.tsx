@@ -53,13 +53,13 @@ export default function DisasterIntro() {
 
   const config = CONFIGS[disasterId as DisasterType];
 
+  const selectDisaster = useGameStore((s) => s.selectDisaster);
+
   useEffect(() => {
     if (!config) navigate('/select', { replace: true });
   }, [config, navigate]);
 
   if (!config) return null;
-
-  const selectDisaster = useGameStore((s) => s.selectDisaster);
 
   const handleProceed = () => {
     selectDisaster(disasterId as DisasterType);

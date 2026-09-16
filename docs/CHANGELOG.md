@@ -3,6 +3,26 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-16] PHASE 6 — Fire Disaster Scenario Vertical Slice
+- **Playable Structure Fire Disaster Scenario (`src/data/fire.ts`):**
+  - Authored a complete 8-decision scenario with 10 total nodes (`fire-d1-alarm` through `fire-outcome-node`).
+  - Implemented 2 timed 15-second decisions (`fire-d1-alarm` door heat evaluation and `fire-d4-external-escape` fire escape movement).
+  - Authored 2 distinct branching paths:
+    - Path 1: Corridor crawl (`fire-d2-smoke-crawl`) vs. room seal compartmentalization (`fire-d2b-smoke-room`).
+    - Path 2: External fire escape (`fire-d4-external-escape`) vs. room window signaling (`fire-d4b-window-signal`).
+  - Grounded all choices, consequences, and insights strictly in NDMA Fire Safety Guidelines and 112 ERSS emergency communication protocols.
+- **Natural Roman Hinglish Localization (`src/i18n/fire.ts` & `src/i18n/index.ts`):**
+  - Fully translated all 10 nodes, 20 choices, consequence evaluations, and official insights into natural conversational Hinglish.
+  - Added dedicated `FIRE_HINGLISH_TAKEAWAYS` for bilingual preparedness reports.
+- **Dynamic Preparedness Reporting (`src/engine/reportBuilder.ts` & `src/screens/ReportScreen.tsx`):**
+  - Added official `FIRE_TAKEAWAYS` and 101 Fire Emergency Service helpline to `reportBuilder.ts`.
+  - Updated `ReportScreen` to render disaster-specific takeaways matching the scenario played in both English and Hinglish.
+- **Disaster Selection Console (`src/screens/DisasterSelect.tsx`):**
+  - Promoted Structure Fire scenario status from `development` to `playable`.
+- **Refactoring & Code Quality:**
+  - Fixed unconditional hook ordering in `src/screens/DisasterIntro.tsx`.
+  - Verified 0 TypeScript errors (`npm run build` passes in 258ms) and 0 lint errors (`npm run lint`).
+
 ---
 
 ## [2026-09-16] PHASE 5 — Timed Decisions Overhaul, Answer Randomization & English/Hinglish Mode

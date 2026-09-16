@@ -46,7 +46,7 @@ const SCENARIO_LIST: DisasterScenarioItem[] = [
       'Smoke alarms trigger at midnight. Thermal door evaluation, staying below the toxic smoke ceiling, and compartmentalization evacuation.',
     accent: '#ff4500',
     glow: 'rgba(255, 69, 0, 0.2)',
-    status: 'development',
+    status: 'playable',
   },
   {
     id: 'flood',

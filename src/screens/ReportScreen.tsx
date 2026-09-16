@@ -7,14 +7,14 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { buildReport } from '../engine/reportBuilder';
-import { getUiStrings } from '../i18n';
+import { getUiStrings, FIRE_HINGLISH_TAKEAWAYS } from '../i18n';
 import styles from './ReportScreen.module.css';
 
 export default function ReportScreen() {
   const navigate = useNavigate();
   const { decisions, activeDisaster, resetSession, language } = useGameStore();
 
-  const report = useMemo(() => buildReport(decisions), [decisions]);
+  const report = useMemo(() => buildReport(decisions, activeDisaster || undefined), [decisions, activeDisaster]);
   const { scoreSummary, decisionReviews, keyTakeaways, officialHelplines } = report;
   const ui = useMemo(() => getUiStrings(language), [language]);
 
@@ -49,8 +49,12 @@ export default function ReportScreen() {
   }, [language, scoreSummary]);
 
   const takeawaysToDisplay = useMemo(() => {
-    return ui.takeawaysList && ui.takeawaysList.length > 0 ? ui.takeawaysList : keyTakeaways;
-  }, [ui, keyTakeaways]);
+    const isFire = activeDisaster === 'fire' || decisions.some((d) => d.nodeId.startsWith('fire-'));
+    if (language === 'hinglish') {
+      return isFire ? FIRE_HINGLISH_TAKEAWAYS : ui.takeawaysList;
+    }
+    return keyTakeaways;
+  }, [language, activeDisaster, decisions, ui, keyTakeaways]);
 
   return (
     <div className={`${styles.screen} scanlines`}>
