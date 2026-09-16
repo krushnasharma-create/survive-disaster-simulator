@@ -8,6 +8,7 @@ interface UseCountdownOptions {
   duration: number;      // seconds
   onExpire?: () => void;
   autoStart?: boolean;
+  resetKey?: number | string;
 }
 
 interface UseCountdownReturn {
@@ -23,6 +24,7 @@ export function useCountdown({
   duration,
   onExpire,
   autoStart = false,
+  resetKey,
 }: UseCountdownOptions): UseCountdownReturn {
   const [remaining, setRemaining] = useState(duration);
   const [isRunning, setIsRunning] = useState(autoStart);
@@ -33,7 +35,7 @@ export function useCountdown({
   useEffect(() => {
     setRemaining(duration);
     setIsRunning(autoStart);
-  }, [duration, autoStart]);
+  }, [duration, autoStart, resetKey]);
 
   const clear = () => {
     if (intervalRef.current !== null) {

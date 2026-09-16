@@ -56,6 +56,7 @@ export default function ScenarioScreen() {
   } = useGameStore();
 
   const [isTimedOut, setIsTimedOut] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const targetDisaster = (disasterId as DisasterType) || activeDisaster || 'earthquake';
   const effectiveScenarioKey = activeScenarioId || targetDisaster;
@@ -148,10 +149,12 @@ export default function ScenarioScreen() {
     duration: timeLimit || 15,
     autoStart: Boolean(timeLimit),
     onExpire: onTimerExpire,
+    resetKey: retryCount,
   });
 
   const handleRetryScenario = () => {
     setIsTimedOut(false);
+    setRetryCount((prev) => prev + 1);
     if (activeScenarioId) {
       useGameStore.getState().selectScenario(activeScenarioId, targetDisaster);
     } else {
