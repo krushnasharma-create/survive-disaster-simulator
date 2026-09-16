@@ -41,6 +41,14 @@ export const FIRE_TAKEAWAYS: string[] = [
   'CALL 112 ERSS WITH PRECISE DETAILS: Give the dispatcher the exact address, floor of the fire, trapped individuals, and nearest landmarks immediately.',
 ];
 
+export const FLOOD_TAKEAWAYS: string[] = [
+  'SHUT OFF ELECTRICAL & GAS MAINS EARLY: Disconnect the main electrical MCB breaker and LPG cylinder before floodwaters enter living spaces to eliminate electrocution and fire hazards.',
+  'SEEK VERTICAL REFUGE: When streets are flooded, retreat to an upper floor or sturdy rooftop terrace rather than attempting risky ground evacuation through moving water.',
+  'NEVER WALK OR DRIVE THROUGH FLOODWATER: Moving floodwaters hide open stormwater manholes, structural washouts, and downed power lines. Even shallow moving water can sweep pedestrians and vehicles away.',
+  'SECURE SAFE DRINKING WATER: Floodwaters heavily contaminate domestic pipelines and underground sumps. Only consume boiled, filtered, or bottled drinking water to avoid severe illness.',
+  'CONSERVE PHONE BATTERY & USE SMS: Extend mobile phone battery life by keeping screens dimmed and using concise SMS messages to communicate location coordinates to 112 ERSS.',
+];
+
 export const INDIA_EMERGENCY_HELPLINES = [
   {
     title: 'National Emergency Response Support System (ERSS)',
@@ -86,7 +94,14 @@ export function buildReport(decisions: DecisionRecord[], disasterType?: Disaster
 
   // Infer disaster type from decision node IDs if not explicitly passed
   const isFire = disasterType === 'fire' || decisions.some((d) => d.nodeId.startsWith('fire-'));
-  const keyTakeaways = isFire ? FIRE_TAKEAWAYS : EARTHQUAKE_TAKEAWAYS;
+  const isFlood = disasterType === 'flood' || decisions.some((d) => d.nodeId.startsWith('flood-'));
+
+  let keyTakeaways = EARTHQUAKE_TAKEAWAYS;
+  if (isFire) {
+    keyTakeaways = FIRE_TAKEAWAYS;
+  } else if (isFlood) {
+    keyTakeaways = FLOOD_TAKEAWAYS;
+  }
 
   return {
     scoreSummary,

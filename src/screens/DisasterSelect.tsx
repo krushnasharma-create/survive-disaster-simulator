@@ -58,7 +58,7 @@ const SCENARIO_LIST: DisasterScenarioItem[] = [
       'Rapidly rising urban floodwaters. Power grid isolation, vertical refuge protocols, and avoiding deceptive moving water hazards.',
     accent: '#00a8cc',
     glow: 'rgba(0, 168, 204, 0.2)',
-    status: 'development',
+    status: 'playable',
   },
 ];
 

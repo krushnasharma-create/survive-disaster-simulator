@@ -6,10 +6,10 @@ import type { Scenario, ScenarioNode, DecisionNode } from '../data/types';
 import { getUiStrings, UI_EN, UI_HINGLISH } from './ui';
 import { earthquakeHinglish } from './earthquake';
 import { fireHinglish, FIRE_HINGLISH_TAKEAWAYS } from './fire';
-import { floodHinglish } from './flood';
+import { floodHinglish, FLOOD_HINGLISH_TAKEAWAYS } from './flood';
 
 export type { Language, UiStrings } from './types';
-export { getUiStrings, UI_EN, UI_HINGLISH, FIRE_HINGLISH_TAKEAWAYS };
+export { getUiStrings, UI_EN, UI_HINGLISH, FIRE_HINGLISH_TAKEAWAYS, FLOOD_HINGLISH_TAKEAWAYS };
 
 const HINGLISH_SCENARIOS: Record<string, LocalizedScenarioData> = {
   earthquake: earthquakeHinglish,

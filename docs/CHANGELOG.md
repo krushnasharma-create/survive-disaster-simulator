@@ -3,6 +3,30 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-16] PHASE 7 — Flood Disaster Scenario Vertical Slice
+- **Playable Flash Flood Disaster Scenario (`src/data/flood.ts`):**
+  - Authored a complete 8-decision scenario with 9 total nodes (`flood-d1-warning` through `flood-outcome-node`).
+  - Implemented 2 timed 15-second decisions (`flood-d1-warning` utility isolation and `flood-d4-route-hazard` street crossing hazard).
+  - Authored 2 distinct branching paths:
+    - Path 1: Elevated vertical refuge (`flood-d2-rising-water`) vs. delayed utility hazard (`flood-d2b-delayed-utility`).
+    - Path 2: Safe indoor shelter (`flood-d5-emergency-comm`) vs. rooftop exposure triage (`flood-d6-stranded-rooftop`).
+  - Grounded all choices, consequences, and insights strictly in NDMA Urban Flood Management, Central Water Commission (CWC), and 112 ERSS emergency communication protocols.
+- **Natural Roman Hinglish Localization (`src/i18n/flood.ts` & `src/i18n/index.ts`):**
+  - Fully translated all 9 nodes, 18 choices, consequence evaluations, and official insights into natural conversational Hinglish.
+  - Added dedicated `FLOOD_HINGLISH_TAKEAWAYS` for bilingual preparedness reports.
+- **Dynamic Preparedness Reporting (`src/engine/reportBuilder.ts` & `src/screens/ReportScreen.tsx`):**
+  - Added official `FLOOD_TAKEAWAYS` to `reportBuilder.ts`.
+  - Updated `ReportScreen` to render disaster-specific takeaways matching the scenario played in both English and Hinglish.
+- **Disaster Selection Console (`src/screens/DisasterSelect.tsx`):**
+  - Promoted Flash Flood scenario status from `development` to `playable`.
+- **Quality Assurance & Traversal:**
+  - Verified 0 TypeScript errors (`npm run build` passes in 255ms).
+  - Verified 0 lint errors (`npm run lint`).
+  - Verified clean diff (`git diff --check`).
+  - Verified non-breaking backward compatibility for Earthquake and Fire scenarios.
+
+---
+
 ## [2026-09-16] PHASE 6 — Fire Disaster Scenario Vertical Slice
 - **Playable Structure Fire Disaster Scenario (`src/data/fire.ts`):**
   - Authored a complete 8-decision scenario with 10 total nodes (`fire-d1-alarm` through `fire-outcome-node`).

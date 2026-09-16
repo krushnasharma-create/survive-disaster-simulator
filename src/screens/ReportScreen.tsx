@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { buildReport } from '../engine/reportBuilder';
-import { getUiStrings, FIRE_HINGLISH_TAKEAWAYS } from '../i18n';
+import { getUiStrings, FIRE_HINGLISH_TAKEAWAYS, FLOOD_HINGLISH_TAKEAWAYS } from '../i18n';
 import styles from './ReportScreen.module.css';
 
 export default function ReportScreen() {
@@ -50,8 +50,11 @@ export default function ReportScreen() {
 
   const takeawaysToDisplay = useMemo(() => {
     const isFire = activeDisaster === 'fire' || decisions.some((d) => d.nodeId.startsWith('fire-'));
+    const isFlood = activeDisaster === 'flood' || decisions.some((d) => d.nodeId.startsWith('flood-'));
     if (language === 'hinglish') {
-      return isFire ? FIRE_HINGLISH_TAKEAWAYS : ui.takeawaysList;
+      if (isFire) return FIRE_HINGLISH_TAKEAWAYS;
+      if (isFlood) return FLOOD_HINGLISH_TAKEAWAYS;
+      return ui.takeawaysList;
     }
     return keyTakeaways;
   }, [language, activeDisaster, decisions, ui, keyTakeaways]);
