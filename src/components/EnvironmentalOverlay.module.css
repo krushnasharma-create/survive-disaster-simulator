@@ -1,0 +1,185 @@
+/* src/components/EnvironmentalOverlay.module.css */
+/* Visual effects overlay reacting to environmental events and countdown urgency */
+
+.container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  contain: strict;
+}
+
+/* Earthquake effects */
+.rumbleActive {
+  animation: microRumble 0.15s ease-in-out infinite alternate;
+}
+
+.rumbleUrgent {
+  animation: intenseTremor 0.08s ease-in-out infinite alternate;
+}
+
+@keyframes microRumble {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(0.5px, 0.75px);
+  }
+}
+
+@keyframes intenseTremor {
+  0% {
+    transform: translate(-1.5px, -1px);
+  }
+  50% {
+    transform: translate(1.5px, 1.2px);
+  }
+  100% {
+    transform: translate(-1px, 1.5px);
+  }
+}
+
+.cracksSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+.crackLine {
+  stroke: rgba(212, 160, 23, 0.7);
+  stroke-width: 1.5;
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: drawCrack 0.9s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  filter: drop-shadow(0 0 4px rgba(212, 160, 23, 0.4));
+}
+
+@keyframes drawCrack {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Fire effects */
+.fireGlow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 120%, rgba(255, 60, 0, 0.15), transparent 70%);
+  animation: flickerGlow 1.8s ease-in-out infinite alternate;
+}
+
+.fireGlowUrgent {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 110%, rgba(255, 40, 0, 0.28), rgba(255, 120, 0, 0.08) 60%, transparent 80%);
+  animation: flickerGlowUrgent 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes flickerGlow {
+  0% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes flickerGlowUrgent {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.smokeLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45vh;
+  background: linear-gradient(180deg, rgba(30, 25, 20, 0.85) 0%, rgba(20, 18, 16, 0.4) 70%, transparent 100%);
+  backdrop-filter: blur(1.5px);
+  animation: smokeDescend 3s ease-out forwards;
+}
+
+@keyframes smokeDescend {
+  from {
+    transform: translateY(-20%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Flood effects */
+.waterOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, rgba(16, 70, 110, 0.35) 0%, rgba(10, 45, 80, 0.18) 70%, transparent 100%);
+  transition: height 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.waterLow {
+  height: 15vh;
+}
+
+.waterRising {
+  height: 32vh;
+}
+
+.waterHigh {
+  height: 52vh;
+}
+
+.waterWave {
+  position: absolute;
+  top: -12px;
+  left: 0;
+  width: 200%;
+  height: 24px;
+  fill: rgba(60, 160, 220, 0.2);
+  animation: waveMotion 4s linear infinite;
+}
+
+@keyframes waveMotion {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.currentStream {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 20px,
+    rgba(70, 180, 240, 0.04) 20px,
+    rgba(70, 180, 240, 0.04) 40px
+  );
+  animation: streamFlow 2s linear infinite;
+}
+
+@keyframes streamFlow {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 50px 50px;
+  }
+}

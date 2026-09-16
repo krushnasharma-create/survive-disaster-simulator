@@ -10,6 +10,7 @@ import { getScenario } from '../data';
 import { getNode, evaluateChoice } from '../engine/scenarioRunner';
 import { CountdownTimer } from '../components/CountdownTimer';
 import { DecisionPanel } from '../components/DecisionPanel';
+import { EnvironmentalOverlay } from '../components/EnvironmentalOverlay';
 import { useCountdown } from '../hooks/useCountdown';
 import { getLocalizedScenario, getUiStrings } from '../i18n';
 import type { DisasterType, DecisionNode } from '../data/types';
@@ -222,6 +223,14 @@ export default function ScenarioScreen() {
 
   return (
     <div className={`${styles.screen} ${themeClass} scanlines`}>
+      {/* Environmental Atmosphere & Urgency Overlay */}
+      <EnvironmentalOverlay
+        disasterType={targetDisaster}
+        remainingSeconds={remaining}
+        events={decisionNode.environmentEvents}
+        active={Boolean(timeLimit)}
+      />
+
       {/* HUD Header */}
       <header className={styles.hud}>
         <div className={styles.hudLeft}>

@@ -3,6 +3,29 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-16] PHASE 7A–7C — Multi-Scenario Architecture, Selection Layer & Environmental Immersion
+- **Backward-Compatible Scenario Architecture (`src/data/types.ts` & `src/data/index.ts`):**
+  - Extended data model with `EnvironmentEvent`, `HistoricalMetadata`, and `ScenarioCatalogueItem`.
+  - Added `SCENARIO_CATALOGUE` manifest mapping disasters to Modern Urban (Playable) and authentic Historical Incidents (locked as Coming Next).
+  - Maintained complete backward compatibility in `SCENARIOS` mapping aliases for `earthquake`, `fire`, and `flood` with zero duplicate graph bloat.
+- **Scenario Selection Console (`src/screens/ScenarioSelectScreen.tsx` & `.module.css`):**
+  - Integrated `/disaster/:disasterId/scenarios` route with cinematic 2-column console.
+  - Modern Urban scenarios launch playable vertical slices; Historical simulations display date/location metadata and a non-blocking in-theme notice toast.
+- **Reusable Environmental Event Overlay (`src/components/EnvironmentalOverlay.tsx` & `.module.css`):**
+  - Pure CSS/SVG, `pointer-events: none`, `contain: strict` overlay reacting to active countdown and scenario event triggers.
+  - Earthquake: subtle vibration, branching structural fracture cracks around 5s, intense tremor in final seconds.
+  - Fire: ambient heat flicker, descending smoke ceiling around 8s, heat pulse around 5s.
+  - Flood: dynamic water overlay rising from low to high crest around 8s, rapid current stream lines around 5s.
+  - Raised HUD and decision card to `z-index: 10` ensuring 100% clickability and readability.
+- **Localization:**
+  - Added shared UI strings for English and Roman Hinglish in `src/i18n/types.ts` and `src/i18n/ui.ts`.
+- **Quality Assurance & Traversal:**
+  - Verified 0 TypeScript errors (`npm run build` passes in 289ms).
+  - Verified 0 lint errors (`npm run lint`).
+  - Verified clean diff (`git diff --check`).
+
+---
+
 ## [2026-09-16] PHASE 7 — Flood Disaster Scenario Vertical Slice
 - **Playable Flash Flood Disaster Scenario (`src/data/flood.ts`):**
   - Authored a complete 8-decision scenario with 9 total nodes (`flood-d1-warning` through `flood-outcome-node`).

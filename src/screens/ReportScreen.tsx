@@ -62,6 +62,14 @@ export default function ReportScreen() {
   return (
     <div className={`${styles.screen} scanlines`}>
       <div className={styles.topBar}>
+        <div className={styles.quickActions}>
+          <button className={styles.quickActionBtnPrimary} onClick={handlePlayAgain}>
+            ↻ {ui.replayScenario}
+          </button>
+          <button className={styles.quickActionBtnSecondary} onClick={handleSelectNew}>
+            ← {ui.selectDisaster}
+          </button>
+        </div>
         <button
           className={styles.langToggle}
           onClick={toggleLanguage}

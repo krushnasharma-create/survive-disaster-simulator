@@ -8,7 +8,7 @@
 
 ## Current Phase
 
-**PHASE 7 — FLOOD DISASTER SCENARIO VERTICAL SLICE** (Implemented & Verified — Ready for Commit)
+**PHASE 7A–7C — SCENARIO ARCHITECTURE, SELECTION LAYER & ENVIRONMENTAL IMMERSION** (Implemented & Verified — Review Complete)
 
 ---
 
@@ -16,14 +16,14 @@
 
 | Item | Status |
 |---|---|
-| Git repository | Initialized, 5 commits (`b4d34ce`, `71d70c7`, `c5e6324`, `6245967`, `adbec47`) |
+| Git repository | Initialized, 6 commits (`b4d34ce`, `71d70c7`, `c5e6324`, `6245967`, `adbec47`, `7cb908b`) |
 | Remote | https://github.com/krushnasharma-create/survive-disaster-simulator.git |
 | Branch | main |
-| Application code | ✅ 3 complete playable disaster vertical slices (Earthquake, Structure Fire, and Flash Flood), master visual language preserved, 15s timed decisions, dedicated failure screen, Fisher-Yates randomization, full English + Hinglish localization across all scenarios |
+| Application code | ✅ 3 complete playable disaster vertical slices (Earthquake, Structure Fire, Flash Flood), scenario catalogue & selection console (Modern Urban playable vs Historical locked), reusable EnvironmentalOverlay (seismic rumble/cracks, fire glow/smoke ceiling, rising water/currents), 15s timed decisions, failure screen, randomization, full English + Hinglish localization |
 | Build system | ✅ Vite + React 18 + TypeScript (strict) |
 | Dependencies installed | ✅ react-router-dom, zustand, framer-motion |
 | TypeScript errors | ✅ 0 errors |
-| Build status | ✅ Passes (`npm run build` — 473 modules, 0 errors in 255ms) |
+| Build status | ✅ Passes (`npm run build` — 477 modules, 0 errors in 289ms) |
 | Master visual language | ✅ Dark, cinematic, HUD-inspired aesthetic strictly preserved across all screens |
 
 ---
@@ -123,20 +123,35 @@
   - Zero whitespace/formatting warnings (`git diff --check`).
   - Complete non-breaking regression verification for Earthquake and Fire scenarios.
 
+### Phase 7A–7C — Multi-Scenario Architecture, Selection Layer & Environmental Immersion
+- [x] **Backward-Compatible Scenario Architecture (`src/data/types.ts` & `src/data/index.ts`):**
+  - Extended data model with `EnvironmentEvent`, `HistoricalMetadata`, and `ScenarioCatalogueItem`.
+  - Added `SCENARIO_CATALOGUE` manifest mapping disasters to Modern Urban (Playable) and authentic Historical Incidents (locked as Coming Next).
+  - Maintained complete backward compatibility in `SCENARIOS` mapping aliases for `earthquake`, `fire`, and `flood` with zero duplicate graph bloat.
+- [x] **Scenario Selection Layer (`src/screens/ScenarioSelectScreen.tsx` & `.module.css`):**
+  - Integrated `/disaster/:disasterId/scenarios` route with cinematic 2-column console.
+  - Modern Urban scenarios launch playable vertical slices; Historical simulations display date/location metadata and a non-blocking in-theme notice toast.
+- [x] **Reusable Environmental Event Overlay (`src/components/EnvironmentalOverlay.tsx` & `.module.css`):**
+  - Pure CSS/SVG, `pointer-events: none`, `contain: strict` overlay reacting to active countdown and scenario event triggers.
+  - Earthquake: subtle vibration, branching structural fracture cracks around 5s, intense tremor in final seconds.
+  - Fire: ambient heat flicker, descending smoke ceiling around 8s, heat pulse around 5s.
+  - Flood: dynamic water overlay rising from low to high crest around 8s, rapid current stream lines around 5s.
+  - Raised HUD and decision card to `z-index: 10` ensuring 100% clickability and readability.
+- [x] **Localization:**
+  - Added shared UI strings for English and Roman Hinglish in `src/i18n/types.ts` and `src/i18n/ui.ts`.
+
 ---
 
 ## Current Task
 
-Phase 7 Flood Disaster Scenario implementation complete and verified. Ready to commit.
+Phase 7A–7C implementation and final review completed and verified.
 
 ---
 
 ## Next Task
 
-**AUDIO & ATMOSPHERIC POLISH (PHASE 8)**
-1. Design subtle browser Web Audio synthesis / ambient audio manager for environmental tension.
-2. Add sound toggles in the Settings modal.
-3. Perform end-to-end full play-through QA on all 3 disaster scenarios.
+**PHASE 7D — HISTORICAL SCENARIOS RESEARCH & GRAPH IMPLEMENTATION OR PHASE 8 POLISH**
+1. Research and deterministic graph authoring for historical scenarios (Bhuj 2001, Uphaar 1997, Mumbai 2005) or proceed to Phase 8 audio/visual polish.
 
 ---
 

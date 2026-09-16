@@ -19,6 +19,9 @@ export const earthquakeScenario: Scenario = {
       contextHint: 'Violent shaking has begun. Drop, cover, and hold on immediately.',
       timeLimit: 15,
       defaultChoiceId: 'eq-c1-stand-doorway',
+      environmentEvents: [
+        { triggerAtSeconds: 5, effectType: 'crack', intensity: 'medium' },
+      ],
       choices: [
         {
           id: 'eq-c1-drop-cover',

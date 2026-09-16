@@ -33,6 +33,12 @@ export interface Choice {
   nextNodeId: string;
 }
 
+export interface EnvironmentEvent {
+  triggerAtSeconds: number;
+  effectType: 'vibration' | 'crack' | 'smoke' | 'heat' | 'water_rise' | 'current';
+  intensity?: 'low' | 'medium' | 'high';
+}
+
 export interface DecisionNode extends BaseNode {
   type: 'decision';
   situationText: string;
@@ -42,6 +48,8 @@ export interface DecisionNode extends BaseNode {
   timeLimit?: number;
   /** Choice auto-selected if timer expires */
   defaultChoiceId?: string;
+  /** Reusable environmental reaction events keyed to timer threshold */
+  environmentEvents?: EnvironmentEvent[];
 }
 
 export interface ConsequenceNode extends BaseNode {
@@ -69,11 +77,24 @@ export type ScenarioNode =
   | OutcomeNode
   | ReportNode;
 
+export type ScenarioCategory = 'modern' | 'historical';
+
+export interface HistoricalMetadata {
+  eventTitle: string;
+  location: string;
+  date: string;
+  historicalContext: string;
+  disclaimer: string;
+}
+
 export interface Scenario {
-  id: DisasterType;
+  id: string;
+  disasterType?: DisasterType;
+  category?: ScenarioCategory;
   title: string;
   subtitle: string;
   theme: DisasterType;
   startNodeId: string;
+  historicalMeta?: HistoricalMetadata;
   nodes: Record<string, ScenarioNode>;
 }

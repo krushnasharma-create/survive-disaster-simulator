@@ -20,6 +20,9 @@ export const fireScenario: Scenario = {
       contextHint: 'Your bedroom door is closed. Heat and smoke are active on the other side.',
       timeLimit: 15,
       defaultChoiceId: 'fire-c1-open-wide',
+      environmentEvents: [
+        { triggerAtSeconds: 5, effectType: 'smoke', intensity: 'medium' },
+      ],
       choices: [
         {
           id: 'fire-c1-back-of-hand',

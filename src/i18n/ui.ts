@@ -17,6 +17,14 @@ export const UI_EN: UiStrings = {
   educationalDisclaimer:
     'Educational Simulation: This experience is designed for general emergency awareness based on public safety principles from NDMA and 112 ERSS. It does not substitute for on-ground directives from local disaster management authorities or certified safety training.',
 
+  // Scenario Selection Layer
+  selectScenarioTitle: 'Select Incident Scenario',
+  modernSimulation: 'Modern Urban Simulation',
+  historicalSimulation: 'Historical Simulation',
+  eventContext: 'Historical Event Context',
+  comingSoon: 'Coming Next',
+  backToDisasters: 'All Disasters',
+
   activeSimulation: 'LIVE SIMULATION',
   decisionNumber: 'DECISION',
   selectAction: 'Select Your Action',
@@ -35,7 +43,7 @@ export const UI_EN: UiStrings = {
 
   timeExpired: 'TIME EXPIRED',
   timeoutMessage:
-    'You hesitated too long. In an earthquake, survival decisions must be made in seconds. The situation escalated beyond your control.',
+    'You hesitated too long. In an emergency, survival decisions must be made in seconds. The situation escalated beyond your control.',
   simulationFailed: 'SIMULATION FAILED',
   retryScenario: 'Retry Scenario',
   returnToSelect: 'Return to Selection',
@@ -77,6 +85,14 @@ export const UI_HINGLISH: UiStrings = {
   locked: '[LOCKED]',
   educationalDisclaimer:
     'Shiksha hetu Simulation: Yeh anubhav NDMA aur 112 ERSS ke suraksha niyamo par aadharit aam jagrukta ke liye hai. Yeh official emergency services ya safety training ka vikalp nahi hai.',
+
+  // Scenario Selection Layer
+  selectScenarioTitle: 'Apna Scenario Chunein',
+  modernSimulation: 'Modern Urban Simulation',
+  historicalSimulation: 'Itihasik (Historical) Simulation',
+  eventContext: 'Ahem Itihasik Sandarbh',
+  comingSoon: 'Agla Scenario (Jald Aayega)',
+  backToDisasters: 'Sabhi Aapdayein',
 
   activeSimulation: 'LIVE SIMULATION',
   decisionNumber: 'FAISLA',

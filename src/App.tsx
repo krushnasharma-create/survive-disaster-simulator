@@ -8,6 +8,7 @@ import { ScreenTransition } from './components/ScreenTransition';
 import IntroScreen from './screens/IntroScreen';
 import HowToPlayScreen from './screens/HowToPlayScreen';
 import DisasterSelect from './screens/DisasterSelect';
+import ScenarioSelectScreen from './screens/ScenarioSelectScreen';
 import DisasterIntro from './screens/DisasterIntro';
 import ScenarioScreen from './screens/ScenarioScreen';
 import ConsequenceScreen from './screens/ConsequenceScreen';
@@ -46,6 +47,16 @@ export default function App() {
           element={
             <ScreenTransition>
               <DisasterSelect />
+            </ScreenTransition>
+          }
+        />
+
+        {/* Scenario Selection Console (Modern vs Historical) */}
+        <Route
+          path="/disaster/:disasterId/scenarios"
+          element={
+            <ScreenTransition>
+              <ScenarioSelectScreen />
             </ScreenTransition>
           }
         />

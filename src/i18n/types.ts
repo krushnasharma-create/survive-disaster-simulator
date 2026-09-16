@@ -37,6 +37,14 @@ export interface UiStrings {
   locked: string;
   educationalDisclaimer: string;
 
+  // Scenario Selection Layer
+  selectScenarioTitle: string;
+  modernSimulation: string;
+  historicalSimulation: string;
+  eventContext: string;
+  comingSoon: string;
+  backToDisasters: string;
+
   // Scenario HUD & Gameplay
   activeSimulation: string;
   decisionNumber: string;

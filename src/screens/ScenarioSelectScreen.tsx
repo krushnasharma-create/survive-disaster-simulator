@@ -1,87 +1,59 @@
-// src/screens/DisasterSelect.tsx
-// Atmospheric disaster selection console.
-// Earthquake is PLAYABLE and launches the full gameplay slice.
-// Fire and Flood are clearly designated as IN DEVELOPMENT for Phase 4.
+// src/screens/ScenarioSelectScreen.tsx
+// Cinematic Scenario Selection Console.
+// Allows choosing between Modern Urban Simulation and Historical Incident Reconstruction.
+// Ensures historical scenarios are clearly marked as Coming Soon without breaking gameplay.
 
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
+import { getScenariosForDisaster, type ScenarioCatalogueItem } from '../data';
 import { getUiStrings } from '../i18n';
 import type { DisasterType } from '../data/types';
-import styles from './DisasterSelect.module.css';
+import styles from './ScenarioSelectScreen.module.css';
 
-interface DisasterScenarioItem {
-  id: DisasterType;
-  code: string;
-  icon: string;
-  title: string;
-  tag: string;
-  description: string;
-  accent: string;
-  glow: string;
-  status: 'playable' | 'development';
-}
-
-const SCENARIO_LIST: DisasterScenarioItem[] = [
-  {
-    id: 'earthquake',
-    code: 'SCN-EQ-01',
-    icon: '🌍',
-    title: 'Earthquake',
-    tag: 'Urban Apartment · 11:47 AM',
-    description:
-      'The concrete floor lurches beneath you. Navigate structural shaking, post-tremor gas leaks, stairwell aftershocks, and facade hazard clearance.',
+const THEME_ACCENTS: Record<DisasterType, { accent: string; glow: string; name: string }> = {
+  earthquake: {
     accent: '#e8a020',
     glow: 'rgba(232, 160, 32, 0.2)',
-    status: 'playable',
+    name: 'Earthquake',
   },
-  {
-    id: 'fire',
-    code: 'SCN-FR-02',
-    icon: '🔥',
-    title: 'Structure Fire',
-    tag: 'Residential Building · 02:13 AM',
-    description:
-      'Smoke alarms trigger at midnight. Thermal door evaluation, staying below the toxic smoke ceiling, and compartmentalization evacuation.',
+  fire: {
     accent: '#ff4500',
     glow: 'rgba(255, 69, 0, 0.2)',
-    status: 'playable',
+    name: 'Structure Fire',
   },
-  {
-    id: 'flood',
-    code: 'SCN-FL-03',
-    icon: '🌊',
-    title: 'Flash Flood',
-    tag: 'Low-Lying Colony · Monsoon Alert',
-    description:
-      'Rapidly rising urban floodwaters. Power grid isolation, vertical refuge protocols, and avoiding deceptive moving water hazards.',
+  flood: {
     accent: '#00a8cc',
     glow: 'rgba(0, 168, 204, 0.2)',
-    status: 'playable',
+    name: 'Flash Flood',
   },
-];
+};
 
-export default function DisasterSelect() {
+export default function ScenarioSelectScreen() {
+  const { disasterId } = useParams<{ disasterId: string }>();
   const navigate = useNavigate();
   const { selectDisaster, language, setLanguage } = useGameStore();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const activeDisaster = (disasterId as DisasterType) || 'earthquake';
+  const theme = THEME_ACCENTS[activeDisaster] || THEME_ACCENTS.earthquake;
+  const scenarios = useMemo(() => getScenariosForDisaster(activeDisaster), [activeDisaster]);
   const ui = useMemo(() => getUiStrings(language), [language]);
 
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'hinglish' : 'en');
   };
 
-  const handleSelect = (item: DisasterScenarioItem) => {
+  const handleSelectScenario = (item: ScenarioCatalogueItem) => {
     if (item.status === 'playable') {
-      selectDisaster(item.id);
-      navigate(`/disaster/${item.id}/scenarios`);
+      selectDisaster(activeDisaster);
+      navigate(`/disaster/${activeDisaster}/intro`);
     } else {
       setToastMessage(
         language === 'hinglish'
-          ? `NOTICE: ${item.title} scenario abhi taiyyari mein hai. Kripya Earthquake simulation chunein.`
-          : `ARCHIVE NOTICE: ${item.title} scenario is currently in development (Phase 4). Please launch the Earthquake simulation.`
+          ? `NOTICE: ${item.title} (${item.date || ''}) historical simulation abhi development mein hai. Kripya Modern Urban scenario chunein.`
+          : `ARCHIVE NOTICE: ${item.title} (${item.date || ''}) is currently in development (Phase 7). Please launch the Modern Urban simulation.`
       );
       setTimeout(() => setToastMessage(null), 3500);
     }
@@ -91,7 +63,7 @@ export default function DisasterSelect() {
     <div className={`${styles.screen} scanlines`}>
       {/* Top HUD */}
       <header className={styles.topHud}>
-        <span>SIMULATION ARCHIVE // SCENARIO SELECTION</span>
+        <span>SIMULATION ARCHIVE // {theme.name.toUpperCase()} SCENARIOS</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button
             className={styles.langToggle}
@@ -100,8 +72,8 @@ export default function DisasterSelect() {
           >
             LANG: {language === 'en' ? 'ENGLISH' : 'HINGLISH'}
           </button>
-          <button className={styles.backBtn} onClick={() => navigate('/')}>
-            ← {ui.mainMenu}
+          <button className={styles.backBtn} onClick={() => navigate('/select')}>
+            ← {ui.backToDisasters}
           </button>
         </div>
       </header>
@@ -114,25 +86,26 @@ export default function DisasterSelect() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
       >
         <p className={styles.eyebrow}>{ui.chooseScenario}</p>
-        <h1 className={styles.heading}>{ui.selectDisaster}</h1>
+        <h1 className={styles.heading}>{ui.selectScenarioTitle}</h1>
       </motion.div>
 
-      {/* Scenario Grid */}
+      {/* Scenario Grid (2 Columns: Modern vs Historical) */}
       <div className={styles.grid}>
-        {SCENARIO_LIST.map((d, index) => {
-          const isPlayable = d.status === 'playable';
+        {scenarios.map((sc, index) => {
+          const isPlayable = sc.status === 'playable';
+          const isHistorical = sc.category === 'historical';
 
           return (
             <motion.div
-              key={d.id}
+              key={sc.id}
               className={`${styles.card} ${
                 isPlayable ? styles.cardPlayable : styles.cardLocked
               }`}
-              onClick={() => handleSelect(d)}
+              onClick={() => handleSelectScenario(sc)}
               style={
                 {
-                  '--card-accent': d.accent,
-                  '--card-glow': d.glow,
+                  '--card-accent': theme.accent,
+                  '--card-glow': theme.glow,
                 } as React.CSSProperties
               }
               initial={{ opacity: 0, y: 20 }}
@@ -142,31 +115,48 @@ export default function DisasterSelect() {
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
-                  handleSelect(d);
+                  handleSelectScenario(sc);
                 }
               }}
-              aria-label={`Scenario: ${d.title} (${d.status})`}
+              aria-label={`Scenario: ${sc.title} (${sc.status})`}
             >
               <div className={styles.cardHeader}>
-                <span className={styles.cardCode}>{d.code}</span>
+                <span className={styles.cardCode}>{sc.code}</span>
                 <span
                   className={`${styles.statusBadge} ${
                     isPlayable ? styles.statusActive : styles.statusDev
                   }`}
                 >
-                  {isPlayable ? '● PLAYABLE' : '○ IN DEVELOPMENT'}
+                  {isPlayable ? '● PLAYABLE' : `○ ${ui.comingSoon}`}
                 </span>
               </div>
 
-              <span className={styles.cardIcon} aria-hidden="true">
-                {d.icon}
-              </span>
               <div>
-                <h2 className={styles.cardTitle}>{d.title}</h2>
-                <span className={styles.cardTag}>{d.tag}</span>
+                <span className={styles.cardTag}>
+                  {isHistorical ? ui.historicalSimulation : ui.modernSimulation}
+                </span>
+                <h2 className={styles.cardTitle}>{sc.title}</h2>
+                <span className={styles.cardSubtitle}>{sc.subtitle}</span>
               </div>
 
-              <p className={styles.cardDesc}>{d.description}</p>
+              {isHistorical && (sc.location || sc.date) && (
+                <div className={styles.metaBox}>
+                  {sc.location && (
+                    <div className={styles.metaRow}>
+                      <span className={styles.metaLabel}>Location:</span>
+                      <span className={styles.metaValue}>{sc.location}</span>
+                    </div>
+                  )}
+                  {sc.date && (
+                    <div className={styles.metaRow}>
+                      <span className={styles.metaLabel}>Date:</span>
+                      <span className={styles.metaValue}>{sc.date}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <p className={styles.cardDesc}>{sc.description}</p>
 
               <div className={styles.cardAction}>
                 {isPlayable ? (
@@ -176,7 +166,7 @@ export default function DisasterSelect() {
                   </>
                 ) : (
                   <>
-                    <span className={styles.actionLocked}>{ui.inDevelopment}</span>
+                    <span className={styles.actionLocked}>{ui.comingSoon}</span>
                     <span className={styles.actionLocked}>{ui.locked}</span>
                   </>
                 )}

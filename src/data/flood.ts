@@ -20,6 +20,9 @@ export const floodScenario: Scenario = {
       contextHint: 'Water is beginning to seep beneath the front door into your living area.',
       timeLimit: 15,
       defaultChoiceId: 'flood-c1-wait-indoors',
+      environmentEvents: [
+        { triggerAtSeconds: 5, effectType: 'water_rise', intensity: 'medium' },
+      ],
       choices: [
         {
           id: 'flood-c1-isolate-utilities',
