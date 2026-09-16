@@ -3,6 +3,32 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-16] PHASE 7E — Bhuj 2001 Historical Simulation (7 Playable Scenarios)
+- **Historical Fact Research & Source Verification (`docs/research/BHUJ_2001_RESEARCH.md`):**
+  - Documented 26 January 2001 morning Republic Day timeline (~08:46 AM IST), Kutch epicenter (~Chobari/Bhachau/Bhuj), scale discrepancies (IMD 6.9 $M_L$ vs. USGS 7.7 $M_w$), official casualty ranges (GSDMA ~13,805 vs. NIDM/MHA ~20,000+), unreinforced masonry structural failures, and institutional aftermath (formation of GSDMA and NDMA).
+- **Playable Bhuj 2001 Historical Scenario (`src/data/historicalBhuj.ts`):**
+  - Authored a complete 6-decision node graph with outcome (`bhj-d1-morning-shock` through `bhj-outcome-node`).
+  - Features 3 timed 15-second decisions (`bhj-d1`, `bhj-d3`, `bhj-d5`).
+  - Implemented 2 branching paths:
+    - Path 1: Solid wooden table shelter (`bhj-d2-masonry-triage`) vs. doorway/exterior running injuries (`bhj-d2b-injured-evacuation`).
+    - Path 2: Prompt evacuation to open courtyard vs. delaying inside compromised masonry for material valuables.
+  - Sourced all decision evaluations and insights strictly from NDMA Earthquake Safety Protocols, NIDM case studies, and EERI 2001 reconnaissance.
+- **Natural Roman Hinglish Localization (`src/i18n/historicalBhuj.ts` & `src/i18n/index.ts`):**
+  - Fully translated all 7 nodes, choices, consequences, insights, and outcome into natural Roman Hinglish.
+  - Registered `historicalBhujHinglish` in `HINGLISH_SCENARIOS` under `earthquake-bhuj-2001`.
+- **Historical Simulation Context & Disclaimer UI (`src/screens/ScenarioScreen.tsx` & `.module.css`):**
+  - Integrated dedicated historical banner presenting verified incident metadata and explicit educational disclaimer clarifying fictionalized civilian perspective.
+- **Scenario Catalogue & Routing Promotion (`src/data/index.ts` & `src/screens/DisasterIntro.tsx`):**
+  - Promoted `earthquake-bhuj-2001` from `coming_soon` to `playable` in `SCENARIO_CATALOGUE`.
+  - Added tailored intro setting and narrative in `DisasterIntro.tsx`.
+  - Maintained strictly locked status for historical fire (Uphaar 1997) and flood (Mumbai 2005) scenarios.
+- **Quality Assurance:**
+  - Verified 0 TypeScript errors (`npm run build` passes in 268ms).
+  - Verified 0 lint errors (`npm run lint`).
+  - Verified clean diff (`git diff --check`).
+
+---
+
 ## [2026-09-16] PHASE 7D — Multi-Scenario Modern Gameplay (6 Playable Scenarios)
 - **Three New Playable Modern Scenarios Authored:**
   - **Earthquake Workplace (`src/data/earthquakeWorkplace.ts`):** High-rise tech park office setting (7th floor). Features 5 decision nodes (`eqw-d1-tremor` through `eqw-d5-assembly-communication`), 15s timed decisions, heavy conference table Drop/Cover/Hold, avoiding falling glass facade hazards, stairwell stampede prevention, and NDMA assembly triage.

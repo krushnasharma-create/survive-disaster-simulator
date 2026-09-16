@@ -6,6 +6,7 @@ import type { Scenario, ScenarioNode, DecisionNode } from '../data/types';
 import { getUiStrings, UI_EN, UI_HINGLISH } from './ui';
 import { earthquakeHinglish } from './earthquake';
 import { earthquakeWorkplaceHinglish } from './earthquakeWorkplace';
+import { historicalBhujHinglish } from './historicalBhuj';
 import { fireHinglish, FIRE_HINGLISH_TAKEAWAYS } from './fire';
 import { fireCommercialHinglish } from './fireCommercial';
 import { floodHinglish, FLOOD_HINGLISH_TAKEAWAYS } from './flood';
@@ -18,6 +19,7 @@ const HINGLISH_SCENARIOS: Record<string, LocalizedScenarioData> = {
   earthquake: earthquakeHinglish,
   'earthquake-urban': earthquakeHinglish,
   'earthquake-workplace': earthquakeWorkplaceHinglish,
+  'earthquake-bhuj-2001': historicalBhujHinglish,
   fire: fireHinglish,
   'fire-residential': fireHinglish,
   'fire-commercial': fireCommercialHinglish,
@@ -86,6 +88,15 @@ export function getLocalizedScenario(scenario: Scenario, lang: Language): Scenar
     ...scenario,
     title: localization.title || scenario.title,
     subtitle: localization.subtitle || scenario.subtitle,
+    historicalMeta: localization.historicalMeta
+      ? {
+          eventTitle: localization.historicalMeta.eventTitle || scenario.historicalMeta?.eventTitle || '',
+          location: localization.historicalMeta.location || scenario.historicalMeta?.location || '',
+          date: localization.historicalMeta.date || scenario.historicalMeta?.date || '',
+          historicalContext: localization.historicalMeta.historicalContext || scenario.historicalMeta?.historicalContext || '',
+          disclaimer: localization.historicalMeta.disclaimer || scenario.historicalMeta?.disclaimer || '',
+        }
+      : scenario.historicalMeta,
     nodes: localizedNodes,
   };
 }

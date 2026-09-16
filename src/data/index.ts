@@ -2,6 +2,7 @@
 import type { DisasterType, Scenario } from './types';
 import { earthquakeScenario } from './earthquake';
 import { earthquakeWorkplaceScenario } from './earthquakeWorkplace';
+import { historicalBhujScenario } from './historicalBhuj';
 import { fireScenario } from './fire';
 import { fireCommercialScenario } from './fireCommercial';
 import { floodScenario } from './flood';
@@ -51,7 +52,7 @@ export const SCENARIO_CATALOGUE: Record<DisasterType, ScenarioCatalogueItem[]> =
       location: 'Bhuj, Gujarat',
       date: '26 January 2001',
       description: 'A major morning earthquake strikes the Kutch region on Republic Day. Masonry building collapse hazards, open ground evacuation, and immediate community response.',
-      status: 'coming_soon',
+      status: 'playable',
       code: 'HIST-EQ-2001',
     },
   ],
@@ -129,6 +130,7 @@ export const SCENARIOS: Record<string, Scenario> = {
   earthquake: earthquakeScenario,
   'earthquake-urban': earthquakeScenario,
   'earthquake-workplace': earthquakeWorkplaceScenario,
+  'earthquake-bhuj-2001': historicalBhujScenario,
   fire: fireScenario,
   'fire-residential': fireScenario,
   'fire-commercial': fireCommercialScenario,

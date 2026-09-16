@@ -52,6 +52,11 @@ const SCENARIO_INTROS: Record<string, { setting: string; narrative: string }> = 
     narrative:
       'Midday at your office workstation. Sudden seismic shockwaves buckle false ceiling panels, topple monitors, and shudder the exterior glass facade. Heavy fixtures are collapsing around your desk. You have seconds.',
   },
+  'earthquake-bhuj-2001': {
+    setting: 'Kutch District, Gujarat — 26 January 2001 · 08:46 AM',
+    narrative:
+      'Republic Day morning in a traditional two-storey masonry building near Bhuj. The ground violently heaves as devastating seismic shockwaves fracture stone walls and dislodge heavy clay roof tiles. You have seconds.',
+  },
   'fire-commercial': {
     setting: 'Multi-Storey Shopping Complex — 06:45 PM',
     narrative:

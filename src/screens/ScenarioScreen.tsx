@@ -259,6 +259,20 @@ export default function ScenarioScreen() {
 
       {/* Main Situation & Decision Area */}
       <main className={styles.main}>
+        {/* Historical Context & Disclaimer Banner */}
+        {scenario.category === 'historical' && scenario.historicalMeta && (
+          <div className={styles.historicalBanner}>
+            <div className={styles.historicalHeader}>
+              <span>📜 HISTORICAL SIMULATION // EDUCATIONAL RECONSTRUCTION</span>
+              <span>·</span>
+              <span>{scenario.historicalMeta.eventTitle}</span>
+            </div>
+            <p className={styles.historicalDisclaimer}>
+              {scenario.historicalMeta.disclaimer}
+            </p>
+          </div>
+        )}
+
         {/* Situation Card */}
         <motion.div
           key={decisionNode.id + language}

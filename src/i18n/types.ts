@@ -20,6 +20,13 @@ export interface LocalizedNode {
 export interface LocalizedScenarioData {
   title?: string;
   subtitle?: string;
+  historicalMeta?: {
+    eventTitle?: string;
+    location?: string;
+    date?: string;
+    historicalContext?: string;
+    disclaimer?: string;
+  };
   nodes: Record<string, LocalizedNode>;
 }
 

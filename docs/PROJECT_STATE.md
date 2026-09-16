@@ -8,7 +8,7 @@
 
 ## Current Phase
 
-**PHASE 7D — MULTI-SCENARIO MODERN GAMEPLAY** (Implemented & Verified — Clean Build)
+**PHASE 7E — BHUJ 2001 HISTORICAL SIMULATION** (Implemented & Verified — Clean Build)
 
 ---
 
@@ -16,14 +16,14 @@
 
 | Item | Status |
 |---|---|
-| Git repository | Initialized, 7 commits (`b4d34ce`, `71d70c7`, `c5e6324`, `6245967`, `adbec47`, `7cb908b`, `5659d7f`) |
+| Git repository | Initialized, 7 commits (`b4d34ce`, `71d70c7`, `c5e6324`, `6245967`, `adbec47`, `7cb908b`, `5659d7f`, `46db2be`) |
 | Remote | https://github.com/krushnasharma-create/survive-disaster-simulator.git |
 | Branch | main |
-| Application code | ✅ 6 complete playable modern disaster scenarios (Earthquake: Urban Apartment & Workplace High-Rise; Fire: Residential High-Rise & Commercial Food Court; Flood: Urban Flash Flood & Transit Street/Underpass), scenario catalogue & selection console (Modern Urban playable vs Historical locked), reusable EnvironmentalOverlay, 15s timed decisions, failure screen, randomization, full English + Hinglish localization across all 6 scenarios |
+| Application code | ✅ 7 complete playable disaster scenarios (Earthquake: Urban Apartment, Workplace High-Rise, & Bhuj 2001 Historical Simulation; Fire: Residential High-Rise & Commercial Food Court; Flood: Urban Flash Flood & Transit Street/Underpass), scenario catalogue & selection console, historical simulation disclaimer banner, reusable EnvironmentalOverlay, 15s timed decisions, failure screen, randomization, full English + Hinglish localization across all 7 scenarios |
 | Build system | ✅ Vite + React 18 + TypeScript (strict) |
 | Dependencies installed | ✅ react-router-dom, zustand, framer-motion |
 | TypeScript errors | ✅ 0 errors |
-| Build status | ✅ Passes (`npm run build` — 483 modules, 0 errors in 280ms) |
+| Build status | ✅ Passes (`npm run build` — 485 modules, 0 errors in 268ms) |
 | Master visual language | ✅ Dark, cinematic, HUD-inspired aesthetic strictly preserved across all screens |
 
 ---
@@ -143,7 +143,7 @@
 ### Phase 7D — Multi-Scenario Modern Gameplay
 - [x] **New Modern Scenarios (English + Roman Hinglish):**
   - `src/data/earthquakeWorkplace.ts`: High-rise tech park office earthquake scenario with drop/cover/hold under heavy conference tables, glass curtain-wall hazards, pressurized stairwells, stampede prevention, and NDMA assembly triage.
-  - `src/data/fireCommercial.ts`: Commercial shopping complex & food court fire scenario with manual pull alarm, smoke crawl under toxic plastic combustion fumes, crowd triage at secondary fire exit, and self-closing fire door isolation.
+  - `src/data/fireCommercial.ts`: Commercial shopping complex & food court fire scenario with manual pull alarm, smoke crawl under toxic polymer combustion fumes, crowd triage at secondary fire exit, and self-closing fire door isolation.
   - `src/data/floodStreet.ts`: Arterial ring road monsoon flash flood & commute scenario with "Turn Around, Don't Drown" underpass avoidance, headrest window punch for sinking vehicles, energized downed line detours, bamboo stick probing for displaced manholes, and antiseptic hygiene.
 - [x] **Scenario Registry & State Management:**
   - Registered all 3 new scenarios in `SCENARIOS` and `SCENARIO_CATALOGUE` (`src/data/index.ts`) as active playable modern scenarios.
@@ -155,11 +155,28 @@
 - [x] **Responsive Scenario Selection Grid:**
   - Refined `ScenarioSelectScreen.module.css` grid layout (`repeat(auto-fit, minmax(290px, 1fr))` with 1050px max width) for balanced 3-card presentation.
 
+### Phase 7E — Bhuj 2001 Historical Simulation
+- [x] **Historical Fact Research & Verification (`docs/research/BHUJ_2001_RESEARCH.md`):**
+  - Verified 26 January 2001 morning Republic Day timeline (~08:46 AM IST), Kutch epicenter, IMD (6.9 $M_L$) / USGS (7.7 $M_w$) magnitude distinctions, GSDMA/NIDM casualty ranges (~13,800 to 20,000+), unreinforced masonry (URM) structural vulnerabilities, and institutional legacy (GSDMA and NDMA formation).
+- [x] **Playable Historical Scenario Graph (`src/data/historicalBhuj.ts`):**
+  - Implemented 6 decision nodes (`bhj-d1-morning-shock` through `bhj-d6-community-response`) and 1 outcome node (`bhj-outcome-node`).
+  - Implemented 3 timed 15-second decisions (`bhj-d1`, `bhj-d3`, `bhj-d5`).
+  - Authored 2 distinct branching paths:
+    - Path 1: Heavy solid wood table sheltering (`bhj-d2-masonry-triage`) vs. doorway/running injuries (`bhj-d2b-injured-evacuation`).
+    - Path 2: Prompt masonry evacuation vs. delaying inside for material valuables.
+- [x] **Natural Roman Hinglish Localization (`src/i18n/historicalBhuj.ts` & `src/i18n/index.ts`):**
+  - Complete conversational Roman Hinglish translation across all 7 nodes, choices, consequences, and NDMA insights.
+- [x] **Historical Context & Disclaimer UI (`src/screens/ScenarioScreen.tsx` & `.module.css`):**
+  - Integrated dedicated `[HISTORICAL SIMULATION // EDUCATIONAL RECONSTRUCTION]` banner rendering verified metadata and explicit educational disclaimer.
+- [x] **Scenario Catalogue Promotion (`src/data/index.ts`):**
+  - Promoted `earthquake-bhuj-2001` to `status: 'playable'` in `SCENARIO_CATALOGUE` and registered in `SCENARIOS` map.
+  - Preserved strictly locked status ("COMING NEXT") for `fire-uphaar-1997` and `flood-mumbai-2005`.
+
 ---
 
 ## Current Task
 
-Phase 7D implementation, full bilingual localization, and technical verification completed.
+Phase 7E Bhuj 2001 historical simulation implemented, localized, and technically verified.
 
 ---
 
