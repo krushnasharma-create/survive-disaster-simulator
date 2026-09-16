@@ -1,0 +1,21 @@
+﻿/* ============================================================
+   FIRE Theme
+   Palette: deep orange, ember red, smoke black, charred grey
+   ============================================================ */
+.theme-fire {
+  --theme-primary:   #ff4500;
+  --theme-glow:      rgba(255, 69, 0, 0.18);
+  --theme-bg-deep:   #080200;
+  --theme-bg-mid:    #150600;
+  --theme-accent:    #ff6b35;
+  --theme-text:      #f5ede6;
+  --theme-particle:  #8b3000;
+}
+
+.theme-fire .screen,
+.theme-fire .screen-center {
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(200, 50, 0, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 40%, rgba(255, 100, 0, 0.08) 0%, transparent 50%),
+    var(--theme-bg-deep);
+}

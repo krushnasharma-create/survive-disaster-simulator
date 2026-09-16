@@ -1,0 +1,21 @@
+﻿/* ============================================================
+   EARTHQUAKE Theme
+   Palette: fractured concrete, dust, grey rubble, amber alert
+   ============================================================ */
+.theme-earthquake {
+  --theme-primary:   #e8a020;
+  --theme-glow:      rgba(232, 160, 32, 0.15);
+  --theme-bg-deep:   #080806;
+  --theme-bg-mid:    #121008;
+  --theme-accent:    #c47a15;
+  --theme-text:      #f0ead8;
+  --theme-particle:  #8a7a5a;
+}
+
+.theme-earthquake .screen,
+.theme-earthquake .screen-center {
+  background:
+    radial-gradient(ellipse at 30% 70%, rgba(130, 90, 20, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(80, 60, 20, 0.08) 0%, transparent 50%),
+    var(--theme-bg-deep);
+}

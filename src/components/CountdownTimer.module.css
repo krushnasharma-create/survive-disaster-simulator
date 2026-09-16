@@ -1,0 +1,43 @@
+﻿/* src/components/CountdownTimer.module.css */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-cloud);
+}
+.seconds {
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--theme-primary);
+  transition: color 0.3s;
+}
+.seconds.urgent {
+  color: var(--color-danger);
+  animation: flicker 0.4s step-end infinite;
+}
+.track {
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.bar {
+  height: 100%;
+  background: var(--theme-primary);
+  border-radius: 2px;
+  transition: width 1s linear, background 0.3s;
+  transform-origin: left;
+}
+.bar.urgent {
+  background: var(--color-danger);
+}

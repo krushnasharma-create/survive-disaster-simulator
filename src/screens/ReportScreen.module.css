@@ -1,0 +1,114 @@
+﻿/* src/screens/ReportScreen.module.css */
+.screen {
+  min-height: 100vh;
+  background: var(--color-ash);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-xl) var(--space-lg);
+}
+
+.header {
+  text-align: center;
+  max-width: 700px;
+  margin-bottom: var(--space-xl);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-safe);
+  margin-bottom: var(--space-md);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-hero);
+  color: var(--color-white);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 0.95;
+}
+
+.scoreBlock {
+  width: 100%;
+  max-width: 700px;
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.scoreValue {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 10vw, 7rem);
+  line-height: 1;
+  color: var(--color-safe);
+  letter-spacing: -0.02em;
+}
+
+.scoreBand {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-cloud);
+}
+
+.placeholder {
+  width: 100%;
+  max-width: 700px;
+  border: var(--border-thin);
+  padding: var(--space-xl);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--color-mist);
+  text-align: center;
+  letter-spacing: 0.08em;
+  line-height: 1.8;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btnPrimary {
+  padding: 0.9rem 2.5rem;
+  background: var(--color-white);
+  color: var(--color-void);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: 700;
+  transition: opacity 0.2s;
+}
+.btnPrimary:hover { opacity: 0.85; }
+
+.btnSecondary {
+  padding: 0.9rem 2.5rem;
+  background: transparent;
+  color: var(--color-cloud);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btnSecondary:hover {
+  border-color: rgba(255,255,255,0.3);
+  color: var(--color-white);
+}

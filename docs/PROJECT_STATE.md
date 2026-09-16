@@ -8,7 +8,7 @@
 
 ## Current Phase
 
-**PHASE 1 — FOUNDATION**
+**PHASE 2 — SHELL** (Complete — awaiting review & commit)
 
 ---
 
@@ -16,12 +16,14 @@
 
 | Item | Status |
 |---|---|
-| Git repository | Initialized |
+| Git repository | Initialized, 1 commit |
 | Remote | https://github.com/krushnasharma-create/survive-disaster-simulator.git |
 | Branch | main |
-| Application code | NOT YET CREATED |
-| Build system | NOT YET CONFIGURED |
-| Dependencies | NOT YET INSTALLED |
+| Application code | ✅ Scaffolded and verified |
+| Build system | ✅ Vite + React 18 + TypeScript (strict) |
+| Dependencies installed | ✅ react-router-dom, zustand, framer-motion |
+| TypeScript errors | ✅ 0 |
+| Build status | ✅ Passes (`npm run build` — 452 modules, 0 errors) |
 
 ---
 
@@ -34,37 +36,64 @@
 - [x] `docs/DECISIONS.md` created — architectural decision log (DEC-001 through DEC-008)
 - [x] `docs/PROJECT_STATE.md` created — this file
 - [x] `docs/CHANGELOG.md` created — changelog initialized
+- [x] Vite + React 18 + TypeScript scaffolded
+- [x] Dependencies installed: react-router-dom, zustand, framer-motion
+- [x] TypeScript strict mode enabled (`tsconfig.app.json`)
+- [x] Global CSS design tokens created (`src/styles/global.css`)
+- [x] Disaster theme CSS created (`earthquake.css`, `fire.css`, `flood.css`)
+- [x] Shared animations CSS created (`src/styles/animations.css`)
+- [x] Scenario data types defined (`src/data/types.ts`)
+- [x] Zustand game store created (`src/store/gameStore.ts`)
+- [x] `useCountdown` hook created (`src/hooks/useCountdown.ts`)
+- [x] `CinematicText` component (typewriter reveal) created
+- [x] `CountdownTimer` component created
+- [x] `DecisionPanel` component created
+- [x] `ScreenTransition` component (Framer Motion) created
+- [x] `IntroScreen` — cinematic game intro with typewriter sequence and phased reveal
+- [x] `DisasterSelect` — atmospheric 3-card disaster selection screen
+- [x] `DisasterIntro` — per-disaster cinematic intro with typewriter narrative
+- [x] `ScenarioScreen` — stub (navigable, awaits Phase 3 scenario engine)
+- [x] `ConsequenceScreen` — stub (navigable, awaits Phase 3)
+- [x] `OutcomeScreen` — stub (navigable, awaits Phase 3)
+- [x] `ReportScreen` — structural shell with score display and navigation
+- [x] `App.tsx` — React Router v6 client-side routing with AnimatePresence
+- [x] `main.tsx` — entry point, BrowserRouter, global style imports
+- [x] `index.html` — updated title, Google Fonts (Bebas Neue, Inter, Share Tech Mono)
+- [x] Build verified: `npm run build` — 0 TypeScript errors, 0 build errors
 
 ---
 
 ## Current Task
 
-Foundation documentation complete. Awaiting approval to proceed to Phase 2.
+Shell implementation complete. NOT YET COMMITTED. Awaiting user review.
 
 ---
 
 ## Next Task
 
-**PHASE 2 — SHELL**
+**PHASE 3 — SCENARIO ENGINE**
 
 Tasks in order:
-1. Initialize Vite + React 18 + TypeScript project (`npm create vite@latest`)
-2. Install core dependencies: React Router v6, Zustand, Framer Motion
-3. Configure TypeScript strict mode (`tsconfig.json`)
-4. Set up `src/` folder structure per ARCHITECTURE.md
-5. Create global CSS reset and design tokens (`src/styles/global.css`)
-6. Create the three disaster CSS themes (stubs) (`src/styles/themes/`)
-7. Create the Zustand game store stub (`src/store/gameStore.ts`)
-8. Create stub screen components (IntroScreen, DisasterSelect, ScenarioScreen, ReportScreen)
-9. Wire up React Router between stub screens
-10. Verify the app renders in the browser (game shell visible, no errors)
-11. Commit: `feat: implement cinematic game shell`
+1. Implement `src/engine/scenarioRunner.ts` — pure function DAG traversal
+2. Implement `src/engine/scoreCalculator.ts` — score computation
+3. Implement `src/engine/reportBuilder.ts` — report data assembly
+4. Write earthquake scenario data (`src/data/earthquake.ts`)
+5. Write fire scenario data (`src/data/fire.ts`)
+6. Write flood scenario data (`src/data/flood.ts`)
+7. Write Vitest data-integrity tests for all 3 scenarios
+8. Wire ScenarioScreen to live scenario data
+9. Wire ConsequenceScreen to engine output
+10. Wire OutcomeScreen to engine output
+11. Wire ReportScreen to scored decisions
+12. Commit: `feat: implement scenario engine`
 
 ---
 
 ## Known Issues
 
-None at this stage — no application code exists yet.
+- `ScenarioScreen`, `ConsequenceScreen`, `OutcomeScreen` are deliberate stubs — they contain placeholder content until Phase 3 engine is implemented. This is accurate and expected.
+- `ReportScreen` shows score 0 until the engine provides real decision data.
+- No `.gitignore` for `dist/` — confirm node_modules and dist are in .gitignore (Vite scaffold includes this by default).
 
 ---
 
@@ -78,14 +107,20 @@ None at this stage — no application code exists yet.
 | `docs/DECISIONS.md` | Architectural decision log |
 | `docs/PROJECT_STATE.md` | This file — current state |
 | `docs/CHANGELOG.md` | Change history |
+| `src/data/types.ts` | Scenario data model types |
+| `src/store/gameStore.ts` | Zustand global game state |
+| `src/engine/` | Scenario engine (NOT YET IMPLEMENTED — Phase 3) |
+| `src/data/earthquake.ts` | Earthquake scenario (NOT YET IMPLEMENTED — Phase 3) |
+| `src/data/fire.ts` | Fire scenario (NOT YET IMPLEMENTED — Phase 3) |
+| `src/data/flood.ts` | Flood scenario (NOT YET IMPLEMENTED — Phase 3) |
 
 ---
 
 ## Architecture Summary
 
-- **Stack:** React 18 + TypeScript + Vite + Zustand + Framer Motion + CSS Modules
-- **No backend for MVP** — all scenario data is static TypeScript
-- **Scenario structure:** Directed Acyclic Graph (DAG) of typed nodes
-- **Engine:** Pure function in `src/engine/scenarioRunner.ts` — no UI, no side effects
-- **Safety:** All safety-critical content (isCorrect, scoreImpact, insight) is static; AI may only generate narration
-- **Deployment:** Static hosting (Vercel recommended)
+- **Stack:** React 18 + TypeScript (strict) + Vite + Zustand + Framer Motion + CSS Modules
+- **No backend** — all scenario data will be static TypeScript
+- **Routing:** React Router v6, client-side, AnimatePresence transitions
+- **Scenario structure:** DAG of typed nodes (types defined, data not yet written)
+- **Engine:** Not yet implemented (Phase 3)
+- **Deployment:** Static hosting (Vercel recommended); `npm run build` outputs `dist/`

@@ -1,0 +1,70 @@
+﻿/* src/screens/ScenarioScreen.module.css */
+.screen {
+  min-height: 100vh;
+  background: var(--theme-bg-deep, #080806);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-lg);
+  position: relative;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-md);
+  border-bottom: var(--border-thin);
+}
+
+.hudDisaster {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--theme-primary, var(--color-fog));
+}
+
+.hudNode {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.1em;
+  color: var(--color-mist);
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: var(--max-content);
+  margin: 0 auto;
+  width: 100%;
+  gap: var(--space-xl);
+}
+
+.situation {
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  color: var(--theme-text, var(--color-white));
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+.decisionLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+  margin-bottom: var(--space-sm);
+}
+
+.placeholder {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--color-mist);
+  border: var(--border-thin);
+  padding: var(--space-lg);
+  text-align: center;
+  letter-spacing: 0.1em;
+}

@@ -1,0 +1,13 @@
+﻿/* src/components/CinematicText.module.css */
+.container {
+  display: inline;
+}
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background: var(--theme-primary, #ff8c00);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: type-cursor 0.8s step-end infinite;
+}

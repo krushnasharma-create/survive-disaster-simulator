@@ -1,0 +1,21 @@
+﻿/* ============================================================
+   FLOOD Theme
+   Palette: deep teal, murky water, emergency blue, grey storm
+   ============================================================ */
+.theme-flood {
+  --theme-primary:   #00a8cc;
+  --theme-glow:      rgba(0, 168, 204, 0.15);
+  --theme-bg-deep:   #00080c;
+  --theme-bg-mid:    #001a24;
+  --theme-accent:    #0076a8;
+  --theme-text:      #d8eef5;
+  --theme-particle:  #004a6a;
+}
+
+.theme-flood .screen,
+.theme-flood .screen-center {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(0, 100, 160, 0.2) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(0, 50, 100, 0.12) 0%, transparent 50%),
+    var(--theme-bg-deep);
+}
