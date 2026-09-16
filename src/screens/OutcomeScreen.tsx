@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { calculateScore } from '../engine/scoreCalculator';
+import { getUiStrings } from '../i18n';
 import type { DisasterType } from '../data/types';
 import styles from './OutcomeScreen.module.css';
 
@@ -24,10 +25,12 @@ export default function OutcomeScreen() {
     currentOutcome,
     decisions,
     finaliseScore,
+    language,
   } = useGameStore();
 
   const targetDisaster = (disasterId as DisasterType) || activeDisaster || 'earthquake';
   const themeClass = THEME_MAP[targetDisaster] || 'theme-earthquake';
+  const ui = getUiStrings(language);
 
   // Compute and finalize score on entering outcome
   useEffect(() => {
@@ -41,7 +44,9 @@ export default function OutcomeScreen() {
 
   const outcomeText =
     currentOutcome?.narrativeText ||
-    'You successfully evacuated the building and reached open assembly grounds. NDRF personnel and emergency 112 services have secured the sector.';
+    (language === 'hinglish'
+      ? 'Aap surakshit khule maidan mein pahunch gaye hain. Emergency 112 services ne pahunch kar area ko cordon off kar diya hai.'
+      : 'You successfully evacuated the building and reached open assembly grounds. NDRF personnel and emergency 112 services have secured the sector.');
 
   return (
     <div className={`${styles.screen} ${themeClass} scanlines`}>
@@ -55,9 +60,9 @@ export default function OutcomeScreen() {
           🛡️
         </span>
 
-        <p className={styles.eyebrow}>Scenario Resolution</p>
+        <p className={styles.eyebrow}>{ui.scenarioResolution}</p>
 
-        <h1 className={styles.title}>Survived — Evacuated</h1>
+        <h1 className={styles.title}>{ui.survivedEvacuated}</h1>
 
         <div className={styles.divider} />
 
@@ -69,7 +74,7 @@ export default function OutcomeScreen() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          View Preparedness Report →
+          {ui.viewReport}
         </motion.button>
       </motion.div>
     </div>

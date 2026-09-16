@@ -25,6 +25,12 @@
   gap: var(--space-md);
 }
 
+.hudRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
 .hudDisaster {
   font-family: var(--font-mono);
   font-size: var(--text-micro);
@@ -51,6 +57,25 @@
   font-size: var(--text-micro);
   letter-spacing: 0.15em;
   color: var(--color-cloud);
+}
+
+.langToggle {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-light);
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+.langToggle:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: var(--color-white);
 }
 
 .main {
@@ -117,4 +142,107 @@
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: var(--color-fog);
+}
+
+/* Dedicated Timeout / Game Over Card */
+.timeoutContainer {
+  margin: auto;
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-md);
+  padding: var(--space-xl) var(--space-md);
+}
+
+.timeoutAlertBadge {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-danger);
+  border: 1px solid rgba(255, 42, 42, 0.4);
+  background: rgba(255, 42, 42, 0.06);
+  padding: 0.35rem 1rem;
+  border-radius: 2px;
+  animation: flicker 3s step-end infinite;
+}
+
+.timeoutTitle {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 7vw, 5rem);
+  color: var(--color-danger);
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.timeoutMessage {
+  font-size: 1.1rem;
+  color: var(--color-light);
+  line-height: 1.7;
+  max-width: 500px;
+  font-weight: 300;
+}
+
+.timeoutStatus {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+  border-top: var(--border-thin);
+  border-bottom: var(--border-thin);
+  padding: 0.6rem 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.timeoutActions {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.timeoutPrimaryBtn {
+  padding: 0.9rem 2.2rem;
+  background: var(--color-danger);
+  color: var(--color-white);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: 700;
+  transition: opacity 0.2s, transform 0.15s;
+  border-radius: 2px;
+}
+
+.timeoutPrimaryBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.timeoutSecondaryBtn {
+  padding: 0.9rem 2.2rem;
+  background: transparent;
+  color: var(--color-cloud);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, transform 0.15s;
+  border-radius: 2px;
+}
+
+.timeoutSecondaryBtn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: var(--color-white);
+  transform: translateY(-2px);
 }

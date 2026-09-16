@@ -6,6 +6,7 @@ import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { ScreenTransition } from './components/ScreenTransition';
 import IntroScreen from './screens/IntroScreen';
+import HowToPlayScreen from './screens/HowToPlayScreen';
 import DisasterSelect from './screens/DisasterSelect';
 import DisasterIntro from './screens/DisasterIntro';
 import ScenarioScreen from './screens/ScenarioScreen';
@@ -19,7 +20,7 @@ export default function App() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        {/* Game flow */}
+        {/* Main Menu / Entry */}
         <Route
           path="/"
           element={
@@ -28,6 +29,18 @@ export default function App() {
             </ScreenTransition>
           }
         />
+
+        {/* How to Play Briefing */}
+        <Route
+          path="/how-to-play"
+          element={
+            <ScreenTransition>
+              <HowToPlayScreen />
+            </ScreenTransition>
+          }
+        />
+
+        {/* Disaster Selection Console */}
         <Route
           path="/select"
           element={
@@ -36,6 +49,8 @@ export default function App() {
             </ScreenTransition>
           }
         />
+
+        {/* Scenario Narrative Intro */}
         <Route
           path="/disaster/:disasterId/intro"
           element={
@@ -44,6 +59,8 @@ export default function App() {
             </ScreenTransition>
           }
         />
+
+        {/* Core Scenario Gameplay */}
         <Route
           path="/disaster/:disasterId/scenario"
           element={
@@ -52,6 +69,8 @@ export default function App() {
             </ScreenTransition>
           }
         />
+
+        {/* Consequence & Protocol Feedback */}
         <Route
           path="/disaster/:disasterId/consequence"
           element={
@@ -60,6 +79,8 @@ export default function App() {
             </ScreenTransition>
           }
         />
+
+        {/* Evacuation Outcome Resolution */}
         <Route
           path="/disaster/:disasterId/outcome"
           element={
@@ -68,6 +89,8 @@ export default function App() {
             </ScreenTransition>
           }
         />
+
+        {/* Preparedness Report & Audit */}
         <Route
           path="/disaster/:disasterId/report"
           element={

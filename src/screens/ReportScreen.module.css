@@ -9,6 +9,33 @@
   overflow-y: auto;
 }
 
+.topBar {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 850px;
+  margin-bottom: var(--space-xs);
+}
+
+.langToggle {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-fog);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.langToggle:hover {
+  border-color: var(--color-white);
+  color: var(--color-white);
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .container {
   max-width: 850px;
   width: 100%;

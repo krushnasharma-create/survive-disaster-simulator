@@ -54,7 +54,11 @@ interface GameState {
   // ── Computed score (finalised at report screen) ──────
   totalScore: number;
 
+  // ── Language Mode ────────────────────────────────────
+  language: 'en' | 'hinglish';
+
   // ── Actions ──────────────────────────────────────────
+  setLanguage: (language: 'en' | 'hinglish') => void;
   markIntroSeen: () => void;
   selectDisaster: (disaster: DisasterType) => void;
   advanceTo: (nodeId: string) => void;
@@ -66,6 +70,7 @@ interface GameState {
 }
 
 const initialState = {
+  language: 'en' as const,
   hasSeenIntro: false,
   activeDisaster: null,
   currentNodeId: '',
@@ -78,6 +83,8 @@ const initialState = {
 
 export const useGameStore = create<GameState>((set) => ({
   ...initialState,
+
+  setLanguage: (language) => set({ language }),
 
   markIntroSeen: () => set({ hasSeenIntro: true }),
 

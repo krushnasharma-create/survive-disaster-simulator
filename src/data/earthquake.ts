@@ -17,7 +17,7 @@ export const earthquakeScenario: Scenario = {
       situationText:
         '11:47 AM. The floor beneath you lurches with a sudden, violent vibration. Windowpanes rattle loudly in their frames and fine plaster dust drifts down from the ceiling. A tall wooden storage cabinet tilts as the shaking intensifies.',
       contextHint: 'Violent shaking has begun. Drop, cover, and hold on immediately.',
-      timeLimit: 10,
+      timeLimit: 15,
       defaultChoiceId: 'eq-c1-stand-doorway',
       choices: [
         {
@@ -225,7 +225,7 @@ export const earthquakeScenario: Scenario = {
       situationText:
         'You are on the 2nd-floor stair landing when a sudden rumble vibrates the building — an AFTERSHOCK strikes! The concrete staircase vibrates strongly and small pieces of wall plaster fall.',
       contextHint: 'Ground is vibrating again. React quickly to protect yourself.',
-      timeLimit: 12,
+      timeLimit: 15,
       defaultChoiceId: 'eq-c4-stampede',
       choices: [
         {

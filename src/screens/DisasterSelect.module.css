@@ -4,11 +4,63 @@
   background: var(--color-ash);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-xl) var(--space-lg);
+  padding: var(--space-xl) var(--space-md);
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+}
+
+.topHud {
+  max-width: 950px;
+  width: 100%;
+  margin: 0 auto var(--space-lg) auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  color: var(--color-fog);
+  text-transform: uppercase;
+  border-bottom: var(--border-thin);
+  padding-bottom: var(--space-xs);
+}
+
+.backBtn {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-light);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.backBtn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: var(--color-white);
+}
+
+.langToggle {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-fog);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.langToggle:hover {
+  border-color: var(--color-white);
+  color: var(--color-white);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .header {
@@ -22,7 +74,7 @@
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--color-fog);
-  margin-bottom: var(--space-md);
+  margin-bottom: 0.5rem;
 }
 
 .heading {
@@ -39,62 +91,86 @@
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-md);
   width: 100%;
-  max-width: 900px;
+  max-width: 950px;
+  margin: 0 auto;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
   .grid {
     grid-template-columns: 1fr;
-    max-width: 400px;
+    max-width: 420px;
   }
 }
 
 .card {
   position: relative;
-  border: 1px solid rgba(255,255,255,0.06);
-  background: rgba(255,255,255,0.02);
-  padding: 2.5rem 1.75rem;
-  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 2rem 1.5rem;
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: 1rem;
   transition: border-color 0.25s, background 0.25s, transform 0.2s;
-  overflow: hidden;
+  border-radius: 2px;
+  cursor: pointer;
 }
 
-.card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.3s;
-  pointer-events: none;
+.cardPlayable {
+  border-top: 3px solid var(--card-accent, #e8a020);
 }
 
-.card:hover,
-.card:focus-visible {
-  background: rgba(255,255,255,0.04);
+.cardPlayable:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--card-accent, #e8a020);
   transform: translateY(-4px);
-  outline: none;
+  box-shadow: 0 8px 30px var(--card-glow, rgba(232, 160, 32, 0.15));
 }
 
-.card:focus-visible {
-  outline: 2px solid rgba(255,255,255,0.3);
-  outline-offset: 2px;
+.cardLocked {
+  border-top: 3px solid rgba(255, 255, 255, 0.15);
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
-/* Per-disaster accent overrides applied via inline var */
-.card:hover {
-  border-color: var(--card-accent, rgba(255,255,255,0.2));
+.cardLocked:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-.card::before {
-  background: radial-gradient(ellipse at 50% 120%, var(--card-glow, transparent) 0%, transparent 70%);
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.card:hover::before {
-  opacity: 1;
+.cardCode {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--color-fog);
+}
+
+.statusBadge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+.statusActive {
+  color: var(--color-safe);
+  background: rgba(0, 200, 150, 0.1);
+  border: 1px solid rgba(0, 200, 150, 0.3);
+}
+
+.statusDev {
+  color: var(--color-fog);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .cardIcon {
@@ -104,7 +180,7 @@
 
 .cardTitle {
   font-family: var(--font-display);
-  font-size: 2.2rem;
+  font-size: 2rem;
   line-height: 0.95;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -114,29 +190,53 @@
 .cardTag {
   font-family: var(--font-mono);
   font-size: var(--text-micro);
-  letter-spacing: 0.2em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--card-accent, var(--color-fog));
 }
 
 .cardDesc {
-  font-size: var(--text-small);
+  font-size: 0.88rem;
   color: var(--color-cloud);
   line-height: 1.6;
   font-weight: 300;
 }
 
-.cardArrow {
+.cardAction {
   margin-top: auto;
   font-family: var(--font-mono);
-  font-size: var(--text-micro);
+  font-size: 0.75rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--card-accent, var(--color-fog));
-  opacity: 0;
-  transition: opacity 0.2s;
+  padding-top: 1rem;
+  border-top: var(--border-thin);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.card:hover .cardArrow {
-  opacity: 1;
+.actionLaunch {
+  color: var(--card-accent, #e8a020);
+  font-weight: bold;
+}
+
+.actionLocked {
+  color: var(--color-mist);
+}
+
+/* Toast alert */
+.toast {
+  position: fixed;
+  bottom: var(--space-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  border: 1px solid var(--theme-primary, #ff8c00);
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  color: var(--color-white);
+  border-radius: 2px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+  z-index: 1000;
 }

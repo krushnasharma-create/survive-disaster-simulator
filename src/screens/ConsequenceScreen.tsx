@@ -1,11 +1,13 @@
 // src/screens/ConsequenceScreen.tsx
 // Displays immediate consequences of player action alongside authoritative NDMA insights.
+// Fully localized with English and Hinglish language support.
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { getScenario } from '../data';
 import { getNode } from '../engine/scenarioRunner';
+import { getLocalizedScenario, getUiStrings } from '../i18n';
 import type { DisasterType } from '../data/types';
 import styles from './ConsequenceScreen.module.css';
 
@@ -24,10 +26,13 @@ export default function ConsequenceScreen() {
     currentConsequence,
     advanceTo,
     setOutcome,
+    language,
   } = useGameStore();
 
   const targetDisaster = (disasterId as DisasterType) || activeDisaster || 'earthquake';
-  const scenario = getScenario(targetDisaster);
+  const rawScenario = getScenario(targetDisaster);
+  const scenario = rawScenario ? getLocalizedScenario(rawScenario, language) : undefined;
+  const ui = getUiStrings(language);
 
   const themeClass = THEME_MAP[targetDisaster] || 'theme-earthquake';
 
@@ -41,7 +46,7 @@ export default function ConsequenceScreen() {
             className={styles.continueBtn}
             onClick={() => navigate(`/disaster/${targetDisaster}/scenario`)}
           >
-            Return to Scenario
+            {ui.returnToSelect}
           </button>
         </div>
       </div>
@@ -81,24 +86,24 @@ export default function ConsequenceScreen() {
       >
         {/* Header with status badge */}
         <header className={styles.header}>
-          <span className={styles.eyebrow}>Decision Evaluation</span>
+          <span className={styles.eyebrow}>{ui.decisionEvaluation}</span>
           <span
             className={`${styles.statusBadge} ${
               currentConsequence.isCorrect ? styles.statusOptimal : styles.statusSuboptimal
             }`}
           >
-            {currentConsequence.isCorrect ? '✓ Optimal Protocol' : '⚠ High-Risk Action'}
+            {currentConsequence.isCorrect ? ui.optimalAction : ui.highRiskAction}
           </span>
         </header>
 
         {/* Action Taken */}
         <div className={styles.actionTaken}>
-          <strong>Action Taken:</strong> {currentConsequence.choiceLabel}
+          <strong>{ui.actionTakenLabel}</strong> {currentConsequence.choiceLabel}
         </div>
 
         {/* Consequence Narrative */}
         <div className={styles.consequenceBox}>
-          <div className={styles.consequenceHeading}>Immediate Outcome</div>
+          <div className={styles.consequenceHeading}>{ui.immediateOutcome}</div>
           <p className={styles.consequenceText}>{currentConsequence.consequenceText}</p>
         </div>
 
@@ -106,7 +111,7 @@ export default function ConsequenceScreen() {
         <div className={styles.insightCard}>
           <div className={styles.insightHeader}>
             <span aria-hidden="true">🛡️</span>
-            <span>Emergency Protocol Grounding</span>
+            <span>{ui.protocolGrounding}</span>
           </div>
           <p className={styles.insightText}>{currentConsequence.insight}</p>
           <div className={styles.insightSource}>
@@ -122,7 +127,7 @@ export default function ConsequenceScreen() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            Continue Simulation →
+            {ui.continueSimulation}
           </motion.button>
         </div>
       </motion.div>

@@ -7,14 +7,16 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { buildReport } from '../engine/reportBuilder';
+import { getUiStrings } from '../i18n';
 import styles from './ReportScreen.module.css';
 
 export default function ReportScreen() {
   const navigate = useNavigate();
-  const { decisions, activeDisaster, resetSession } = useGameStore();
+  const { decisions, activeDisaster, resetSession, language } = useGameStore();
 
   const report = useMemo(() => buildReport(decisions), [decisions]);
   const { scoreSummary, decisionReviews, keyTakeaways, officialHelplines } = report;
+  const ui = useMemo(() => getUiStrings(language), [language]);
 
   const handlePlayAgain = () => {
     resetSession();
@@ -26,8 +28,42 @@ export default function ReportScreen() {
     navigate('/select');
   };
 
+  const toggleLanguage = () => {
+    useGameStore.getState().setLanguage(language === 'en' ? 'hinglish' : 'en');
+  };
+
+  const localizedScoreBandDesc = useMemo(() => {
+    if (language === 'hinglish') {
+      if (scoreSummary.score >= 85) {
+        return 'Shaandar emergency response instincts! Aapke har kadam ne NDMA ke official disaster protocol ka seedha paalan kiya.';
+      }
+      if (scoreSummary.score >= 65) {
+        return 'Achha suraksha anubhav. Thodi jhijhak ya secondary hazards aaye, par mukhya jaan-maal ki suraksha bani rahi.';
+      }
+      if (scoreSummary.score >= 40) {
+        return 'Kuch ahem galtiyan samne aayi hain. NDMA guidelines ko dhyan se padhein taaki emergency mein sahi kadam instinctively utha sakein.';
+      }
+      return 'Khatarnak faislon ne suraksha ko jokhim mein daala. Is simulation ko dobara khele aur jeevan-rakshak emergency rules sikhein.';
+    }
+    return scoreSummary.bandDescription;
+  }, [language, scoreSummary]);
+
+  const takeawaysToDisplay = useMemo(() => {
+    return ui.takeawaysList && ui.takeawaysList.length > 0 ? ui.takeawaysList : keyTakeaways;
+  }, [ui, keyTakeaways]);
+
   return (
     <div className={`${styles.screen} scanlines`}>
+      <div className={styles.topBar}>
+        <button
+          className={styles.langToggle}
+          onClick={toggleLanguage}
+          title="Switch Language (English / Hinglish)"
+        >
+          LANG: {language === 'en' ? 'ENGLISH' : 'HINGLISH'}
+        </button>
+      </div>
+
       <motion.div
         className={styles.container}
         initial={{ opacity: 0, y: 20 }}
@@ -36,35 +72,35 @@ export default function ReportScreen() {
       >
         {/* Report Header */}
         <header className={styles.header}>
-          <p className={styles.eyebrow}>Simulation Completed · Official Evaluation</p>
-          <h1 className={styles.title}>Preparedness Report</h1>
+          <p className={styles.eyebrow}>{ui.simulationCompleted}</p>
+          <h1 className={styles.title}>{ui.preparednessReport}</h1>
         </header>
 
         {/* Score Block */}
         <div className={styles.scoreBlock}>
-          <div className={styles.scoreLabel}>Final Preparedness Rating</div>
+          <div className={styles.scoreLabel}>{ui.preparednessRating}</div>
           <div className={styles.scoreValue}>{scoreSummary.score}</div>
           <div className={styles.scoreBand}>{scoreSummary.band}</div>
-          <p className={styles.scoreDesc}>{scoreSummary.bandDescription}</p>
+          <p className={styles.scoreDesc}>{localizedScoreBandDesc}</p>
 
           <div className={styles.statsRow}>
             <div className={styles.statItem}>
               <span className={styles.statNumber}>
                 {scoreSummary.optimalCount}/{scoreSummary.totalDecisions}
               </span>
-              <span className={styles.statLabel}>Optimal Decisions</span>
+              <span className={styles.statLabel}>{ui.optimalDecisions}</span>
             </div>
             <div className={styles.statItem}>
               <span className={styles.statNumber}>
                 {scoreSummary.suboptimalCount}/{scoreSummary.totalDecisions}
               </span>
-              <span className={styles.statLabel}>High-Risk Decisions</span>
+              <span className={styles.statLabel}>{ui.highRiskDecisions}</span>
             </div>
             <div className={styles.statItem}>
               <span className={styles.statNumber}>
                 {scoreSummary.rawTotal} pts
               </span>
-              <span className={styles.statLabel}>Raw Performance Score</span>
+              <span className={styles.statLabel}>{ui.rawPerformanceScore}</span>
             </div>
           </div>
         </div>
@@ -74,7 +110,7 @@ export default function ReportScreen() {
           <div>
             <h2 className={styles.sectionHeading}>
               <span aria-hidden="true">📋</span>
-              <span>Decision Breakdown & Feedback</span>
+              <span>{ui.decisionBreakdown}</span>
             </h2>
 
             <div className={styles.reviewList}>
@@ -88,30 +124,32 @@ export default function ReportScreen() {
                   }`}
                 >
                   <div className={styles.reviewHeader}>
-                    <span className={styles.reviewStep}>Step {String(item.step).padStart(2, '0')}</span>
+                    <span className={styles.reviewStep}>
+                      {ui.stepLabel} {String(item.step).padStart(2, '0')}
+                    </span>
                     <span
                       className={`${styles.reviewBadge} ${
                         item.isCorrect ? styles.badgeOptimal : styles.badgeSuboptimal
                       }`}
                     >
-                      {item.isCorrect ? '✓ Life-Safety Optimal' : '⚠ High-Risk Hazard'}
+                      {item.isCorrect ? ui.optimalAction : ui.highRiskAction}
                     </span>
                   </div>
 
                   <div className={styles.reviewChoice}>
-                    <strong>Action:</strong> {item.choiceLabel}
+                    <strong>{ui.actionLabel}</strong> {item.choiceLabel}
                   </div>
 
                   <div className={styles.reviewConsequence}>
-                    <strong>Consequence:</strong> {item.consequenceText}
+                    <strong>{ui.consequenceLabel}</strong> {item.consequenceText}
                   </div>
 
                   <div className={styles.reviewInsight}>
                     <div>
-                      <strong>NDMA Protocol:</strong> {item.insight}
+                      <strong>{ui.protocolLabel}</strong> {item.insight}
                     </div>
                     <div className={styles.reviewSource}>
-                      Source: {item.insightSource}
+                      {ui.sourceLabel} {item.insightSource}
                     </div>
                   </div>
                 </div>
@@ -124,10 +162,10 @@ export default function ReportScreen() {
         <div>
           <h2 className={styles.sectionHeading}>
             <span aria-hidden="true">💡</span>
-            <span>NDMA Life-Safety Rules (Takeaways)</span>
+            <span>{ui.keyTakeaways}</span>
           </h2>
           <div className={styles.takeawayList}>
-            {keyTakeaways.map((takeaway, idx) => (
+            {takeawaysToDisplay.map((takeaway, idx) => (
               <div key={idx} className={styles.takeawayItem}>
                 <span className={styles.takeawayBullet}>[{idx + 1}]</span>
                 <span>{takeaway}</span>
@@ -140,7 +178,7 @@ export default function ReportScreen() {
         <div>
           <h2 className={styles.sectionHeading}>
             <span aria-hidden="true">📞</span>
-            <span>Emergency Support Services (India)</span>
+            <span>{ui.emergencyHelplines}</span>
           </h2>
           <div className={styles.helplineGrid}>
             {officialHelplines.map((line, idx) => (
@@ -164,16 +202,19 @@ export default function ReportScreen() {
             lineHeight: 1.5,
           }}
         >
-          Educational Simulation: This experience is designed for general emergency awareness based on public safety principles from NDMA and 112 ERSS. It does not substitute for on-ground directives from local disaster management authorities or certified safety training.
+          {ui.educationalDisclaimer}
         </div>
 
         {/* Footer Actions */}
         <div className={styles.actions}>
           <button className={styles.btnPrimary} onClick={handlePlayAgain}>
-            Replay Earthquake Scenario
+            {ui.replayScenario}
           </button>
           <button className={styles.btnSecondary} onClick={handleSelectNew}>
-            Select Another Disaster
+            {ui.selectDisaster}
+          </button>
+          <button className={styles.btnSecondary} onClick={() => navigate('/')}>
+            {ui.mainMenu}
           </button>
         </div>
       </motion.div>

@@ -8,7 +8,7 @@
 
 ## Current Phase
 
-**PHASE 3 — SCENARIO ENGINE & EARTHQUAKE VERTICAL SLICE** (Safety Reviewed & Fully QA-Verified — Awaiting User Review)
+**PHASE 5 — TIMED DECISION OVERHAUL, ANSWER RANDOMIZATION & LOCALIZATION** (Implemented & Verified — Awaiting User Review)
 
 ---
 
@@ -16,17 +16,15 @@
 
 | Item | Status |
 |---|---|
-| Git repository | Initialized, 2 commits (`b4d34ce`, `71d70c7`) |
+| Git repository | Initialized, 3 commits (`b4d34ce`, `71d70c7`, `c5e6324`) |
 | Remote | https://github.com/krushnasharma-create/survive-disaster-simulator.git |
 | Branch | main |
-| Application code | ✅ Complete deterministic engine, safety-reviewed Earthquake slice |
+| Application code | ✅ Master visual language, 15s timed decisions, dedicated timeout failure screen, Fisher-Yates answer randomization, English & Hinglish localization, preserved Earthquake slice, Fire & Flood foundations |
 | Build system | ✅ Vite + React 18 + TypeScript (strict) |
 | Dependencies installed | ✅ react-router-dom, zustand, framer-motion |
 | TypeScript errors | ✅ 0 errors |
-| Build status | ✅ Passes (`npm run build` — 464 modules, 0 errors in 237ms) |
-| Runtime status | ✅ PostCSS/Vite UTF-8 BOM bug resolved; dev server 200 OK |
-| Safety audit status | ✅ Full audit completed; speculative citations & over-specific claims removed |
-| QA test suite status | ✅ 100% passed (graph integrity, timer expiry fallback, optimal & branching paths) |
+| Build status | ✅ Passes (`npm run build` — 473 modules, 0 errors in 251ms) |
+| Master visual language | ✅ Dark, cinematic, HUD-inspired aesthetic strictly preserved across all screens |
 
 ---
 
@@ -45,53 +43,65 @@
 - [x] Vite + React 18 + TypeScript (strict mode) application scaffold
 - [x] Global design tokens and animations in CSS custom properties
 - [x] Disaster-specific atmospheric themes (`earthquake.css`, `fire.css`, `flood.css`)
-- [x] Cinematic presentation components (`CinematicText`, `CountdownTimer`, `DecisionPanel`, `ScreenTransition`)
-- [x] Client-side routing with `AnimatePresence` across all screens
 - [x] Milestone commit: `feat: implement cinematic game shell` (`71d70c7`)
 
 ### Phase 3 — Scenario Engine & Earthquake Vertical Slice
-- [x] **PostCSS/Vite Bug Resolved:** Diagnosed UTF-8 Byte Order Mark (`\uFEFF`) written by PowerShell 5.1 in `package.json` that broke Vite's naive `JSON.parse` loader; stripped BOM across configuration and source files.
-- [x] **Scenario Engine:**
-  - `src/engine/scenarioRunner.ts` — pure DAG traversal, choice evaluation, speed bonus calculation
-  - `src/engine/scoreCalculator.ts` — normalized 0–100 preparedness score, 4 distinct score bands
-  - `src/engine/reportBuilder.ts` — decision-by-decision audit trail, conservative NDMA takeaways, 112 ERSS helpline registry
-- [x] **Earthquake Vertical Slice:**
-  - `src/data/earthquake.ts` — 8 decision nodes + outcome node, urban 4th-floor apartment setting, daytime (11:47 AM).
-  - Time-limited decisions (10s on initial tremor with auto-selection on expiry, 12s on staircase aftershock).
-  - Branching consequences: running causes physical injury (`eq-d2b-injured-hazard`); taking lift causes power outage and entrapment (`eq-d3b-elevator-trap`).
-- [x] **Safety Review & Grounding:**
-  - Audited all safety-critical sentences against conservative public preparedness guidance.
-  - Removed speculative/unverified citations (e.g. specific building codes, unverified manual names).
-  - Replaced over-specific procedural claims with conservative, educational safety rules.
-  - Added clear educational simulation disclaimer to `ReportScreen.tsx`.
-- [x] **UI Screen Wiring:**
-  - `ScenarioScreen.tsx` — live situation narrative, contextual cues, visible countdown timers, choice buttons
-  - `ConsequenceScreen.tsx` — narrative outcome, optimal vs high-risk status, official NDMA protocol cards
-  - `OutcomeScreen.tsx` — survival resolution narrative, automated score compilation
-  - `ReportScreen.tsx` — final score (0–100), performance band, decision replay with official rationales, key takeaways, and verified Indian emergency helplines.
+- [x] Scenario Engine (`scenarioRunner.ts`, `scoreCalculator.ts`, `reportBuilder.ts`)
+- [x] Playable Earthquake Vertical Slice (`src/data/earthquake.ts`) with 8 branching decision nodes, timer expiry, NDMA safety protocol insights, and prepared report
+- [x] Milestone commit: `feat: add earthquake disaster simulation` (`c5e6324`)
+
+### Phase 4 — Core Game Structure & Scenario Foundations
+- [x] **Cinematic Main Menu (`IntroScreen.tsx`):**
+  - Atmospheric opening screen with emergency alert badge, massive typography, official tagline ("Your decisions determine what happens next.")
+  - Primary action: "Enter Simulation" $\to$ `/select`
+  - Secondary actions: "How to Play" $\to$ `/how-to-play`, and in-theme "Settings" modal (visual tremors, high-contrast HUD, reset progress)
+- [x] **How to Play Screen (`HowToPlayScreen.tsx`):**
+  - Dedicated briefing screen explaining pressure, time-critical decisions, branching consequences, and preparedness scoring
+  - Step-by-step Core Simulation Loop diagram: `SCENARIO → DECISION → CONSEQUENCE → NEXT SITUATION → SCORE`
+- [x] **Enhanced Disaster Selection Console (`DisasterSelect.tsx`):**
+  - Simulation terminal with scenario codes (`SCN-EQ-01`, `SCN-FR-02`, `SCN-FL-03`)
+  - Earthquake marked as `● PLAYABLE` (launches existing complete Earthquake slice)
+  - Fire and Flood marked as `○ IN DEVELOPMENT` with in-theme toast notice on selection
+- [x] **Fire & Flood Scenario Foundations (`src/data/fire.ts`, `src/data/flood.ts`):**
+  - Structured DAGs grounded in NDMA protocols, exported in `src/data/index.ts`.
+
+### Phase 5 — Timed Decisions, Answer Randomization & English/Hinglish Mode
+- [x] **15-Second Timed Decisions:**
+  - All timed nodes (`eq-d1-shake`, `eq-d4-aftershock`, `fire-d1-alarm`, `flood-d1-warning`) standardized to a 15-second countdown limit.
+- [x] **Dedicated Time Expired / Simulation Failed Screen:**
+  - When time expires, does NOT auto-select choices or reveal answers.
+  - Immediately transitions to a dedicated failure state with `RETRY SCENARIO` and `RETURN TO SELECTION`.
+- [x] **Answer Choice Randomization:**
+  - Shuffles choice presentation order using Fisher-Yates algorithm memoized by `[decisionNode.id, language]`.
+  - Avoids option-1 positional bias while keeping internal choice IDs and scoring intact.
+  - Stable during countdown ticks to prevent re-render jitter.
+  - Preserves identical styling across all unselected choices (no answer leakage).
+- [x] **English / Hinglish Localization System:**
+  - Complete `src/i18n/` localization system with session-persisted language toggle in HUD.
+  - Natural Roman Hindi + technical terminology for all 9 Earthquake nodes, hints, choices, consequences, insights, takeaways, and helplines.
+  - Localized UI across Main Menu, How to Play, Disaster Selection, Scenario HUD, Consequence, Outcome, and Preparedness Report.
 
 ---
 
 ## Current Task
 
-Phase 3 implementation, safety review, and QA verification complete. Working tree clean for review. Awaiting user instructions.
+Phase 5 implementation complete and verified. Awaiting user review. **DO NOT COMMIT OR PUSH.**
 
 ---
 
 ## Next Task
 
-**PHASE 4 — POLISH & SECONDARY SCENARIOS (FIRE / FLOOD)**
-1. Author Fire scenario data model (`src/data/fire.ts`) with Indian fire safety principles.
-2. Author Flood scenario data model (`src/data/flood.ts`) with CWC / NDMA flood warning guidelines.
-3. Add ambient atmospheric soundscapes.
-4. Refine mobile responsiveness.
+**EXPAND FIRE & FLOOD GAMEPLAY CONTENT**
+1. Author intermediate branching consequence nodes for the Fire scenario.
+2. Author intermediate branching consequence nodes for the Flood scenario.
+3. Integrate atmospheric soundscapes and audio design.
 
 ---
 
 ## Known Issues
 
-- Fire and Flood scenarios remain placeholders in selection/intro until authoring in subsequent phases.
-- Sound effects and ambient audio are visual/haptic only.
+- Fire and Flood remain designated as "IN DEVELOPMENT" on the selection console until intermediate branching nodes are authored.
+- Ambient audio effects are currently visual/haptic only.
 
 ---
 
@@ -104,9 +114,12 @@ Phase 3 implementation, safety review, and QA verification complete. Working tre
 | `docs/ARCHITECTURE.md` | Technical architecture and stack decisions |
 | `docs/PROJECT_STATE.md` | This file — current state |
 | `docs/CHANGELOG.md` | Change history |
-| `src/data/types.ts` | Scenario data model types |
-| `src/data/earthquake.ts` | Complete Earthquake DAG scenario |
+| `src/screens/IntroScreen.tsx` | Cinematic Main Menu screen |
+| `src/screens/HowToPlayScreen.tsx` | How to Play briefing screen |
+| `src/screens/DisasterSelect.tsx` | Disaster Selection Console |
+| `src/data/earthquake.ts` | Completed Earthquake scenario vertical slice |
+| `src/data/fire.ts` | Fire scenario foundation |
+| `src/data/flood.ts` | Flood scenario foundation |
 | `src/engine/scenarioRunner.ts` | Deterministic node traversal & choice evaluation |
 | `src/engine/scoreCalculator.ts` | Preparedness score calculation |
 | `src/engine/reportBuilder.ts` | Preparedness report assembly |
-| `src/store/gameStore.ts` | Zustand global state management |
