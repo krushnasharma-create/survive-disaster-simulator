@@ -8,7 +8,7 @@
 
 ## Current Phase
 
-**PHASE 7A–7C — SCENARIO ARCHITECTURE, SELECTION LAYER & ENVIRONMENTAL IMMERSION** (Implemented & Verified — Review Complete)
+**PHASE 7D — MULTI-SCENARIO MODERN GAMEPLAY** (Implemented & Verified — Clean Build)
 
 ---
 
@@ -16,14 +16,14 @@
 
 | Item | Status |
 |---|---|
-| Git repository | Initialized, 6 commits (`b4d34ce`, `71d70c7`, `c5e6324`, `6245967`, `adbec47`, `7cb908b`) |
+| Git repository | Initialized, 7 commits (`b4d34ce`, `71d70c7`, `c5e6324`, `6245967`, `adbec47`, `7cb908b`, `5659d7f`) |
 | Remote | https://github.com/krushnasharma-create/survive-disaster-simulator.git |
 | Branch | main |
-| Application code | ✅ 3 complete playable disaster vertical slices (Earthquake, Structure Fire, Flash Flood), scenario catalogue & selection console (Modern Urban playable vs Historical locked), reusable EnvironmentalOverlay (seismic rumble/cracks, fire glow/smoke ceiling, rising water/currents), 15s timed decisions, failure screen, randomization, full English + Hinglish localization |
+| Application code | ✅ 6 complete playable modern disaster scenarios (Earthquake: Urban Apartment & Workplace High-Rise; Fire: Residential High-Rise & Commercial Food Court; Flood: Urban Flash Flood & Transit Street/Underpass), scenario catalogue & selection console (Modern Urban playable vs Historical locked), reusable EnvironmentalOverlay, 15s timed decisions, failure screen, randomization, full English + Hinglish localization across all 6 scenarios |
 | Build system | ✅ Vite + React 18 + TypeScript (strict) |
 | Dependencies installed | ✅ react-router-dom, zustand, framer-motion |
 | TypeScript errors | ✅ 0 errors |
-| Build status | ✅ Passes (`npm run build` — 477 modules, 0 errors in 289ms) |
+| Build status | ✅ Passes (`npm run build` — 483 modules, 0 errors in 280ms) |
 | Master visual language | ✅ Dark, cinematic, HUD-inspired aesthetic strictly preserved across all screens |
 
 ---
@@ -140,18 +140,34 @@
 - [x] **Localization:**
   - Added shared UI strings for English and Roman Hinglish in `src/i18n/types.ts` and `src/i18n/ui.ts`.
 
+### Phase 7D — Multi-Scenario Modern Gameplay
+- [x] **New Modern Scenarios (English + Roman Hinglish):**
+  - `src/data/earthquakeWorkplace.ts`: High-rise tech park office earthquake scenario with drop/cover/hold under heavy conference tables, glass curtain-wall hazards, pressurized stairwells, stampede prevention, and NDMA assembly triage.
+  - `src/data/fireCommercial.ts`: Commercial shopping complex & food court fire scenario with manual pull alarm, smoke crawl under toxic plastic combustion fumes, crowd triage at secondary fire exit, and self-closing fire door isolation.
+  - `src/data/floodStreet.ts`: Arterial ring road monsoon flash flood & commute scenario with "Turn Around, Don't Drown" underpass avoidance, headrest window punch for sinking vehicles, energized downed line detours, bamboo stick probing for displaced manholes, and antiseptic hygiene.
+- [x] **Scenario Registry & State Management:**
+  - Registered all 3 new scenarios in `SCENARIOS` and `SCENARIO_CATALOGUE` (`src/data/index.ts`) as active playable modern scenarios.
+  - Preserved strict locked / "COMING NEXT" status for historical scenarios (`earthquake-bhuj-2001`, `fire-uphaar-1997`, `flood-mumbai-2005`). Zero fake scenario graphs.
+  - Updated `gameStore` with `activeScenarioId` tracking and `selectScenario` action.
+  - Updated `ScenarioScreen` and `DisasterIntro` to resolve both disaster defaults and specific scenario graphs seamlessly.
+- [x] **Full Bilingual Support:**
+  - Localized `earthquakeWorkplaceHinglish`, `fireCommercialHinglish`, and `floodStreetHinglish` registered in `HINGLISH_SCENARIOS` (`src/i18n/index.ts`).
+- [x] **Responsive Scenario Selection Grid:**
+  - Refined `ScenarioSelectScreen.module.css` grid layout (`repeat(auto-fit, minmax(290px, 1fr))` with 1050px max width) for balanced 3-card presentation.
+
 ---
 
 ## Current Task
 
-Phase 7A–7C implementation and final review completed and verified.
+Phase 7D implementation, full bilingual localization, and technical verification completed.
 
 ---
 
 ## Next Task
 
-**PHASE 7D — HISTORICAL SCENARIOS RESEARCH & GRAPH IMPLEMENTATION OR PHASE 8 POLISH**
-1. Research and deterministic graph authoring for historical scenarios (Bhuj 2001, Uphaar 1997, Mumbai 2005) or proceed to Phase 8 audio/visual polish.
+**PHASE 8 — AUDIO, ATMOSPHERE & VISUAL POLISH**
+1. Evaluate web audio or ambient sound design for disaster events.
+2. Final polish on cinematic transitions, score celebration, and judge-ready presentation.
 
 ---
 

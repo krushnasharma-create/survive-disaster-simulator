@@ -5,16 +5,25 @@ import type { Language, LocalizedScenarioData } from './types';
 import type { Scenario, ScenarioNode, DecisionNode } from '../data/types';
 import { getUiStrings, UI_EN, UI_HINGLISH } from './ui';
 import { earthquakeHinglish } from './earthquake';
+import { earthquakeWorkplaceHinglish } from './earthquakeWorkplace';
 import { fireHinglish, FIRE_HINGLISH_TAKEAWAYS } from './fire';
+import { fireCommercialHinglish } from './fireCommercial';
 import { floodHinglish, FLOOD_HINGLISH_TAKEAWAYS } from './flood';
+import { floodStreetHinglish } from './floodStreet';
 
 export type { Language, UiStrings } from './types';
 export { getUiStrings, UI_EN, UI_HINGLISH, FIRE_HINGLISH_TAKEAWAYS, FLOOD_HINGLISH_TAKEAWAYS };
 
 const HINGLISH_SCENARIOS: Record<string, LocalizedScenarioData> = {
   earthquake: earthquakeHinglish,
+  'earthquake-urban': earthquakeHinglish,
+  'earthquake-workplace': earthquakeWorkplaceHinglish,
   fire: fireHinglish,
+  'fire-residential': fireHinglish,
+  'fire-commercial': fireCommercialHinglish,
   flood: floodHinglish,
+  'flood-urban': floodHinglish,
+  'flood-street': floodStreetHinglish,
 };
 
 /**

@@ -49,8 +49,8 @@ export default function ReportScreen() {
   }, [language, scoreSummary]);
 
   const takeawaysToDisplay = useMemo(() => {
-    const isFire = activeDisaster === 'fire' || decisions.some((d) => d.nodeId.startsWith('fire-'));
-    const isFlood = activeDisaster === 'flood' || decisions.some((d) => d.nodeId.startsWith('flood-'));
+    const isFire = activeDisaster === 'fire' || decisions.some((d) => d.nodeId.startsWith('fire-') || d.nodeId.startsWith('frc-'));
+    const isFlood = activeDisaster === 'flood' || decisions.some((d) => d.nodeId.startsWith('flood-') || d.nodeId.startsWith('fls-'));
     if (language === 'hinglish') {
       if (isFire) return FIRE_HINGLISH_TAKEAWAYS;
       if (isFlood) return FLOOD_HINGLISH_TAKEAWAYS;

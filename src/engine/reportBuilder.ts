@@ -93,8 +93,8 @@ export function buildReport(decisions: DecisionRecord[], disasterType?: Disaster
   }));
 
   // Infer disaster type from decision node IDs if not explicitly passed
-  const isFire = disasterType === 'fire' || decisions.some((d) => d.nodeId.startsWith('fire-'));
-  const isFlood = disasterType === 'flood' || decisions.some((d) => d.nodeId.startsWith('flood-'));
+  const isFire = disasterType === 'fire' || decisions.some((d) => d.nodeId.startsWith('fire-') || d.nodeId.startsWith('frc-'));
+  const isFlood = disasterType === 'flood' || decisions.some((d) => d.nodeId.startsWith('flood-') || d.nodeId.startsWith('fls-'));
 
   let keyTakeaways = EARTHQUAKE_TAKEAWAYS;
   if (isFire) {

@@ -33,7 +33,7 @@ const THEME_ACCENTS: Record<DisasterType, { accent: string; glow: string; name: 
 export default function ScenarioSelectScreen() {
   const { disasterId } = useParams<{ disasterId: string }>();
   const navigate = useNavigate();
-  const { selectDisaster, language, setLanguage } = useGameStore();
+  const { selectScenario, language, setLanguage } = useGameStore();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const activeDisaster = (disasterId as DisasterType) || 'earthquake';
@@ -47,8 +47,8 @@ export default function ScenarioSelectScreen() {
 
   const handleSelectScenario = (item: ScenarioCatalogueItem) => {
     if (item.status === 'playable') {
-      selectDisaster(activeDisaster);
-      navigate(`/disaster/${activeDisaster}/intro`);
+      selectScenario(item.id, activeDisaster);
+      navigate(`/disaster/${activeDisaster}/intro?scenario=${item.id}`);
     } else {
       setToastMessage(
         language === 'hinglish'

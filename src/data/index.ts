@@ -1,8 +1,11 @@
 // src/data/index.ts
 import type { DisasterType, Scenario } from './types';
 import { earthquakeScenario } from './earthquake';
+import { earthquakeWorkplaceScenario } from './earthquakeWorkplace';
 import { fireScenario } from './fire';
+import { fireCommercialScenario } from './fireCommercial';
 import { floodScenario } from './flood';
+import { floodStreetScenario } from './floodStreet';
 
 export interface ScenarioCatalogueItem {
   id: string;
@@ -30,6 +33,16 @@ export const SCENARIO_CATALOGUE: Record<DisasterType, ScenarioCatalogueItem[]> =
       code: 'SCN-EQ-01',
     },
     {
+      id: 'earthquake-workplace',
+      disasterType: 'earthquake',
+      category: 'modern',
+      title: 'Commercial Workplace Earthquake',
+      subtitle: '7th Floor Tech Park Office · 03:22 PM',
+      description: 'Midday seismic shock in an open-plan office. Heavy desk sheltering, corridor conduit hazard navigation, stairwell aftershocks, and assembly roll-call.',
+      status: 'playable',
+      code: 'SCN-EQ-02',
+    },
+    {
       id: 'earthquake-bhuj-2001',
       disasterType: 'earthquake',
       category: 'historical',
@@ -52,6 +65,16 @@ export const SCENARIO_CATALOGUE: Record<DisasterType, ScenarioCatalogueItem[]> =
       description: 'Midnight smoke alarm discovery. Thermal door checks, low crawling beneath toxic smoke ceiling, fire-door compartmentalization, and 112 ERSS coordination.',
       status: 'playable',
       code: 'SCN-FR-02',
+    },
+    {
+      id: 'fire-commercial',
+      disasterType: 'fire',
+      category: 'modern',
+      title: 'Commercial Complex Fire & Smoke',
+      subtitle: 'Multi-Storey Shopping Complex · 06:45 PM',
+      description: 'Evening restaurant exhaust fire in a crowded complex. Escalator flue bypass, low smoke corridor crawl, fire door sealing, and incident command reporting.',
+      status: 'playable',
+      code: 'SCN-FR-03',
     },
     {
       id: 'fire-uphaar-1997',
@@ -78,6 +101,16 @@ export const SCENARIO_CATALOGUE: Record<DisasterType, ScenarioCatalogueItem[]> =
       code: 'SCN-FL-03',
     },
     {
+      id: 'flood-street',
+      disasterType: 'flood',
+      category: 'modern',
+      title: 'Urban Street & Transit Flood',
+      subtitle: 'Arterial Ring Road Underpass · 07:15 PM',
+      description: 'Submerged railway underpass commute decision. Avoiding vehicle entrapment, navigating downed power lines, stick probing open drains, and relief center hygiene.',
+      status: 'playable',
+      code: 'SCN-FL-04',
+    },
+    {
       id: 'flood-mumbai-2005',
       disasterType: 'flood',
       category: 'historical',
@@ -95,10 +128,13 @@ export const SCENARIO_CATALOGUE: Record<DisasterType, ScenarioCatalogueItem[]> =
 export const SCENARIOS: Record<string, Scenario> = {
   earthquake: earthquakeScenario,
   'earthquake-urban': earthquakeScenario,
+  'earthquake-workplace': earthquakeWorkplaceScenario,
   fire: fireScenario,
   'fire-residential': fireScenario,
+  'fire-commercial': fireCommercialScenario,
   flood: floodScenario,
   'flood-urban': floodScenario,
+  'flood-street': floodStreetScenario,
 };
 
 export function getScenario(idOrDisaster: string): Scenario | undefined {

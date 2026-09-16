@@ -43,6 +43,7 @@ export default function ScenarioScreen() {
 
   const {
     activeDisaster,
+    activeScenarioId,
     currentNodeId,
     selectDisaster,
     advanceTo,
@@ -57,7 +58,8 @@ export default function ScenarioScreen() {
   const [isTimedOut, setIsTimedOut] = useState(false);
 
   const targetDisaster = (disasterId as DisasterType) || activeDisaster || 'earthquake';
-  const rawScenario = useMemo(() => getScenario(targetDisaster), [targetDisaster]);
+  const effectiveScenarioKey = activeScenarioId || targetDisaster;
+  const rawScenario = useMemo(() => getScenario(effectiveScenarioKey) || getScenario(targetDisaster), [effectiveScenarioKey, targetDisaster]);
 
   // Localized scenario
   const scenario = useMemo(() => {
@@ -150,7 +152,11 @@ export default function ScenarioScreen() {
 
   const handleRetryScenario = () => {
     setIsTimedOut(false);
-    selectDisaster(targetDisaster);
+    if (activeScenarioId) {
+      useGameStore.getState().selectScenario(activeScenarioId, targetDisaster);
+    } else {
+      selectDisaster(targetDisaster);
+    }
     if (scenario) {
       advanceTo(scenario.startNodeId);
     }

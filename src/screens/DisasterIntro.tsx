@@ -3,8 +3,8 @@
 // Reads disaster ID from URL param. Navigates to /disaster/:id/scenario on proceed.
 // NOTE: Actual scenario gameplay is NOT implemented yet (Phase 3).
 
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState, useMemo } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CinematicText } from '../components/CinematicText';
 import { useGameStore } from '../store/gameStore';
@@ -46,14 +46,49 @@ const CONFIGS: Record<DisasterType, DisasterConfig> = {
   },
 };
 
+const SCENARIO_INTROS: Record<string, { setting: string; narrative: string }> = {
+  'earthquake-workplace': {
+    setting: '7th Floor Tech Park Office — 03:22 PM',
+    narrative:
+      'Midday at your office workstation. Sudden seismic shockwaves buckle false ceiling panels, topple monitors, and shudder the exterior glass facade. Heavy fixtures are collapsing around your desk. You have seconds.',
+  },
+  'fire-commercial': {
+    setting: 'Multi-Storey Shopping Complex — 06:45 PM',
+    narrative:
+      'You are on the 3rd floor food court of a packed commercial mall. An emergency klaxon shrieks as dense grease smoke rolls from a restaurant exhaust duct. Escalators are choking with panicked crowds. You have seconds.',
+  },
+  'flood-street': {
+    setting: 'Arterial Ring Road Underpass — 07:15 PM',
+    narrative:
+      'Monsoon cloudbursts inundate the city transit corridor. Ahead, the railway underpass is completely submerged in brown runoff with floating vehicles. Storm drains are breaching and power lines are sparking. You have moments.',
+  },
+};
+
 export default function DisasterIntro() {
   const { disasterId } = useParams<{ disasterId: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [textDone, setTextDone] = useState(false);
 
-  const config = CONFIGS[disasterId as DisasterType];
+  const scenarioParam = searchParams.get('scenario');
+  const { activeScenarioId, selectScenario, selectDisaster } = useGameStore();
 
-  const selectDisaster = useGameStore((s) => s.selectDisaster);
+  const currentScenarioId = scenarioParam || activeScenarioId;
+
+  const baseConfig = CONFIGS[disasterId as DisasterType];
+
+  const config = useMemo(() => {
+    if (!baseConfig) return null;
+    if (currentScenarioId && SCENARIO_INTROS[currentScenarioId]) {
+      const custom = SCENARIO_INTROS[currentScenarioId];
+      return {
+        ...baseConfig,
+        setting: custom.setting,
+        narrative: custom.narrative,
+      };
+    }
+    return baseConfig;
+  }, [baseConfig, currentScenarioId]);
 
   useEffect(() => {
     if (!config) navigate('/select', { replace: true });
@@ -62,7 +97,12 @@ export default function DisasterIntro() {
   if (!config) return null;
 
   const handleProceed = () => {
-    selectDisaster(disasterId as DisasterType);
+    const targetDisaster = disasterId as DisasterType;
+    if (currentScenarioId) {
+      selectScenario(currentScenarioId, targetDisaster);
+    } else {
+      selectDisaster(targetDisaster);
+    }
     navigate(`/disaster/${disasterId}/scenario`);
   };
 

@@ -37,8 +37,9 @@ interface GameState {
   // ── Session ─────────────────────────────────────────
   hasSeenIntro: boolean;
 
-  // ── Active disaster ──────────────────────────────────
+  // ── Active disaster & scenario ─────────────────────
   activeDisaster: DisasterType | null;
+  activeScenarioId: string | null;
 
   // ── Scenario traversal ───────────────────────────────
   currentNodeId: string;
@@ -61,6 +62,7 @@ interface GameState {
   setLanguage: (language: 'en' | 'hinglish') => void;
   markIntroSeen: () => void;
   selectDisaster: (disaster: DisasterType) => void;
+  selectScenario: (scenarioId: string, disaster: DisasterType) => void;
   advanceTo: (nodeId: string) => void;
   setConsequence: (consequence: ConsequenceState | null) => void;
   setOutcome: (outcome: OutcomeState | null) => void;
@@ -73,6 +75,7 @@ const initialState = {
   language: 'en' as const,
   hasSeenIntro: false,
   activeDisaster: null,
+  activeScenarioId: null,
   currentNodeId: '',
   visitedNodes: [] as string[],
   currentConsequence: null as ConsequenceState | null,
@@ -91,6 +94,19 @@ export const useGameStore = create<GameState>((set) => ({
   selectDisaster: (disaster) =>
     set({
       activeDisaster: disaster,
+      activeScenarioId: null,
+      currentNodeId: '',
+      visitedNodes: [],
+      currentConsequence: null,
+      currentOutcome: null,
+      decisions: [],
+      totalScore: 0,
+    }),
+
+  selectScenario: (scenarioId, disaster) =>
+    set({
+      activeDisaster: disaster,
+      activeScenarioId: scenarioId,
       currentNodeId: '',
       visitedNodes: [],
       currentConsequence: null,

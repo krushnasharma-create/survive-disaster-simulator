@@ -23,6 +23,7 @@ export default function ConsequenceScreen() {
 
   const {
     activeDisaster,
+    activeScenarioId,
     currentConsequence,
     advanceTo,
     setOutcome,
@@ -30,7 +31,8 @@ export default function ConsequenceScreen() {
   } = useGameStore();
 
   const targetDisaster = (disasterId as DisasterType) || activeDisaster || 'earthquake';
-  const rawScenario = getScenario(targetDisaster);
+  const effectiveScenarioKey = activeScenarioId || targetDisaster;
+  const rawScenario = getScenario(effectiveScenarioKey) || getScenario(targetDisaster);
   const scenario = rawScenario ? getLocalizedScenario(rawScenario, language) : undefined;
   const ui = getUiStrings(language);
 
