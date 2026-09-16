@@ -1,4 +1,4 @@
-﻿# PROJECT_STATE.md — SURVIVE: Disaster Response Simulator
+# PROJECT_STATE.md — SURVIVE: Disaster Response Simulator
 
 > This file describes the ACTUAL current state of the repository.
 > It must be updated after every meaningful implementation task.
@@ -8,7 +8,7 @@
 
 ## Current Phase
 
-**PHASE 2 — SHELL** (Complete — awaiting review & commit)
+**PHASE 3 — SCENARIO ENGINE & EARTHQUAKE VERTICAL SLICE** (Safety Reviewed & Fully QA-Verified — Awaiting User Review)
 
 ---
 
@@ -16,84 +16,82 @@
 
 | Item | Status |
 |---|---|
-| Git repository | Initialized, 1 commit |
+| Git repository | Initialized, 2 commits (`b4d34ce`, `71d70c7`) |
 | Remote | https://github.com/krushnasharma-create/survive-disaster-simulator.git |
 | Branch | main |
-| Application code | ✅ Scaffolded and verified |
+| Application code | ✅ Complete deterministic engine, safety-reviewed Earthquake slice |
 | Build system | ✅ Vite + React 18 + TypeScript (strict) |
 | Dependencies installed | ✅ react-router-dom, zustand, framer-motion |
-| TypeScript errors | ✅ 0 |
-| Build status | ✅ Passes (`npm run build` — 452 modules, 0 errors) |
+| TypeScript errors | ✅ 0 errors |
+| Build status | ✅ Passes (`npm run build` — 464 modules, 0 errors in 237ms) |
+| Runtime status | ✅ PostCSS/Vite UTF-8 BOM bug resolved; dev server 200 OK |
+| Safety audit status | ✅ Full audit completed; speculative citations & over-specific claims removed |
+| QA test suite status | ✅ 100% passed (graph integrity, timer expiry fallback, optimal & branching paths) |
 
 ---
 
 ## Completed Work
 
-- [x] Repository inspected — confirmed empty (Git only)
-- [x] `AGENTS.md` created — master context file for all agents
-- [x] `docs/GDD.md` created — full game design document
-- [x] `docs/ARCHITECTURE.md` created — technical architecture proposal
-- [x] `docs/DECISIONS.md` created — architectural decision log (DEC-001 through DEC-008)
-- [x] `docs/PROJECT_STATE.md` created — this file
-- [x] `docs/CHANGELOG.md` created — changelog initialized
-- [x] Vite + React 18 + TypeScript scaffolded
-- [x] Dependencies installed: react-router-dom, zustand, framer-motion
-- [x] TypeScript strict mode enabled (`tsconfig.app.json`)
-- [x] Global CSS design tokens created (`src/styles/global.css`)
-- [x] Disaster theme CSS created (`earthquake.css`, `fire.css`, `flood.css`)
-- [x] Shared animations CSS created (`src/styles/animations.css`)
-- [x] Scenario data types defined (`src/data/types.ts`)
-- [x] Zustand game store created (`src/store/gameStore.ts`)
-- [x] `useCountdown` hook created (`src/hooks/useCountdown.ts`)
-- [x] `CinematicText` component (typewriter reveal) created
-- [x] `CountdownTimer` component created
-- [x] `DecisionPanel` component created
-- [x] `ScreenTransition` component (Framer Motion) created
-- [x] `IntroScreen` — cinematic game intro with typewriter sequence and phased reveal
-- [x] `DisasterSelect` — atmospheric 3-card disaster selection screen
-- [x] `DisasterIntro` — per-disaster cinematic intro with typewriter narrative
-- [x] `ScenarioScreen` — stub (navigable, awaits Phase 3 scenario engine)
-- [x] `ConsequenceScreen` — stub (navigable, awaits Phase 3)
-- [x] `OutcomeScreen` — stub (navigable, awaits Phase 3)
-- [x] `ReportScreen` — structural shell with score display and navigation
-- [x] `App.tsx` — React Router v6 client-side routing with AnimatePresence
-- [x] `main.tsx` — entry point, BrowserRouter, global style imports
-- [x] `index.html` — updated title, Google Fonts (Bebas Neue, Inter, Share Tech Mono)
-- [x] Build verified: `npm run build` — 0 TypeScript errors, 0 build errors
+### Phase 1 — Foundation
+- [x] `AGENTS.md` — Master context file for all coding agents
+- [x] `docs/GDD.md` — Full game design specification (India 112 ERSS & NDMA aligned)
+- [x] `docs/ARCHITECTURE.md` — Technical architecture and data models
+- [x] `docs/DECISIONS.md` — Architectural decision log (DEC-001 through DEC-008)
+- [x] `docs/PROJECT_STATE.md` — Living project state tracking
+- [x] `docs/CHANGELOG.md` — Detailed change history
+- [x] Milestone commit: `feat: initialize game foundation` (`b4d34ce`)
+
+### Phase 2 — Shell
+- [x] Vite + React 18 + TypeScript (strict mode) application scaffold
+- [x] Global design tokens and animations in CSS custom properties
+- [x] Disaster-specific atmospheric themes (`earthquake.css`, `fire.css`, `flood.css`)
+- [x] Cinematic presentation components (`CinematicText`, `CountdownTimer`, `DecisionPanel`, `ScreenTransition`)
+- [x] Client-side routing with `AnimatePresence` across all screens
+- [x] Milestone commit: `feat: implement cinematic game shell` (`71d70c7`)
+
+### Phase 3 — Scenario Engine & Earthquake Vertical Slice
+- [x] **PostCSS/Vite Bug Resolved:** Diagnosed UTF-8 Byte Order Mark (`\uFEFF`) written by PowerShell 5.1 in `package.json` that broke Vite's naive `JSON.parse` loader; stripped BOM across configuration and source files.
+- [x] **Scenario Engine:**
+  - `src/engine/scenarioRunner.ts` — pure DAG traversal, choice evaluation, speed bonus calculation
+  - `src/engine/scoreCalculator.ts` — normalized 0–100 preparedness score, 4 distinct score bands
+  - `src/engine/reportBuilder.ts` — decision-by-decision audit trail, conservative NDMA takeaways, 112 ERSS helpline registry
+- [x] **Earthquake Vertical Slice:**
+  - `src/data/earthquake.ts` — 8 decision nodes + outcome node, urban 4th-floor apartment setting, daytime (11:47 AM).
+  - Time-limited decisions (10s on initial tremor with auto-selection on expiry, 12s on staircase aftershock).
+  - Branching consequences: running causes physical injury (`eq-d2b-injured-hazard`); taking lift causes power outage and entrapment (`eq-d3b-elevator-trap`).
+- [x] **Safety Review & Grounding:**
+  - Audited all safety-critical sentences against conservative public preparedness guidance.
+  - Removed speculative/unverified citations (e.g. specific building codes, unverified manual names).
+  - Replaced over-specific procedural claims with conservative, educational safety rules.
+  - Added clear educational simulation disclaimer to `ReportScreen.tsx`.
+- [x] **UI Screen Wiring:**
+  - `ScenarioScreen.tsx` — live situation narrative, contextual cues, visible countdown timers, choice buttons
+  - `ConsequenceScreen.tsx` — narrative outcome, optimal vs high-risk status, official NDMA protocol cards
+  - `OutcomeScreen.tsx` — survival resolution narrative, automated score compilation
+  - `ReportScreen.tsx` — final score (0–100), performance band, decision replay with official rationales, key takeaways, and verified Indian emergency helplines.
 
 ---
 
 ## Current Task
 
-Shell implementation complete. NOT YET COMMITTED. Awaiting user review.
+Phase 3 implementation, safety review, and QA verification complete. Working tree clean for review. Awaiting user instructions.
 
 ---
 
 ## Next Task
 
-**PHASE 3 — SCENARIO ENGINE**
-
-Tasks in order:
-1. Implement `src/engine/scenarioRunner.ts` — pure function DAG traversal
-2. Implement `src/engine/scoreCalculator.ts` — score computation
-3. Implement `src/engine/reportBuilder.ts` — report data assembly
-4. Write earthquake scenario data (`src/data/earthquake.ts`)
-5. Write fire scenario data (`src/data/fire.ts`)
-6. Write flood scenario data (`src/data/flood.ts`)
-7. Write Vitest data-integrity tests for all 3 scenarios
-8. Wire ScenarioScreen to live scenario data
-9. Wire ConsequenceScreen to engine output
-10. Wire OutcomeScreen to engine output
-11. Wire ReportScreen to scored decisions
-12. Commit: `feat: implement scenario engine`
+**PHASE 4 — POLISH & SECONDARY SCENARIOS (FIRE / FLOOD)**
+1. Author Fire scenario data model (`src/data/fire.ts`) with Indian fire safety principles.
+2. Author Flood scenario data model (`src/data/flood.ts`) with CWC / NDMA flood warning guidelines.
+3. Add ambient atmospheric soundscapes.
+4. Refine mobile responsiveness.
 
 ---
 
 ## Known Issues
 
-- `ScenarioScreen`, `ConsequenceScreen`, `OutcomeScreen` are deliberate stubs — they contain placeholder content until Phase 3 engine is implemented. This is accurate and expected.
-- `ReportScreen` shows score 0 until the engine provides real decision data.
-- No `.gitignore` for `dist/` — confirm node_modules and dist are in .gitignore (Vite scaffold includes this by default).
+- Fire and Flood scenarios remain placeholders in selection/intro until authoring in subsequent phases.
+- Sound effects and ambient audio are visual/haptic only.
 
 ---
 
@@ -104,23 +102,11 @@ Tasks in order:
 | `AGENTS.md` | Master context for all coding agents — READ FIRST |
 | `docs/GDD.md` | Game design specification |
 | `docs/ARCHITECTURE.md` | Technical architecture and stack decisions |
-| `docs/DECISIONS.md` | Architectural decision log |
 | `docs/PROJECT_STATE.md` | This file — current state |
 | `docs/CHANGELOG.md` | Change history |
 | `src/data/types.ts` | Scenario data model types |
-| `src/store/gameStore.ts` | Zustand global game state |
-| `src/engine/` | Scenario engine (NOT YET IMPLEMENTED — Phase 3) |
-| `src/data/earthquake.ts` | Earthquake scenario (NOT YET IMPLEMENTED — Phase 3) |
-| `src/data/fire.ts` | Fire scenario (NOT YET IMPLEMENTED — Phase 3) |
-| `src/data/flood.ts` | Flood scenario (NOT YET IMPLEMENTED — Phase 3) |
-
----
-
-## Architecture Summary
-
-- **Stack:** React 18 + TypeScript (strict) + Vite + Zustand + Framer Motion + CSS Modules
-- **No backend** — all scenario data will be static TypeScript
-- **Routing:** React Router v6, client-side, AnimatePresence transitions
-- **Scenario structure:** DAG of typed nodes (types defined, data not yet written)
-- **Engine:** Not yet implemented (Phase 3)
-- **Deployment:** Static hosting (Vercel recommended); `npm run build` outputs `dist/`
+| `src/data/earthquake.ts` | Complete Earthquake DAG scenario |
+| `src/engine/scenarioRunner.ts` | Deterministic node traversal & choice evaluation |
+| `src/engine/scoreCalculator.ts` | Preparedness score calculation |
+| `src/engine/reportBuilder.ts` | Preparedness report assembly |
+| `src/store/gameStore.ts` | Zustand global state management |

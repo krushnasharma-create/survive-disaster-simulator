@@ -1,4 +1,4 @@
-﻿// src/components/DecisionPanel.tsx
+// src/components/DecisionPanel.tsx
 // Renders player choice buttons for a DecisionNode.
 // Does NOT evaluate choices — that is the engine's job.
 

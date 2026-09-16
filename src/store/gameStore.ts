@@ -1,19 +1,36 @@
-﻿// src/store/gameStore.ts
+// src/store/gameStore.ts
 // Zustand global game state. Single source of truth for the entire session.
-// No persistence to localStorage for MVP — reset on page load is intentional.
 
 import { create } from 'zustand';
 import type { DisasterType } from '../data/types';
 
 export interface DecisionRecord {
   nodeId: string;
+  situationText: string;
   choiceId: string;
+  choiceLabel: string;
   isCorrect: boolean;
   scoreImpact: number;
   timeBonus: number;
   consequenceText: string;
   insight: string;
   insightSource: string;
+  nextNodeId: string;
+}
+
+export interface ConsequenceState {
+  consequenceText: string;
+  insight: string;
+  insightSource: string;
+  nextNodeId: string;
+  isCorrect: boolean;
+  choiceLabel: string;
+}
+
+export interface OutcomeState {
+  survived: boolean;
+  narrativeText: string;
+  nextNodeId: string;
 }
 
 interface GameState {
@@ -27,6 +44,10 @@ interface GameState {
   currentNodeId: string;
   visitedNodes: string[];
 
+  // ── Active consequence & outcome states ─────────────
+  currentConsequence: ConsequenceState | null;
+  currentOutcome: OutcomeState | null;
+
   // ── Decision history (drives scoring + report) ───────
   decisions: DecisionRecord[];
 
@@ -37,6 +58,8 @@ interface GameState {
   markIntroSeen: () => void;
   selectDisaster: (disaster: DisasterType) => void;
   advanceTo: (nodeId: string) => void;
+  setConsequence: (consequence: ConsequenceState | null) => void;
+  setOutcome: (outcome: OutcomeState | null) => void;
   recordDecision: (record: DecisionRecord) => void;
   finaliseScore: (score: number) => void;
   resetSession: () => void;
@@ -47,6 +70,8 @@ const initialState = {
   activeDisaster: null,
   currentNodeId: '',
   visitedNodes: [] as string[],
+  currentConsequence: null as ConsequenceState | null,
+  currentOutcome: null as OutcomeState | null,
   decisions: [] as DecisionRecord[],
   totalScore: 0,
 };
@@ -61,6 +86,8 @@ export const useGameStore = create<GameState>((set) => ({
       activeDisaster: disaster,
       currentNodeId: '',
       visitedNodes: [],
+      currentConsequence: null,
+      currentOutcome: null,
       decisions: [],
       totalScore: 0,
     }),
@@ -70,6 +97,10 @@ export const useGameStore = create<GameState>((set) => ({
       currentNodeId: nodeId,
       visitedNodes: [...state.visitedNodes, nodeId],
     })),
+
+  setConsequence: (consequence) => set({ currentConsequence: consequence }),
+
+  setOutcome: (outcome) => set({ currentOutcome: outcome }),
 
   recordDecision: (record) =>
     set((state) => ({

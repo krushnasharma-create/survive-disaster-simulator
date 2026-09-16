@@ -1,4 +1,4 @@
-﻿// src/components/CinematicText.tsx
+// src/components/CinematicText.tsx
 // Typewriter-style text reveal. Renders characters one at a time.
 // Calls onComplete when all text is visible.
 

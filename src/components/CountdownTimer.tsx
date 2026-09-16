@@ -1,4 +1,4 @@
-﻿// src/components/CountdownTimer.tsx
+// src/components/CountdownTimer.tsx
 // Visible countdown bar + seconds readout. Used on timed decision nodes.
 
 import styles from './CountdownTimer.module.css';

@@ -1,4 +1,4 @@
-﻿// src/data/types.ts
+// src/data/types.ts
 // Scenario data model — all types for the DAG-based scenario system.
 // Safety-critical content (isCorrect, scoreImpact, insight) must always be
 // static, sourced from NDMA/SACHET/112 ERSS (primary) or FEMA/Red Cross (supplementary).

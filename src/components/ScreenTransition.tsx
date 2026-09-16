@@ -1,4 +1,4 @@
-﻿// src/components/ScreenTransition.tsx
+// src/components/ScreenTransition.tsx
 // Wraps each screen in an AnimatePresence-compatible motion container.
 // Provides the consistent cinematic fade+scale transition between all screens.
 

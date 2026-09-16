@@ -1,11 +1,15 @@
-﻿// src/screens/ConsequenceScreen.tsx
-// Consequence display stub — shown after a player decision.
-// Phase 3 (scenario engine) will populate real consequence content.
+// src/screens/ConsequenceScreen.tsx
+// Displays immediate consequences of player action alongside authoritative NDMA insights.
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useGameStore } from '../store/gameStore';
+import { getScenario } from '../data';
+import { getNode } from '../engine/scenarioRunner';
+import type { DisasterType } from '../data/types';
+import styles from './ConsequenceScreen.module.css';
 
-const THEME_MAP: Record<string, string> = {
+const THEME_MAP: Record<DisasterType, string> = {
   earthquake: 'theme-earthquake',
   fire: 'theme-fire',
   flood: 'theme-flood',
@@ -14,73 +18,114 @@ const THEME_MAP: Record<string, string> = {
 export default function ConsequenceScreen() {
   const { disasterId } = useParams<{ disasterId: string }>();
   const navigate = useNavigate();
-  const theme = THEME_MAP[disasterId ?? ''] ?? '';
+
+  const {
+    activeDisaster,
+    currentConsequence,
+    advanceTo,
+    setOutcome,
+  } = useGameStore();
+
+  const targetDisaster = (disasterId as DisasterType) || activeDisaster || 'earthquake';
+  const scenario = getScenario(targetDisaster);
+
+  const themeClass = THEME_MAP[targetDisaster] || 'theme-earthquake';
+
+  // If no active consequence recorded, return to scenario
+  if (!currentConsequence) {
+    return (
+      <div className={`${styles.screen} ${themeClass}`}>
+        <div className={styles.container}>
+          <p style={{ color: 'var(--color-cloud)' }}>No active consequence available.</p>
+          <button
+            className={styles.continueBtn}
+            onClick={() => navigate(`/disaster/${targetDisaster}/scenario`)}
+          >
+            Return to Scenario
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const handleContinue = () => {
+    const nextNodeId = currentConsequence.nextNodeId;
+
+    if (!scenario || !nextNodeId) {
+      navigate(`/disaster/${targetDisaster}/report`);
+      return;
+    }
+
+    const nextNode = getNode(scenario, nextNodeId);
+
+    if (nextNode && nextNode.type === 'outcome') {
+      setOutcome({
+        survived: nextNode.survived,
+        narrativeText: nextNode.narrativeText,
+        nextNodeId: nextNode.nextNodeId,
+      });
+      navigate(`/disaster/${targetDisaster}/outcome`);
+    } else {
+      advanceTo(nextNodeId);
+      navigate(`/disaster/${targetDisaster}/scenario`);
+    }
+  };
 
   return (
-    <div
-      className={theme}
-      style={{
-        minHeight: '100vh',
-        background: 'var(--theme-bg-deep, #080806)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '4rem 2rem',
-        gap: '2rem',
-        textAlign: 'center',
-      }}
-    >
-      <motion.p
-        style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: 'var(--text-micro)',
-          letterSpacing: '0.3em',
-          textTransform: 'uppercase',
-          color: 'var(--theme-primary, var(--color-warning))',
-        }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-      >
-        Consequence
-      </motion.p>
-
-      <motion.p
-        style={{
-          maxWidth: '600px',
-          fontSize: '1.1rem',
-          color: 'var(--color-cloud)',
-          lineHeight: 1.8,
-          fontWeight: 300,
-        }}
-        initial={{ opacity: 0, y: 16 }}
+    <div className={`${styles.screen} ${themeClass} scanlines`}>
+      <motion.div
+        className={styles.container}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
       >
-        Consequence narrative will appear here after Phase 3 implementation.
-      </motion.p>
+        {/* Header with status badge */}
+        <header className={styles.header}>
+          <span className={styles.eyebrow}>Decision Evaluation</span>
+          <span
+            className={`${styles.statusBadge} ${
+              currentConsequence.isCorrect ? styles.statusOptimal : styles.statusSuboptimal
+            }`}
+          >
+            {currentConsequence.isCorrect ? '✓ Optimal Protocol' : '⚠ High-Risk Action'}
+          </span>
+        </header>
 
-      <motion.button
-        onClick={() => navigate(`/disaster/${disasterId}/scenario`)}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        style={{
-          padding: '0.9rem 2.5rem',
-          background: 'var(--theme-primary, #ff8c00)',
-          color: '#000',
-          border: 'none',
-          fontFamily: 'var(--font-mono)',
-          fontSize: 'var(--text-small)',
-          letterSpacing: '0.2em',
-          textTransform: 'uppercase',
-          cursor: 'pointer',
-          fontWeight: 700,
-        }}
-      >
-        Continue
-      </motion.button>
+        {/* Action Taken */}
+        <div className={styles.actionTaken}>
+          <strong>Action Taken:</strong> {currentConsequence.choiceLabel}
+        </div>
+
+        {/* Consequence Narrative */}
+        <div className={styles.consequenceBox}>
+          <div className={styles.consequenceHeading}>Immediate Outcome</div>
+          <p className={styles.consequenceText}>{currentConsequence.consequenceText}</p>
+        </div>
+
+        {/* Authoritative Safety Insight */}
+        <div className={styles.insightCard}>
+          <div className={styles.insightHeader}>
+            <span aria-hidden="true">🛡️</span>
+            <span>Emergency Protocol Grounding</span>
+          </div>
+          <p className={styles.insightText}>{currentConsequence.insight}</p>
+          <div className={styles.insightSource}>
+            Official Source: {currentConsequence.insightSource}
+          </div>
+        </div>
+
+        {/* Continue Action */}
+        <div className={styles.footerActions}>
+          <motion.button
+            className={styles.continueBtn}
+            onClick={handleContinue}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Continue Simulation →
+          </motion.button>
+        </div>
+      </motion.div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
-/* src/screens/DisasterIntro.module.css */
+/* src/screens/OutcomeScreen.module.css */
 .screen {
   min-height: 100vh;
-  background: var(--theme-bg-deep);
+  background: var(--theme-bg-deep, #080806);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -11,21 +11,27 @@
   text-align: center;
 }
 
-.badge {
+.card {
+  max-width: 650px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.eyebrow {
   font-family: var(--font-mono);
   font-size: var(--text-micro);
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--theme-primary);
-  margin-bottom: var(--space-lg);
-  opacity: 0.8;
+  color: var(--color-safe);
 }
 
-.icon {
-  font-size: 5rem;
+.statusIcon {
+  font-size: 3.5rem;
   line-height: 1;
-  margin-bottom: var(--space-md);
-  filter: drop-shadow(0 0 24px var(--theme-glow));
+  margin-bottom: var(--space-xs);
 }
 
 .title {
@@ -35,29 +41,27 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   line-height: 0.95;
-  margin-bottom: var(--space-md);
 }
 
 .divider {
-  width: 1px;
-  height: 60px;
-  background: linear-gradient(to bottom, var(--theme-primary), transparent);
-  margin: var(--space-md) auto;
+  width: 50px;
+  height: 2px;
+  background: var(--color-safe);
+  margin: var(--space-xs) 0;
 }
 
 .narrative {
-  max-width: 600px;
   font-size: 1.1rem;
-  color: var(--theme-text);
+  color: var(--theme-text, var(--color-light));
   line-height: 1.8;
   font-weight: 300;
-  min-height: 4rem;
+  max-width: 560px;
 }
 
-.proceed {
-  margin-top: var(--space-xl);
-  padding: 0.9rem 2.5rem;
-  background: var(--theme-primary);
+.reportBtn {
+  margin-top: var(--space-md);
+  padding: 1rem 3rem;
+  background: var(--color-white);
   color: var(--color-void);
   border: none;
   font-family: var(--font-mono);
@@ -67,12 +71,10 @@
   cursor: pointer;
   font-weight: 700;
   transition: opacity 0.2s, transform 0.15s;
+  border-radius: 2px;
 }
-.proceed:hover {
-  opacity: 0.85;
+
+.reportBtn:hover {
+  opacity: 0.9;
   transform: translateY(-2px);
-}
-.proceed:focus-visible {
-  outline: 2px solid var(--theme-primary);
-  outline-offset: 4px;
 }

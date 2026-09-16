@@ -1,4 +1,4 @@
-﻿// src/screens/IntroScreen.tsx
+// src/screens/IntroScreen.tsx
 // Cinematic game intro — the first thing the player sees.
 // Must immediately communicate: "This is a disaster survival simulation."
 // Shown once per browser session.

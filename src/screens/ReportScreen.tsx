@@ -1,35 +1,24 @@
-﻿// src/screens/ReportScreen.tsx
-// Preparedness report screen. Shows score band and decision review.
-// Score data will come from Zustand store in Phase 7.
-// Currently shows a structural shell with placeholder score.
+// src/screens/ReportScreen.tsx
+// Comprehensive Emergency Preparedness Report.
+// Displays calculated score, decision-by-decision review, and official NDMA takeaways.
 
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
+import { buildReport } from '../engine/reportBuilder';
 import styles from './ReportScreen.module.css';
-
-function getScoreBand(score: number): string {
-  if (score >= 85) return 'Ready to Respond';
-  if (score >= 65) return 'Good Awareness';
-  if (score >= 40) return 'Needs Preparation';
-  return 'Critically Unprepared';
-}
 
 export default function ReportScreen() {
   const navigate = useNavigate();
-  const { totalScore, activeDisaster, resetSession } = useGameStore((s) => ({
-    totalScore: s.totalScore,
-    activeDisaster: s.activeDisaster,
-    resetSession: s.resetSession,
-  }));
+  const { decisions, activeDisaster, resetSession } = useGameStore();
 
-  // Shell phase: show 0 score until engine provides real data
-  const displayScore = totalScore;
-  const band = getScoreBand(displayScore);
+  const report = useMemo(() => buildReport(decisions), [decisions]);
+  const { scoreSummary, decisionReviews, keyTakeaways, officialHelplines } = report;
 
   const handlePlayAgain = () => {
     resetSession();
-    navigate(`/disaster/${activeDisaster}/intro`);
+    navigate(`/disaster/${activeDisaster || 'earthquake'}/intro`);
   };
 
   const handleSelectNew = () => {
@@ -38,54 +27,155 @@ export default function ReportScreen() {
   };
 
   return (
-    <div className={styles.screen}>
+    <div className={`${styles.screen} scanlines`}>
       <motion.div
-        className={styles.header}
-        initial={{ opacity: 0, y: -16 }}
+        className={styles.container}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
       >
-        <p className={styles.eyebrow}>Simulation Complete</p>
-        <h1 className={styles.title}>Preparedness Report</h1>
-      </motion.div>
+        {/* Report Header */}
+        <header className={styles.header}>
+          <p className={styles.eyebrow}>Simulation Completed · Official Evaluation</p>
+          <h1 className={styles.title}>Preparedness Report</h1>
+        </header>
 
-      <motion.div
-        className={styles.scoreBlock}
-        initial={{ opacity: 0, scale: 0.97 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-      >
-        <p className={styles.scoreBand}>Preparedness Score</p>
-        <p className={styles.scoreValue}>{displayScore}</p>
-        <p className={styles.scoreBand}>{band}</p>
-      </motion.div>
+        {/* Score Block */}
+        <div className={styles.scoreBlock}>
+          <div className={styles.scoreLabel}>Final Preparedness Rating</div>
+          <div className={styles.scoreValue}>{scoreSummary.score}</div>
+          <div className={styles.scoreBand}>{scoreSummary.band}</div>
+          <p className={styles.scoreDesc}>{scoreSummary.bandDescription}</p>
 
-      <motion.div
-        className={styles.placeholder}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-      >
-        Decision-by-decision review and key takeaways will appear here
-        once the scenario engine is implemented (Phase 3).
-        {'\n\n'}
-        Source: NDMA / SACHET / Government of India 112 ERSS
-      </motion.div>
+          <div className={styles.statsRow}>
+            <div className={styles.statItem}>
+              <span className={styles.statNumber}>
+                {scoreSummary.optimalCount}/{scoreSummary.totalDecisions}
+              </span>
+              <span className={styles.statLabel}>Optimal Decisions</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statNumber}>
+                {scoreSummary.suboptimalCount}/{scoreSummary.totalDecisions}
+              </span>
+              <span className={styles.statLabel}>High-Risk Decisions</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statNumber}>
+                {scoreSummary.rawTotal} pts
+              </span>
+              <span className={styles.statLabel}>Raw Performance Score</span>
+            </div>
+          </div>
+        </div>
 
-      <motion.div
-        className={styles.actions}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-      >
-        {activeDisaster && (
-          <button className={styles.btnPrimary} onClick={handlePlayAgain}>
-            Play Again
-          </button>
+        {/* Decision-by-Decision Replay */}
+        {decisionReviews.length > 0 && (
+          <div>
+            <h2 className={styles.sectionHeading}>
+              <span aria-hidden="true">📋</span>
+              <span>Decision Breakdown & Feedback</span>
+            </h2>
+
+            <div className={styles.reviewList}>
+              {decisionReviews.map((item) => (
+                <div
+                  key={item.nodeId + item.step}
+                  className={`${styles.reviewCard} ${
+                    item.isCorrect
+                      ? styles.reviewCardOptimal
+                      : styles.reviewCardSuboptimal
+                  }`}
+                >
+                  <div className={styles.reviewHeader}>
+                    <span className={styles.reviewStep}>Step {String(item.step).padStart(2, '0')}</span>
+                    <span
+                      className={`${styles.reviewBadge} ${
+                        item.isCorrect ? styles.badgeOptimal : styles.badgeSuboptimal
+                      }`}
+                    >
+                      {item.isCorrect ? '✓ Life-Safety Optimal' : '⚠ High-Risk Hazard'}
+                    </span>
+                  </div>
+
+                  <div className={styles.reviewChoice}>
+                    <strong>Action:</strong> {item.choiceLabel}
+                  </div>
+
+                  <div className={styles.reviewConsequence}>
+                    <strong>Consequence:</strong> {item.consequenceText}
+                  </div>
+
+                  <div className={styles.reviewInsight}>
+                    <div>
+                      <strong>NDMA Protocol:</strong> {item.insight}
+                    </div>
+                    <div className={styles.reviewSource}>
+                      Source: {item.insightSource}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
-        <button className={styles.btnSecondary} onClick={handleSelectNew}>
-          Select Disaster
-        </button>
+
+        {/* Key Preparedness Takeaways */}
+        <div>
+          <h2 className={styles.sectionHeading}>
+            <span aria-hidden="true">💡</span>
+            <span>NDMA Life-Safety Rules (Takeaways)</span>
+          </h2>
+          <div className={styles.takeawayList}>
+            {keyTakeaways.map((takeaway, idx) => (
+              <div key={idx} className={styles.takeawayItem}>
+                <span className={styles.takeawayBullet}>[{idx + 1}]</span>
+                <span>{takeaway}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Emergency Helplines */}
+        <div>
+          <h2 className={styles.sectionHeading}>
+            <span aria-hidden="true">📞</span>
+            <span>Emergency Support Services (India)</span>
+          </h2>
+          <div className={styles.helplineGrid}>
+            {officialHelplines.map((line, idx) => (
+              <div key={idx} className={styles.helplineCard}>
+                <span className={styles.helplineTitle}>{line.title}</span>
+                <span className={styles.helplineNumber}>{line.number}</span>
+                <span className={styles.helplinePurpose}>{line.purpose}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Educational Disclaimer */}
+        <div
+          style={{
+            textAlign: 'center',
+            fontSize: '0.8rem',
+            color: 'var(--color-fog)',
+            borderTop: 'var(--border-thin)',
+            paddingTop: '1.25rem',
+            lineHeight: 1.5,
+          }}
+        >
+          Educational Simulation: This experience is designed for general emergency awareness based on public safety principles from NDMA and 112 ERSS. It does not substitute for on-ground directives from local disaster management authorities or certified safety training.
+        </div>
+
+        {/* Footer Actions */}
+        <div className={styles.actions}>
+          <button className={styles.btnPrimary} onClick={handlePlayAgain}>
+            Replay Earthquake Scenario
+          </button>
+          <button className={styles.btnSecondary} onClick={handleSelectNew}>
+            Select Another Disaster
+          </button>
+        </div>
       </motion.div>
     </div>
   );

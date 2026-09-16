@@ -1,4 +1,4 @@
-﻿// src/App.tsx
+// src/App.tsx
 // Root component. Sets up client-side routing with AnimatePresence for
 // cinematic screen transitions between all game screens.
 

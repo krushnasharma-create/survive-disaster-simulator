@@ -1,4 +1,4 @@
-﻿/* src/screens/ScenarioScreen.module.css */
+/* src/screens/ScenarioScreen.module.css */
 .screen {
   min-height: 100vh;
   background: var(--theme-bg-deep, #080806);
@@ -12,9 +12,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-xl);
-  padding-bottom: var(--space-md);
+  max-width: var(--max-content);
+  margin: 0 auto var(--space-lg) auto;
+  width: 100%;
+  padding-bottom: var(--space-sm);
   border-bottom: var(--border-thin);
+}
+
+.hudLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
 }
 
 .hudDisaster {
@@ -23,13 +31,26 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--theme-primary, var(--color-fog));
+  font-weight: 600;
+}
+
+.hudBadge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-danger);
+  border: 1px solid rgba(255, 42, 42, 0.4);
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  animation: flicker 4s step-end infinite;
 }
 
 .hudNode {
   font-family: var(--font-mono);
   font-size: var(--text-micro);
-  letter-spacing: 0.1em;
-  color: var(--color-mist);
+  letter-spacing: 0.15em;
+  color: var(--color-cloud);
 }
 
 .main {
@@ -40,14 +61,54 @@
   max-width: var(--max-content);
   margin: 0 auto;
   width: 100%;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
+}
+
+.situationCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--theme-primary);
+  padding: 1.75rem 2rem;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .situation {
-  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
   color: var(--theme-text, var(--color-white));
   line-height: 1.8;
   font-weight: 300;
+  letter-spacing: 0.01em;
+}
+
+.contextHint {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.08em;
+  color: var(--theme-primary);
+  background: rgba(232, 160, 32, 0.08);
+  padding: 0.5rem 0.75rem;
+  border-radius: 2px;
+  border: 1px dashed rgba(232, 160, 32, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.decisionSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.decisionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xs);
 }
 
 .decisionLabel {
@@ -56,15 +117,4 @@
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: var(--color-fog);
-  margin-bottom: var(--space-sm);
-}
-
-.placeholder {
-  font-family: var(--font-mono);
-  font-size: var(--text-small);
-  color: var(--color-mist);
-  border: var(--border-thin);
-  padding: var(--space-lg);
-  text-align: center;
-  letter-spacing: 0.1em;
 }

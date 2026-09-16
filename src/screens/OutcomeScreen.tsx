@@ -1,11 +1,15 @@
-﻿// src/screens/OutcomeScreen.tsx
-// End-of-disaster outcome screen stub.
-// Will show survival/failure narrative when Phase 3 scenario engine is complete.
+// src/screens/OutcomeScreen.tsx
+// Displays the final scenario outcome and transitions to the Preparedness Report.
 
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useGameStore } from '../store/gameStore';
+import { calculateScore } from '../engine/scoreCalculator';
+import type { DisasterType } from '../data/types';
+import styles from './OutcomeScreen.module.css';
 
-const THEME_MAP: Record<string, string> = {
+const THEME_MAP: Record<DisasterType, string> = {
   earthquake: 'theme-earthquake',
   fire: 'theme-fire',
   flood: 'theme-flood',
@@ -14,86 +18,60 @@ const THEME_MAP: Record<string, string> = {
 export default function OutcomeScreen() {
   const { disasterId } = useParams<{ disasterId: string }>();
   const navigate = useNavigate();
-  const theme = THEME_MAP[disasterId ?? ''] ?? '';
+
+  const {
+    activeDisaster,
+    currentOutcome,
+    decisions,
+    finaliseScore,
+  } = useGameStore();
+
+  const targetDisaster = (disasterId as DisasterType) || activeDisaster || 'earthquake';
+  const themeClass = THEME_MAP[targetDisaster] || 'theme-earthquake';
+
+  // Compute and finalize score on entering outcome
+  useEffect(() => {
+    const summary = calculateScore(decisions);
+    finaliseScore(summary.score);
+  }, [decisions, finaliseScore]);
+
+  const handleViewReport = () => {
+    navigate(`/disaster/${targetDisaster}/report`);
+  };
+
+  const outcomeText =
+    currentOutcome?.narrativeText ||
+    'You successfully evacuated the building and reached open assembly grounds. NDRF personnel and emergency 112 services have secured the sector.';
 
   return (
-    <div
-      className={theme}
-      style={{
-        minHeight: '100vh',
-        background: 'var(--theme-bg-deep, #080806)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '4rem 2rem',
-        gap: '2rem',
-        textAlign: 'center',
-      }}
-    >
-      <motion.p
-        style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: 'var(--text-micro)',
-          letterSpacing: '0.3em',
-          textTransform: 'uppercase',
-          color: 'var(--theme-primary, var(--color-warning))',
-        }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        Outcome
-      </motion.p>
-
-      <motion.h2
-        style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 'var(--text-hero)',
-          color: 'var(--color-white)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.04em',
-        }}
-        initial={{ opacity: 0, scale: 0.9 }}
+    <div className={`${styles.screen} ${themeClass} scanlines`}>
+      <motion.div
+        className={styles.card}
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
-        Survived
-      </motion.h2>
+        <span className={styles.statusIcon} aria-hidden="true">
+          🛡️
+        </span>
 
-      <motion.p
-        style={{
-          maxWidth: '560px',
-          color: 'var(--color-cloud)',
-          lineHeight: 1.8,
-          fontWeight: 300,
-        }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-      >
-        Your outcome narrative will appear here once the scenario engine is implemented.
-      </motion.p>
+        <p className={styles.eyebrow}>Scenario Resolution</p>
 
-      <motion.button
-        onClick={() => navigate(`/disaster/${disasterId}/report`)}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9 }}
-        style={{
-          padding: '0.9rem 2.5rem',
-          background: 'var(--theme-primary, #ff8c00)',
-          color: '#000',
-          border: 'none',
-          fontFamily: 'var(--font-mono)',
-          fontSize: 'var(--text-small)',
-          letterSpacing: '0.2em',
-          textTransform: 'uppercase',
-          cursor: 'pointer',
-          fontWeight: 700,
-        }}
-      >
-        View Report
-      </motion.button>
+        <h1 className={styles.title}>Survived — Evacuated</h1>
+
+        <div className={styles.divider} />
+
+        <p className={styles.narrative}>{outcomeText}</p>
+
+        <motion.button
+          className={styles.reportBtn}
+          onClick={handleViewReport}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          View Preparedness Report →
+        </motion.button>
+      </motion.div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-﻿// src/screens/DisasterIntro.tsx
+// src/screens/DisasterIntro.tsx
 // Per-disaster cinematic intro. Establishes setting, atmosphere, urgency.
 // Reads disaster ID from URL param. Navigates to /disaster/:id/scenario on proceed.
 // NOTE: Actual scenario gameplay is NOT implemented yet (Phase 3).
@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CinematicText } from '../components/CinematicText';
+import { useGameStore } from '../store/gameStore';
 import type { DisasterType } from '../data/types';
 import styles from './DisasterIntro.module.css';
 
@@ -58,7 +59,10 @@ export default function DisasterIntro() {
 
   if (!config) return null;
 
+  const selectDisaster = useGameStore((s) => s.selectDisaster);
+
   const handleProceed = () => {
+    selectDisaster(disasterId as DisasterType);
     navigate(`/disaster/${disasterId}/scenario`);
   };
 

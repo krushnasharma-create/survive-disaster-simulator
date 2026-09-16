@@ -1,4 +1,4 @@
-﻿// src/main.tsx
+// src/main.tsx
 // App entry point. Mounts React, sets up BrowserRouter, imports global styles.
 
 import { StrictMode } from 'react';

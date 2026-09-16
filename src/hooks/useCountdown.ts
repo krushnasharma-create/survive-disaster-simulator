@@ -1,4 +1,4 @@
-﻿// src/hooks/useCountdown.ts
+// src/hooks/useCountdown.ts
 // Countdown timer hook. Returns remaining seconds and a started flag.
 // Calls onExpire when timer reaches zero.
 
@@ -29,6 +29,11 @@ export function useCountdown({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const onExpireRef = useRef(onExpire);
   onExpireRef.current = onExpire;
+
+  useEffect(() => {
+    setRemaining(duration);
+    setIsRunning(autoStart);
+  }, [duration, autoStart]);
 
   const clear = () => {
     if (intervalRef.current !== null) {
