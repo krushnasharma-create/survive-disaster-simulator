@@ -122,6 +122,9 @@ export default function ScenarioScreen() {
 
       const evalResult = evaluateChoice(decisionNode, choiceId, remainingSeconds);
 
+      // Find the safer/optimal choice from existing scenario data if current choice was incorrect
+      const optimalChoice = decisionNode.choices.find((c) => c.isCorrect);
+
       recordDecision(evalResult.record);
       setConsequence({
         consequenceText: evalResult.consequenceText,
@@ -130,6 +133,7 @@ export default function ScenarioScreen() {
         nextNodeId: evalResult.nextNodeId,
         isCorrect: evalResult.isCorrect,
         choiceLabel: evalResult.choice.label,
+        optimalChoiceLabel: !evalResult.isCorrect && optimalChoice ? optimalChoice.label : undefined,
       });
 
       navigate(`/disaster/${targetDisaster}/consequence`);
@@ -235,9 +239,9 @@ export default function ScenarioScreen() {
       {/* Environmental Atmosphere & Urgency Overlay */}
       <EnvironmentalOverlay
         disasterType={targetDisaster}
-        remainingSeconds={remaining}
+        remainingSeconds={timeLimit ? remaining : 999}
         events={decisionNode.environmentEvents}
-        active={Boolean(timeLimit)}
+        active={true}
       />
 
       {/* HUD Header */}
@@ -303,7 +307,11 @@ export default function ScenarioScreen() {
           {/* Countdown timer if node is timed (15s) */}
           {timeLimit && (
             <div style={{ marginBottom: '1rem' }}>
-              <CountdownTimer remaining={remaining} total={timeLimit} />
+              <CountdownTimer
+                remaining={remaining}
+                total={timeLimit}
+                label={ui.decideNow}
+              />
             </div>
           )}
 

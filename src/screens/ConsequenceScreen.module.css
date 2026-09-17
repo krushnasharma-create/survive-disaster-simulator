@@ -63,6 +63,50 @@
   border-left: 2px solid rgba(255, 255, 255, 0.2);
   padding-left: 1rem;
   line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.actionLabel {
+  font-size: var(--text-micro);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+}
+
+.actionText {
+  font-size: 1.05rem;
+  color: var(--color-white);
+  font-weight: 500;
+}
+
+.saferResponseCard {
+  background: rgba(255, 140, 0, 0.04);
+  border: 1px solid rgba(255, 140, 0, 0.25);
+  border-left: 3px solid var(--color-warning);
+  padding: 1.25rem 1.5rem;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.saferResponseHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-warning);
+}
+
+.saferResponseText {
+  font-size: 0.95rem;
+  color: var(--color-light);
+  line-height: 1.5;
 }
 
 .consequenceBox {

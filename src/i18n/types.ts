@@ -94,4 +94,17 @@ export interface UiStrings {
   emergencyHelplines: string;
   replayScenario: string;
   takeawaysList: string[];
+
+  // Gameplay actions (P1-3)
+  enterScenario: string;
+  decideNow: string;
+
+  // Consequence chain (P0-2, P0-3)
+  yourAction: string;
+  newRisk: string;
+  saferResponse: string;
+
+  // Outcome (P1-1)
+  criticalIncident: string;
+  criticalOutcomeSubtext: string;
 }

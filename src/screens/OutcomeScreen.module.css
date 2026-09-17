@@ -28,6 +28,10 @@
   color: var(--color-safe);
 }
 
+.eyebrowCritical {
+  color: var(--color-warning);
+}
+
 .statusIcon {
   font-size: 3.5rem;
   line-height: 1;
@@ -48,6 +52,10 @@
   height: 2px;
   background: var(--color-safe);
   margin: var(--space-xs) 0;
+}
+
+.dividerCritical {
+  background: var(--color-warning);
 }
 
 .narrative {

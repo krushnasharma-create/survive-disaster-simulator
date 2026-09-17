@@ -70,6 +70,19 @@ export const UI_EN: UiStrings = {
     'CLEAR BUILDING EXTERIORS: Falling glass, parapet debris, and air conditioner units present severe hazards. Move to an open area away from structures.',
     'USE SMS & KEEP 112 CLEAR: Cellular voice networks congest quickly. Use text messages to reach family, and reserve 112 for urgent life-threatening emergencies.',
   ],
+
+  // Gameplay actions (P1-3)
+  enterScenario: 'Enter Scenario',
+  decideNow: 'Decide now',
+
+  // Consequence chain (P0-2, P0-3)
+  yourAction: 'Your Action',
+  newRisk: 'Consequence / New Risk',
+  saferResponse: 'Safer Response (NDMA)',
+
+  // Outcome (P1-1)
+  criticalIncident: 'Critical Incident',
+  criticalOutcomeSubtext: 'Your decisions placed you in a high-risk situation. Review your choices in the Preparedness Report to understand the safer responses.',
 };
 
 export const UI_HINGLISH: UiStrings = {
@@ -139,6 +152,19 @@ export const UI_HINGLISH: UiStrings = {
     'BUILDING KI DEEWARON SE DOOR RAHEIN: Girte hue kanch, AC units aur bricks se bachein. Ek khule maidan mein jayein.',
     'SMS KA PRAYOG KAREIN, 112 LINE KHALI RAKHEIN: Disaster ke waqt call network jam ho jata hai. Parivaar ko SMS karein aur 112 sirf jaanleva sankat ke liye dial karein.',
   ],
+
+  // Gameplay actions (P1-3)
+  enterScenario: 'Scenario Mein Pravaish Karein',
+  decideNow: 'Abhi Faisla Karein',
+
+  // Consequence chain (P0-2, P0-3)
+  yourAction: 'Aapka Kadam',
+  newRisk: 'Nateeja / Naya Khatra',
+  saferResponse: 'Surakshit Upay (NDMA)',
+
+  // Outcome (P1-1)
+  criticalIncident: 'Gambhir Sankat',
+  criticalOutcomeSubtext: 'Aapke faislon ne aapko ek khatarnak sthiti mein daal diya. Preparedness Report mein apne har kadam ka jawab dekhein.',
 };
 
 export function getUiStrings(lang: Language): UiStrings {

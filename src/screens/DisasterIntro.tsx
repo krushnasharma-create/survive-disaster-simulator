@@ -8,6 +8,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CinematicText } from '../components/CinematicText';
 import { useGameStore } from '../store/gameStore';
+import { getUiStrings } from '../i18n';
 import type { DisasterType } from '../data/types';
 import styles from './DisasterIntro.module.css';
 
@@ -76,7 +77,8 @@ export default function DisasterIntro() {
   const [textDone, setTextDone] = useState(false);
 
   const scenarioParam = searchParams.get('scenario');
-  const { activeScenarioId, selectScenario, selectDisaster } = useGameStore();
+  const { activeScenarioId, selectScenario, selectDisaster, language } = useGameStore();
+  const ui = getUiStrings(language);
 
   const currentScenarioId = scenarioParam || activeScenarioId;
 
@@ -171,7 +173,7 @@ export default function DisasterIntro() {
             transition={{ duration: 0.4 }}
             whileTap={{ scale: 0.97 }}
           >
-            Enter Scenario
+            {ui.enterScenario}
           </motion.button>
         )}
       </AnimatePresence>

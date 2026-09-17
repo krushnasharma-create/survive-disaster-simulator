@@ -27,8 +27,9 @@ export function EnvironmentalOverlay({
 
   if (!active) return null;
 
-  const isUrgent = remainingSeconds <= 5;
-  const isMidWay = remainingSeconds <= 8;
+  const isTimed = remainingSeconds < 999;
+  const isUrgent = isTimed && remainingSeconds <= 5;
+  const isMidWay = isTimed && remainingSeconds <= 8;
 
   const hasCrack =
     disasterType === 'earthquake' &&
@@ -42,15 +43,18 @@ export function EnvironmentalOverlay({
     disasterType === 'flood' &&
     (isMidWay || triggeredEvents.some((e) => e.effectType === 'water_rise'));
 
+  const rumbleClass =
+    disasterType === 'earthquake'
+      ? isUrgent
+        ? styles.rumbleUrgent
+        : isTimed
+        ? styles.rumbleActive
+        : styles.rumblePassive
+      : '';
+
   return (
     <div
-      className={`${styles.container} ${
-        disasterType === 'earthquake'
-          ? isUrgent
-            ? styles.rumbleUrgent
-            : styles.rumbleActive
-          : ''
-      }`}
+      className={`${styles.container} ${rumbleClass}`}
       aria-hidden="true"
     >
       {/* Earthquake: Branching structural crack SVG */}

@@ -25,6 +25,8 @@ export interface ConsequenceState {
   nextNodeId: string;
   isCorrect: boolean;
   choiceLabel: string;
+  /** Label of the safest/correct choice — shown when player chose incorrectly (P0-3) */
+  optimalChoiceLabel?: string;
 }
 
 export interface OutcomeState {
@@ -132,5 +134,9 @@ export const useGameStore = create<GameState>((set) => ({
 
   finaliseScore: (score) => set({ totalScore: score }),
 
-  resetSession: () => set({ ...initialState }),
+  resetSession: () =>
+    set((state) => ({
+      ...initialState,
+      language: state.language,
+    })),
 }));

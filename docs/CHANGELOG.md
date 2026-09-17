@@ -3,6 +3,35 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-17] PHASE 9 — Judge-Ready UX Polish & Consequence-Driven USP
+- **P0-1: Exact Replay Scenario Context (`src/screens/ReportScreen.tsx`):**
+  - Updated `handlePlayAgain` to preserve `activeScenarioId` in query parameter (`/intro?scenario=${activeScenarioId}`).
+  - Resolves issue where replaying Bhuj 2001 defaulted back to the Urban scenario.
+- **P0-2 & P0-3: Consequence Chain & Safer Response (`src/screens/ConsequenceScreen.tsx`, `.module.css`, `ScenarioScreen.tsx`, `gameStore.ts`):**
+  - Restructured feedback hierarchy into an intuitive crisis sequence: `YOUR ACTION → CONSEQUENCE / NEW RISK → SAFER RESPONSE (NDMA) → PROTOCOL GROUNDING`.
+  - Displayed the player's chosen action explicitly.
+  - Implemented dynamic "Safer Response" callout for suboptimal decisions using static scenario data (`optimalChoiceLabel`), ensuring zero LLM hallucination risk.
+- **P0-4: Always-on Environmental Atmosphere (`src/components/EnvironmentalOverlay.tsx`, `.module.css`, `ScenarioScreen.tsx`):**
+  - Enabled continuous subtle environmental effects across untimed and timed nodes (`active={true}`).
+  - Added subtle `rumblePassive` keyframe animation for untimed earthquake nodes and continuous background glow/water layers.
+  - Retained `pointer-events: none` and `contain: strict` to guarantee 100% clickability and performance.
+- **P1-1: Truthful Outcome Presentation (`src/screens/OutcomeScreen.tsx`, `.module.css`):**
+  - Conditioned outcome title, icon, and narrative on `currentOutcome.survived`.
+  - Non-surviving/suboptimal paths render `⚠️ Critical Incident` with warning styling instead of generic "Survived — Evacuated".
+- **P1-2: Score-Band Aware Color Coding (`src/screens/ReportScreen.tsx`):**
+  - Dynamically styled the final preparedness score and band rating: Green ($\ge 85$), Amber ($65\text{--}84$), Orange ($40\text{--}64$), and Red ($<40$).
+  - Prevents poor performance from displaying in misleading green safe accents.
+- **P1-3: Complete Roman Hinglish UI (`src/i18n/types.ts`, `src/i18n/ui.ts`, `DisasterIntro.tsx`, `CountdownTimer.tsx`, `gameStore.ts`):**
+  - Added Roman Hinglish translations for gameplay actions ("Scenario Mein Pravaish Karein", "Abhi Faisla Karein").
+  - Preserved session language across simulation resets.
+- **Quality Assurance & Verification:**
+  - Verified 0 TypeScript errors (`npm run build`).
+  - Verified 0 lint errors (`npm run lint`).
+  - Verified clean diff (`git diff --check`).
+  - Verified in Google Chrome via Playwright across all 7 scenarios, Bhuj replay, timer reset, Hinglish UI, and mobile viewport 390x844.
+
+---
+
 ## [2026-09-16] PHASE 7E — Bhuj 2001 Historical Simulation (7 Playable Scenarios)
 - **Historical Fact Research & Source Verification (`docs/research/BHUJ_2001_RESEARCH.md`):**
   - Documented 26 January 2001 morning Republic Day timeline (~08:46 AM IST), Kutch epicenter (~Chobari/Bhachau/Bhuj), scale discrepancies (IMD 6.9 $M_L$ vs. USGS 7.7 $M_w$), official casualty ranges (GSDMA ~13,805 vs. NIDM/MHA ~20,000+), unreinforced masonry structural failures, and institutional aftermath (formation of GSDMA and NDMA).

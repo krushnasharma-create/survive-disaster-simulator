@@ -12,15 +12,18 @@ import styles from './ReportScreen.module.css';
 
 export default function ReportScreen() {
   const navigate = useNavigate();
-  const { decisions, activeDisaster, resetSession, language } = useGameStore();
+  const { decisions, activeDisaster, activeScenarioId, resetSession, language } = useGameStore();
 
   const report = useMemo(() => buildReport(decisions, activeDisaster || undefined), [decisions, activeDisaster]);
   const { scoreSummary, decisionReviews, keyTakeaways, officialHelplines } = report;
   const ui = useMemo(() => getUiStrings(language), [language]);
 
   const handlePlayAgain = () => {
+    const savedDisaster = activeDisaster || 'earthquake';
+    const savedScenarioId = activeScenarioId;
     resetSession();
-    navigate(`/disaster/${activeDisaster || 'earthquake'}/intro`);
+    const query = savedScenarioId ? `?scenario=${savedScenarioId}` : '';
+    navigate(`/disaster/${savedDisaster}/intro${query}`);
   };
 
   const handleSelectNew = () => {
@@ -59,6 +62,13 @@ export default function ReportScreen() {
     return keyTakeaways;
   }, [language, activeDisaster, decisions, ui, keyTakeaways]);
 
+  const scoreColor = useMemo(() => {
+    if (scoreSummary.score >= 85) return 'var(--color-safe)';
+    if (scoreSummary.score >= 65) return 'var(--color-warning)';
+    if (scoreSummary.score >= 40) return '#ff9f40';
+    return 'var(--color-danger)';
+  }, [scoreSummary.score]);
+
   return (
     <div className={`${styles.screen} scanlines`}>
       <div className={styles.topBar}>
@@ -94,8 +104,12 @@ export default function ReportScreen() {
         {/* Score Block */}
         <div className={styles.scoreBlock}>
           <div className={styles.scoreLabel}>{ui.preparednessRating}</div>
-          <div className={styles.scoreValue}>{scoreSummary.score}</div>
-          <div className={styles.scoreBand}>{scoreSummary.band}</div>
+          <div className={styles.scoreValue} style={{ color: scoreColor }}>
+            {scoreSummary.score}
+          </div>
+          <div className={styles.scoreBand} style={{ color: scoreColor }}>
+            {scoreSummary.band}
+          </div>
           <p className={styles.scoreDesc}>{localizedScoreBandDesc}</p>
 
           <div className={styles.statsRow}>

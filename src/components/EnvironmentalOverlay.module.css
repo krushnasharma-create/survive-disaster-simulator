@@ -11,12 +11,25 @@
 }
 
 /* Earthquake effects */
+.rumblePassive {
+  animation: ambientMicroRumble 0.3s ease-in-out infinite alternate;
+}
+
 .rumbleActive {
   animation: microRumble 0.15s ease-in-out infinite alternate;
 }
 
 .rumbleUrgent {
   animation: intenseTremor 0.08s ease-in-out infinite alternate;
+}
+
+@keyframes ambientMicroRumble {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(0.25px, 0.35px);
+  }
 }
 
 @keyframes microRumble {

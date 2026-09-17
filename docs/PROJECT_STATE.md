@@ -8,7 +8,7 @@
 
 ## Current Phase
 
-**PHASE 7E — BHUJ 2001 HISTORICAL SIMULATION** (Implemented & Verified — Clean Build)
+**PHASE 9 — JUDGE-READY UX POLISH + CONSEQUENCE-DRIVEN USP** (Implemented & Verified — Clean Build)
 
 ---
 
@@ -16,14 +16,14 @@
 
 | Item | Status |
 |---|---|
-| Git repository | Initialized, 7 commits (`b4d34ce`, `71d70c7`, `c5e6324`, `6245967`, `adbec47`, `7cb908b`, `5659d7f`, `46db2be`) |
+| Git repository | Initialized, clean working tree |
 | Remote | https://github.com/krushnasharma-create/survive-disaster-simulator.git |
 | Branch | main |
-| Application code | ✅ 7 complete playable disaster scenarios (Earthquake: Urban Apartment, Workplace High-Rise, & Bhuj 2001 Historical Simulation; Fire: Residential High-Rise & Commercial Food Court; Flood: Urban Flash Flood & Transit Street/Underpass), scenario catalogue & selection console, historical simulation disclaimer banner, reusable EnvironmentalOverlay, 15s timed decisions, failure screen, randomization, full English + Hinglish localization across all 7 scenarios |
+| Application code | ✅ 7 complete playable disaster scenarios (Earthquake: Urban Apartment, Workplace High-Rise, & Bhuj 2001 Historical Simulation; Fire: Residential High-Rise & Commercial Food Court; Flood: Urban Flash Flood & Transit Street/Underpass); consequence-driven decision chain with explicit user action, consequence/new risk, and safer response feedback; always-on environmental atmosphere; truthful outcome screen; score-band visual coloring; exact scenario replay; full English + Roman Hinglish localization across all shared gameplay UI and 7 scenario graphs |
 | Build system | ✅ Vite + React 18 + TypeScript (strict) |
 | Dependencies installed | ✅ react-router-dom, zustand, framer-motion |
 | TypeScript errors | ✅ 0 errors |
-| Build status | ✅ Passes (`npm run build` — 485 modules, 0 errors in 268ms) |
+| Build status | ✅ Passes (`npm run build` — 485 modules, 0 errors in 280ms) |
 | Master visual language | ✅ Dark, cinematic, HUD-inspired aesthetic strictly preserved across all screens |
 
 ---
@@ -155,42 +155,49 @@
 - [x] **Responsive Scenario Selection Grid:**
   - Refined `ScenarioSelectScreen.module.css` grid layout (`repeat(auto-fit, minmax(290px, 1fr))` with 1050px max width) for balanced 3-card presentation.
 
-### Phase 7E — Bhuj 2001 Historical Simulation
-- [x] **Historical Fact Research & Verification (`docs/research/BHUJ_2001_RESEARCH.md`):**
-  - Verified 26 January 2001 morning Republic Day timeline (~08:46 AM IST), Kutch epicenter, IMD (6.9 $M_L$) / USGS (7.7 $M_w$) magnitude distinctions, GSDMA/NIDM casualty ranges (~13,800 to 20,000+), unreinforced masonry (URM) structural vulnerabilities, and institutional legacy (GSDMA and NDMA formation).
-- [x] **Playable Historical Scenario Graph (`src/data/historicalBhuj.ts`):**
-  - Implemented 6 decision nodes (`bhj-d1-morning-shock` through `bhj-d6-community-response`) and 1 outcome node (`bhj-outcome-node`).
-  - Implemented 3 timed 15-second decisions (`bhj-d1`, `bhj-d3`, `bhj-d5`).
-  - Authored 2 distinct branching paths:
-    - Path 1: Heavy solid wood table sheltering (`bhj-d2-masonry-triage`) vs. doorway/running injuries (`bhj-d2b-injured-evacuation`).
-    - Path 2: Prompt masonry evacuation vs. delaying inside for material valuables.
-- [x] **Natural Roman Hinglish Localization (`src/i18n/historicalBhuj.ts` & `src/i18n/index.ts`):**
-  - Complete conversational Roman Hinglish translation across all 7 nodes, choices, consequences, and NDMA insights.
-- [x] **Historical Context & Disclaimer UI (`src/screens/ScenarioScreen.tsx` & `.module.css`):**
-  - Integrated dedicated `[HISTORICAL SIMULATION // EDUCATIONAL RECONSTRUCTION]` banner rendering verified metadata and explicit educational disclaimer.
-- [x] **Scenario Catalogue Promotion (`src/data/index.ts`):**
-  - Promoted `earthquake-bhuj-2001` to `status: 'playable'` in `SCENARIO_CATALOGUE` and registered in `SCENARIOS` map.
-  - Preserved strictly locked status ("COMING NEXT") for `fire-uphaar-1997` and `flood-mumbai-2005`.
+### Phase 9 — Judge-Ready UX Polish & Consequence-Driven USP
+- [x] **P0-1 — Replay Exact Scenario Context (`src/screens/ReportScreen.tsx`):**
+  - Preserves `activeScenarioId` during replay navigation via `?scenario=${activeScenarioId}`.
+  - Verified: Replaying Bhuj 2001 lands on Bhuj 2001, not the default Urban scenario.
+- [x] **P0-2 — Consequence Chain UX (`src/screens/ConsequenceScreen.tsx` & `.module.css`):**
+  - Restructured decision feedback into a clear emergency sequence: `YOUR ACTION → CONSEQUENCE / NEW RISK → SAFER RESPONSE (NDMA) → PROTOCOL GROUNDING`.
+  - Displays the player's actual chosen option prominently above the consequence narrative.
+- [x] **P0-3 — Safer Response Learning Feedback (`src/screens/ConsequenceScreen.tsx`, `ScenarioScreen.tsx`, `gameStore.ts`):**
+  - For suboptimal choices, dynamically displays the NDMA-aligned safer alternative directly from deterministic scenario data (`optimalChoiceLabel`).
+  - Zero safety instruction hallucination, zero LLM dependencies.
+- [x] **P0-4 — Environmental Atmosphere (`src/components/EnvironmentalOverlay.tsx` & `.module.css`, `ScenarioScreen.tsx`):**
+  - Enabled continuous subtle environmental immersion across all decision nodes (`active={true}`).
+  - Added non-distracting passive micro-rumble for untimed earthquake nodes and continuous background glow/water layers.
+  - Zero pointer-events interference, controls remain 100% clickable.
+- [x] **P1-1 — Truthful Outcome Screen (`src/screens/OutcomeScreen.tsx` & `.module.css`):**
+  - Replaced hardcoded "Survived — Evacuated" success framing with dynamic evaluation of `currentOutcome.survived`.
+  - Suboptimal outcomes render warning status (`⚠️ Critical Incident`), amber accents, and path-specific narrative.
+- [x] **P1-2 — Score Visual Polish (`src/screens/ReportScreen.tsx`):**
+  - Dynamically colors the final score value and band based on actual performance (Green for Ready to Respond $\ge 85$, Amber/Orange for intermediate, Red for Critically Unprepared $<40$).
+  - Prevents poor scores from visually appearing safe.
+- [x] **P1-3 — Complete Roman Hinglish UI (`src/i18n/types.ts`, `src/i18n/ui.ts`, `DisasterIntro.tsx`, `CountdownTimer.tsx`):**
+  - Added localized strings for "Enter Scenario" (`Scenario Mein Pravaish Karein`) and "Decide Now" (`Abhi Faisla Karein`).
+  - Preserved session language across full simulation restarts in `gameStore.ts`.
 
 ---
 
 ## Current Task
 
-Phase 7E Bhuj 2001 historical simulation implemented, localized, and technically verified.
+Phase 9 judge-readiness polish and consequence-driven gameplay UX completed, verified via automated browser smoke tests across desktop and mobile.
 
 ---
 
 ## Next Task
 
-**PHASE 8 — AUDIO, ATMOSPHERE & VISUAL POLISH**
-1. Evaluate web audio or ambient sound design for disaster events.
-2. Final polish on cinematic transitions, score celebration, and judge-ready presentation.
+**PHASE 10 — HACKATHON DEMO & PRESENTATION READINESS**
+1. Rehearsal of live demo script focusing on core USP (action $\to$ consequence $\to$ safer response).
+2. Final review of pitch points grounded in NDMA India and 112 ERSS.
 
 ---
 
 ## Known Issues
 
-- Ambient audio effects are currently visual/haptic only.
+- None blocking. All 7 scenarios, replay flows, timer resets, and bilingual UI are fully verified in headless Chrome.
 
 ---
 

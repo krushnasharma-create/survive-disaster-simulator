@@ -42,11 +42,15 @@ export default function OutcomeScreen() {
     navigate(`/disaster/${targetDisaster}/report`);
   };
 
+  const isSurvived = currentOutcome?.survived ?? true;
+
   const outcomeText =
     currentOutcome?.narrativeText ||
-    (language === 'hinglish'
-      ? 'Aap surakshit khule maidan mein pahunch gaye hain. Emergency 112 services ne pahunch kar area ko cordon off kar diya hai.'
-      : 'You successfully evacuated the building and reached open assembly grounds. NDRF personnel and emergency 112 services have secured the sector.');
+    (isSurvived
+      ? (language === 'hinglish'
+        ? 'Aap surakshit khule maidan mein pahunch gaye hain. Emergency 112 services ne pahunch kar area ko cordon off kar diya hai.'
+        : 'You successfully evacuated the building and reached open assembly grounds. NDRF personnel and emergency 112 services have secured the sector.')
+      : ui.criticalOutcomeSubtext);
 
   return (
     <div className={`${styles.screen} ${themeClass} scanlines`}>
@@ -57,14 +61,18 @@ export default function OutcomeScreen() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         <span className={styles.statusIcon} aria-hidden="true">
-          🛡️
+          {isSurvived ? '🛡️' : '⚠️'}
         </span>
 
-        <p className={styles.eyebrow}>{ui.scenarioResolution}</p>
+        <p className={`${styles.eyebrow} ${!isSurvived ? styles.eyebrowCritical : ''}`}>
+          {ui.scenarioResolution}
+        </p>
 
-        <h1 className={styles.title}>{ui.survivedEvacuated}</h1>
+        <h1 className={styles.title}>
+          {isSurvived ? ui.survivedEvacuated : ui.criticalIncident}
+        </h1>
 
-        <div className={styles.divider} />
+        <div className={`${styles.divider} ${!isSurvived ? styles.dividerCritical : ''}`} />
 
         <p className={styles.narrative}>{outcomeText}</p>
 

@@ -98,16 +98,30 @@ export default function ConsequenceScreen() {
           </span>
         </header>
 
-        {/* Action Taken */}
+        {/* Your Action */}
         <div className={styles.actionTaken}>
-          <strong>{ui.actionTakenLabel}</strong> {currentConsequence.choiceLabel}
+          <span className={styles.actionLabel}>{ui.yourAction}</span>
+          <span className={styles.actionText}>{currentConsequence.choiceLabel}</span>
         </div>
 
-        {/* Consequence Narrative */}
+        {/* Consequence / New Risk Narrative */}
         <div className={styles.consequenceBox}>
-          <div className={styles.consequenceHeading}>{ui.immediateOutcome}</div>
+          <div className={styles.consequenceHeading}>{ui.newRisk}</div>
           <p className={styles.consequenceText}>{currentConsequence.consequenceText}</p>
         </div>
+
+        {/* Safer Response — deterministic learning feedback for suboptimal decisions */}
+        {!currentConsequence.isCorrect && currentConsequence.optimalChoiceLabel && (
+          <div className={styles.saferResponseCard}>
+            <div className={styles.saferResponseHeader}>
+              <span aria-hidden="true">✓</span>
+              <span>{ui.saferResponse}</span>
+            </div>
+            <p className={styles.saferResponseText}>
+              {currentConsequence.optimalChoiceLabel}
+            </p>
+          </div>
+        )}
 
         {/* Authoritative Safety Insight */}
         <div className={styles.insightCard}>
