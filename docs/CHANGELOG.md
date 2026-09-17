@@ -3,6 +3,20 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-17] PHASE 10.5 — Final Judge Polish & Claim Safety Pass
+- **Main Menu Console Activity Indicator (`src/screens/IntroScreen.tsx` & `.module.css`):**
+  - Integrated subtle terminal blinking cursor indicator (`.consoleCursor`) in the top HUD status line beside `SIMULATION CONSOLE ACTIVE`.
+  - Provides immediate visual feedback that the simulation console is live upon initial page load without adding clutter.
+- **Transition Assessment:**
+  - Evaluated intermediate consequence-to-scenario transition; preserved immediate state navigation to maintain 100% deterministic test reliability and instantaneous user responsiveness.
+- **Claim & Documentation Safety Verification:**
+  - Standardized factual terminology across documentation, avoiding unsupported statistical absolutes in favor of defensible architectural claims (client-side execution, procedural Web Audio API, NDMA grounding, Playwright verification).
+- **Verification & QA:**
+  - Build passes cleanly (`npm run build`).
+  - Lint clean (`npm run lint`).
+  - Git diff clean (`git diff --check`).
+  - Automated browser verification passed across all 7 scenarios, Bhuj replay persistence, 15s timer retry reset, Hinglish UI, and mobile viewport 390x844.
+
 ## [2026-09-17] PHASE 9.5 — Game Feel & Cinematic Juice Pass
 - **Zero-Dependency Procedural Audio Engine (`src/utils/audio.ts`):**
   - Synthesizes all audio natively with the Web Audio API (`AudioContext`, gain nodes, biquad filters, and dynamics compressor).

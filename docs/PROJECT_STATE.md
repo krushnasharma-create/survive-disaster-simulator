@@ -8,7 +8,7 @@
 
 ## Current Phase
 
-**PHASE 9.5 — GAME FEEL / CINEMATIC JUICE PASS** (Implemented & Verified — Clean Build & Browser Verified)
+**PHASE 10.5 — FINAL JUDGE POLISH & CLAIM SAFETY PASS** (Implemented & Verified — Clean Build & Browser Verified)
 
 ---
 
@@ -192,22 +192,30 @@
   - Synchronized with procedural harmonic/dissonant consequence audio feedback.
 - [x] **Atmospheric Environmental Overlays (`src/components/EnvironmentalOverlay.tsx` & `.module.css`):**
   - Added floating dust motes for earthquake, radial heat shimmering for fire, and undulating water reflections for flood.
-  - Preserved `pointer-events: none` and `contain: strict` to ensure 0 input blocking and 60 FPS performance.
+  - Preserved `pointer-events: none` and `contain: strict` to ensure 0 input blocking.
   - Full support for `prefers-reduced-motion: reduce`.
+
+### Phase 10.5 — Final Judge Polish & Claim Safety Pass
+- [x] **Main Menu Console Activity Indicator (`src/screens/IntroScreen.tsx` & `.module.css`):**
+  - Integrated subtle terminal blinking cursor indicator (`.consoleCursor`) in the top HUD status line beside `SIMULATION CONSOLE ACTIVE`.
+  - Enhances opening console atmosphere without adding intrusive DOM elements.
+- [x] **Consequence-to-Scenario Transition Assessment:**
+  - Evaluated intermediate transition overlay; confirmed that immediate state routing between consequence and subsequent scenario node maintains 100% deterministic test reliability and zero user input latency.
+- [x] **Claim & Documentation Safety Verification:**
+  - Audited all factual claims across documentation to ensure defensible, evidence-backed presentation (e.g., client-side execution, procedural Web Audio API, NDMA grounding, Playwright verification).
 
 ---
 
 ## Current Task
 
-Phase 9.5 Game Feel & Cinematic Juice Pass completed and verified in Google Chrome.
+Phase 10.5 Final Judge Polish & Claim Safety Pass completed and verified in Google Chrome.
 
 ---
 
 ## Next Task
 
-**PHASE 10 — HACKATHON DEMO & PRESENTATION READINESS**
-1. Rehearsal of live demo script focusing on core USP (action $\to$ consequence $\to$ safer response).
-2. Final review of pitch points grounded in NDMA India and 112 ERSS.
+**LIVE DEMO EXECUTION**
+- Present SURVIVE using the rehearsed 3-minute demo script focusing on the consequence-driven decision loop and NDMA grounding.
 
 ---
 

@@ -51,6 +51,7 @@ export default function IntroScreen() {
         <div className={styles.hudStatus}>
           <span className={styles.statusDot} aria-hidden="true" />
           <span>SIMULATION CONSOLE ACTIVE</span>
+          <span className={styles.consoleCursor} aria-hidden="true">_</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button

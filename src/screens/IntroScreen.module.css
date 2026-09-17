@@ -55,6 +55,15 @@
   animation: pulse-glow 2s infinite;
 }
 
+.consoleCursor {
+  color: var(--color-safe);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  animation: type-cursor 1.2s infinite;
+  display: inline-block;
+  line-height: 1;
+}
+
 .langToggle {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.2);
