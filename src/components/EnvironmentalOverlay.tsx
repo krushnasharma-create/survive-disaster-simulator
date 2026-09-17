@@ -57,39 +57,45 @@ export function EnvironmentalOverlay({
       className={`${styles.container} ${rumbleClass}`}
       aria-hidden="true"
     >
-      {/* Earthquake: Branching structural crack SVG */}
-      {hasCrack && (
-        <svg
-          className={styles.cracksSvg}
-          viewBox="0 0 1000 1000"
-          preserveAspectRatio="none"
-        >
-          {/* Top-left corner fracture */}
-          <path
-            d="M0,0 L120,80 L90,140 L160,200 L140,280 L210,320"
-            fill="none"
-            className={styles.crackLine}
-          />
-          {/* Top-right corner fracture */}
-          <path
-            d="M1000,0 L880,70 L910,130 L840,190 L860,260 L800,310"
-            fill="none"
-            className={styles.crackLine}
-          />
-          {/* Lower border stress crack */}
-          {isUrgent && (
-            <path
-              d="M350,1000 L380,910 L340,860 L400,790 L390,740"
-              fill="none"
-              className={styles.crackLine}
-            />
+      {/* Earthquake: Branching structural crack SVG & dust motes */}
+      {disasterType === 'earthquake' && (
+        <>
+          <div className={styles.dustMotes} />
+          {hasCrack && (
+            <svg
+              className={styles.cracksSvg}
+              viewBox="0 0 1000 1000"
+              preserveAspectRatio="none"
+            >
+              {/* Top-left corner fracture */}
+              <path
+                d="M0,0 L120,80 L90,140 L160,200 L140,280 L210,320"
+                fill="none"
+                className={styles.crackLine}
+              />
+              {/* Top-right corner fracture */}
+              <path
+                d="M1000,0 L880,70 L910,130 L840,190 L860,260 L800,310"
+                fill="none"
+                className={styles.crackLine}
+              />
+              {/* Lower border stress crack */}
+              {isUrgent && (
+                <path
+                  d="M350,1000 L380,910 L340,860 L400,790 L390,740"
+                  fill="none"
+                  className={styles.crackLine}
+                />
+              )}
+            </svg>
           )}
-        </svg>
+        </>
       )}
 
-      {/* Fire: Heat glow and descending smoke ceiling */}
+      {/* Fire: Heat glow, thermal distortion and descending smoke ceiling */}
       {disasterType === 'fire' && (
         <>
+          <div className={styles.heatDistortion} />
           <div
             className={isUrgent ? styles.fireGlowUrgent : styles.fireGlow}
           />
@@ -97,9 +103,10 @@ export function EnvironmentalOverlay({
         </>
       )}
 
-      {/* Flood: Rising water gradient and animated crest */}
+      {/* Flood: Rising water gradient, shimmer, and animated crest */}
       {disasterType === 'flood' && (
         <>
+          <div className={styles.waterShimmer} />
           <div
             className={`${styles.waterOverlay} ${
               isUrgent

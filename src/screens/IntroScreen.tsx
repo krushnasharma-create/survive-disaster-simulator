@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { getUiStrings } from '../i18n';
+import { playHover, playSelect } from '../utils/audio';
 import styles from './IntroScreen.module.css';
 
 export default function IntroScreen() {
@@ -21,21 +22,25 @@ export default function IntroScreen() {
   const ui = useMemo(() => getUiStrings(language), [language]);
 
   const handleEnterSimulation = () => {
+    playSelect();
     markIntroSeen();
     navigate('/select');
   };
 
   const handleHowToPlay = () => {
+    playSelect();
     navigate('/how-to-play');
   };
 
   const handleReset = () => {
+    playSelect();
     resetSession();
     setResetNotice(true);
     setTimeout(() => setResetNotice(false), 2000);
   };
 
   const toggleLanguage = () => {
+    playSelect();
     setLanguage(language === 'en' ? 'hinglish' : 'en');
   };
 
@@ -115,15 +120,27 @@ export default function IntroScreen() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.5 }}
         >
-          <button className={styles.primaryBtn} onClick={handleEnterSimulation}>
+          <button
+            className={styles.primaryBtn}
+            onClick={handleEnterSimulation}
+            onMouseEnter={() => playHover()}
+          >
             {ui.enterSimulation}
           </button>
-          <button className={styles.secondaryBtn} onClick={handleHowToPlay}>
+          <button
+            className={styles.secondaryBtn}
+            onClick={handleHowToPlay}
+            onMouseEnter={() => playHover()}
+          >
             {ui.howToPlay}
           </button>
           <button
             className={styles.secondaryBtn}
-            onClick={() => setShowSettings(true)}
+            onClick={() => {
+              playSelect();
+              setShowSettings(true);
+            }}
+            onMouseEnter={() => playHover()}
           >
             {ui.settings}
           </button>

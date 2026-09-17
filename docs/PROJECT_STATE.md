@@ -8,7 +8,7 @@
 
 ## Current Phase
 
-**PHASE 9 — JUDGE-READY UX POLISH + CONSEQUENCE-DRIVEN USP** (Implemented & Verified — Clean Build)
+**PHASE 9.5 — GAME FEEL / CINEMATIC JUICE PASS** (Implemented & Verified — Clean Build & Browser Verified)
 
 ---
 
@@ -19,11 +19,11 @@
 | Git repository | Initialized, clean working tree |
 | Remote | https://github.com/krushnasharma-create/survive-disaster-simulator.git |
 | Branch | main |
-| Application code | ✅ 7 complete playable disaster scenarios (Earthquake: Urban Apartment, Workplace High-Rise, & Bhuj 2001 Historical Simulation; Fire: Residential High-Rise & Commercial Food Court; Flood: Urban Flash Flood & Transit Street/Underpass); consequence-driven decision chain with explicit user action, consequence/new risk, and safer response feedback; always-on environmental atmosphere; truthful outcome screen; score-band visual coloring; exact scenario replay; full English + Roman Hinglish localization across all shared gameplay UI and 7 scenario graphs |
+| Application code | ✅ 7 complete playable disaster scenarios with enhanced cinematic game feel: zero-dependency procedural Web Audio API sound effects (hover ticks, select clicks, screen transitions, urgent timer pulse, disaster choice impact thud/whoosh/surge, and consequence reveal chimes); interactive choice commitment latching with 'ACTION COMMITTED' visual badge; staggered consequence reveal hierarchy; environmental dust motes, heat distortion, and water shimmer VFX; exact scenario replay; full English + Roman Hinglish localization across all shared gameplay UI and 7 scenario graphs |
 | Build system | ✅ Vite + React 18 + TypeScript (strict) |
 | Dependencies installed | ✅ react-router-dom, zustand, framer-motion |
 | TypeScript errors | ✅ 0 errors |
-| Build status | ✅ Passes (`npm run build` — 485 modules, 0 errors in 280ms) |
+| Build status | ✅ Passes (`npm run build` — 486 modules, 0 errors in 277ms) |
 | Master visual language | ✅ Dark, cinematic, HUD-inspired aesthetic strictly preserved across all screens |
 
 ---
@@ -179,11 +179,27 @@
   - Added localized strings for "Enter Scenario" (`Scenario Mein Pravaish Karein`) and "Decide Now" (`Abhi Faisla Karein`).
   - Preserved session language across full simulation restarts in `gameStore.ts`.
 
+### Phase 9.5 — Game Feel & Cinematic Juice Pass
+- [x] **Zero-Dependency Procedural Web Audio API Engine (`src/utils/audio.ts`):**
+  - Synthesizes all audio in real time using native browser oscillators, filters, white-noise buffers, and master compression. Zero external asset weight or latency.
+  - Fully autoplay-compliant; initializes and unlocks only upon genuine user interactions.
+  - Implemented crisp sound effects: UI hover micro-clicks, button confirmations, screen transitions, urgent timer ticking ($\le 5$s), timeout buzzer, disaster-specific impact thud/whoosh/surge, and consequence reveal chimes (harmonic major triad for correct, dissonant chord for risk).
+- [x] **Choice Commitment Latch (`src/components/DecisionPanel.tsx` & `.module.css`):**
+  - Instantly locks selected choice upon click, dims other options, displays an "ACTION COMMITTED" indicator badge, and plays the disaster impact SFX.
+  - 150ms tactile latch delay gives players immediate confirmation that their action is registered before the consequence transition.
+- [x] **Staggered Consequence Reveal (`src/screens/ConsequenceScreen.tsx`):**
+  - Replaced jarring static renders with a sequential 4-beat crisis reveal: Status Header $\to$ Your Action $\to$ Consequence / New Risk $\to$ Safer Response / Protocol Grounding $\to$ Continue Action.
+  - Synchronized with procedural harmonic/dissonant consequence audio feedback.
+- [x] **Atmospheric Environmental Overlays (`src/components/EnvironmentalOverlay.tsx` & `.module.css`):**
+  - Added floating dust motes for earthquake, radial heat shimmering for fire, and undulating water reflections for flood.
+  - Preserved `pointer-events: none` and `contain: strict` to ensure 0 input blocking and 60 FPS performance.
+  - Full support for `prefers-reduced-motion: reduce`.
+
 ---
 
 ## Current Task
 
-Phase 9 judge-readiness polish and consequence-driven gameplay UX completed, verified via automated browser smoke tests across desktop and mobile.
+Phase 9.5 Game Feel & Cinematic Juice Pass completed and verified in Google Chrome.
 
 ---
 

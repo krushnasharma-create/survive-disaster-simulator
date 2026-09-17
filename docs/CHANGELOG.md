@@ -3,6 +3,29 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-17] PHASE 9.5 — Game Feel & Cinematic Juice Pass
+- **Zero-Dependency Procedural Audio Engine (`src/utils/audio.ts`):**
+  - Synthesizes all audio natively with the Web Audio API (`AudioContext`, gain nodes, biquad filters, and dynamics compressor).
+  - Autoplay-compliant; lazily resumes on user gesture without throwing unhandled exceptions.
+  - Implemented tactile procedural sound effects: UI hover micro-clicks, button selections, screen transition swooshes, urgency timer pulse (heartbeat tick at $\le 5$s and timeout buzzer at $0$s), disaster-specific choice impact (low earthquake sub-thud, fire white-noise whoosh, flood resonant surge), and consequence reveal chords (harmonic chime for safe choices, low dissonant chord for risks).
+- **Choice Commitment Latch (`src/components/DecisionPanel.tsx` & `.module.css`, `ScenarioScreen.tsx`):**
+  - Added an instant choice locking latch on user click: displays an amber `ACTION COMMITTED` status badge, dims opposing choices, triggers the disaster impact SFX, and enforces a 150ms tactile pause before navigation.
+  - Transforms static link clicks into a visceral sense of taking an emergency action under pressure.
+- **Sequential Consequence Stagger (`src/screens/ConsequenceScreen.tsx`):**
+  - Replaced immediate layout pop-in with a 4-beat sequential reveal: Header Status $\to$ Player Action $\to$ Consequence / New Risk $\to$ Safer Response & NDMA Insight $\to$ Continue Action.
+  - Triggers consequence reveal audio upon mounting.
+- **Cinematic Screen Transitions (`src/components/ScreenTransition.tsx`):**
+  - Snappy 380ms transition with subtle scale and brightness modulation.
+  - Fully disabled under `prefers-reduced-motion: reduce`.
+- **Atmospheric Environmental Overlays (`src/components/EnvironmentalOverlay.tsx` & `.module.css`):**
+  - Added particulate dust motes for earthquake, radial heat distortion waves for fire, and undulating water reflections for flood.
+  - Fully non-blocking with `pointer-events: none` and `contain: strict`.
+- **Verification & QA:**
+  - Build passes cleanly (`npm run build`).
+  - Lint clean (`npm run lint`).
+  - Git diff clean (`git diff --check`).
+  - Automated browser verification passed across all 7 scenarios, Bhuj replay persistence, 15s timer retry reset, Hinglish UI, and mobile viewport 390x844.
+
 ## [2026-09-17] PHASE 9 — Judge-Ready UX Polish & Consequence-Driven USP
 - **P0-1: Exact Replay Scenario Context (`src/screens/ReportScreen.tsx`):**
   - Updated `handlePlayAgain` to preserve `activeScenarioId` in query parameter (`/intro?scenario=${activeScenarioId}`).

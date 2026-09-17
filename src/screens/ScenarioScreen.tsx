@@ -13,6 +13,7 @@ import { DecisionPanel } from '../components/DecisionPanel';
 import { EnvironmentalOverlay } from '../components/EnvironmentalOverlay';
 import { useCountdown } from '../hooks/useCountdown';
 import { getLocalizedScenario, getUiStrings } from '../i18n';
+import { playTimerTick, playDisasterChoiceImpact } from '../utils/audio';
 import type { DisasterType, DecisionNode } from '../data/types';
 import styles from './ScenarioScreen.module.css';
 
@@ -115,7 +116,7 @@ export default function ScenarioScreen() {
     return arr;
   }, [decisionNode?.id, language]);
 
-  // Handle choice selection
+  // Handle choice selection with 150ms action commitment latch
   const handleSelectChoice = useCallback(
     (choiceId: string, remainingSeconds?: number) => {
       if (!decisionNode) return;
@@ -124,6 +125,9 @@ export default function ScenarioScreen() {
 
       // Find the safer/optimal choice from existing scenario data if current choice was incorrect
       const optimalChoice = decisionNode.choices.find((c) => c.isCorrect);
+
+      // Play physical disaster commitment audio
+      playDisasterChoiceImpact(targetDisaster);
 
       recordDecision(evalResult.record);
       setConsequence({
@@ -136,7 +140,10 @@ export default function ScenarioScreen() {
         optimalChoiceLabel: !evalResult.isCorrect && optimalChoice ? optimalChoice.label : undefined,
       });
 
-      navigate(`/disaster/${targetDisaster}/consequence`);
+      // Brief 150ms commitment pulse gives tactile weight to the decision before transition
+      setTimeout(() => {
+        navigate(`/disaster/${targetDisaster}/consequence`);
+      }, 150);
     },
     [decisionNode, navigate, recordDecision, setConsequence, targetDisaster]
   );
@@ -144,8 +151,7 @@ export default function ScenarioScreen() {
   // Time limit hook — 15 seconds limit
   const timeLimit = decisionNode?.timeLimit;
   const onTimerExpire = useCallback(() => {
-    // When time expires, do NOT auto-select the choice or reveal the solution.
-    // Transition to the dedicated Time Expired / Simulation Failed screen.
+    playTimerTick(0);
     setIsTimedOut(true);
   }, []);
 
@@ -155,6 +161,13 @@ export default function ScenarioScreen() {
     onExpire: onTimerExpire,
     resetKey: retryCount,
   });
+
+  // Urgency audio pulse for timed decision countdown
+  useEffect(() => {
+    if (timeLimit && remaining <= 5 && remaining > 0 && !isTimedOut) {
+      playTimerTick(remaining);
+    }
+  }, [remaining, timeLimit, isTimedOut]);
 
   const handleRetryScenario = () => {
     setIsTimedOut(false);

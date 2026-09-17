@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { getUiStrings } from '../i18n';
+import { playHover, playSelect } from '../utils/audio';
 import type { DisasterType } from '../data/types';
 import styles from './DisasterSelect.module.css';
 
@@ -70,10 +71,12 @@ export default function DisasterSelect() {
   const ui = useMemo(() => getUiStrings(language), [language]);
 
   const toggleLanguage = () => {
+    playSelect();
     setLanguage(language === 'en' ? 'hinglish' : 'en');
   };
 
   const handleSelect = (item: DisasterScenarioItem) => {
+    playSelect();
     if (item.status === 'playable') {
       selectDisaster(item.id);
       navigate(`/disaster/${item.id}/scenarios`);
@@ -100,7 +103,14 @@ export default function DisasterSelect() {
           >
             LANG: {language === 'en' ? 'ENGLISH' : 'HINGLISH'}
           </button>
-          <button className={styles.backBtn} onClick={() => navigate('/')}>
+          <button
+            className={styles.backBtn}
+            onClick={() => {
+              playSelect();
+              navigate('/');
+            }}
+            onMouseEnter={() => playHover()}
+          >
             ← {ui.mainMenu}
           </button>
         </div>
@@ -129,6 +139,7 @@ export default function DisasterSelect() {
                 isPlayable ? styles.cardPlayable : styles.cardLocked
               }`}
               onClick={() => handleSelect(d)}
+              onMouseEnter={() => playHover()}
               style={
                 {
                   '--card-accent': d.accent,

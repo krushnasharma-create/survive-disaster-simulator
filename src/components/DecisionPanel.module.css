@@ -42,3 +42,40 @@
   margin-right: var(--space-sm);
   opacity: 0.7;
 }
+
+.choiceSelected {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-left-color: var(--theme-primary) !important;
+  border-color: var(--theme-primary) !important;
+  box-shadow: 0 0 16px rgba(232, 160, 32, 0.25);
+  color: var(--color-white) !important;
+  transform: translateX(6px) !important;
+  animation: choicePulse 0.3s ease-in-out;
+}
+
+.choiceDimmed {
+  opacity: 0.35 !important;
+  pointer-events: none;
+  filter: grayscale(0.5);
+}
+
+.lockedBadge {
+  position: absolute;
+  right: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  padding: 0.2rem 0.5rem;
+  background: var(--theme-primary);
+  color: var(--color-void);
+  font-weight: 700;
+  border-radius: 2px;
+}
+
+@keyframes choicePulse {
+  0% { transform: translateX(2px) scale(0.99); }
+  50% { transform: translateX(7px) scale(1.01); }
+  100% { transform: translateX(6px) scale(1); }
+}

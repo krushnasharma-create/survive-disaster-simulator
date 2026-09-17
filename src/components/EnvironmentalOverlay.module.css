@@ -196,3 +196,66 @@
     background-position: 50px 50px;
   }
 }
+
+/* Atmospheric Micro-Particles & Environmental Shimmer */
+.dustMotes {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(232, 160, 32, 0.25) 1px, transparent 1px),
+                    radial-gradient(circle, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+  background-size: 120px 120px, 180px 180px;
+  background-position: 0 0, 40px 60px;
+  opacity: 0.45;
+  animation: floatDust 12s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes floatDust {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(15px) rotate(1deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+.heatDistortion {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 100%, rgba(255, 80, 0, 0.08) 0%, transparent 60%);
+  animation: heatPulse 2.5s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes heatPulse {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.85; }
+}
+
+.waterShimmer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 22vh;
+  background: radial-gradient(ellipse at 50% 100%, rgba(0, 168, 204, 0.12) 0%, transparent 70%);
+  animation: waterGleam 3s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes waterGleam {
+  0% { opacity: 0.3; }
+  100% { opacity: 0.75; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rumbleActive,
+  .rumbleUrgent,
+  .rumblePassive,
+  .fireGlow,
+  .fireGlowUrgent,
+  .waterWave,
+  .currentStream,
+  .dustMotes,
+  .heatDistortion,
+  .waterShimmer {
+    animation: none !important;
+  }
+}

@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { getScenariosForDisaster, type ScenarioCatalogueItem } from '../data';
 import { getUiStrings } from '../i18n';
+import { playHover, playSelect } from '../utils/audio';
 import type { DisasterType } from '../data/types';
 import styles from './ScenarioSelectScreen.module.css';
 
@@ -42,10 +43,12 @@ export default function ScenarioSelectScreen() {
   const ui = useMemo(() => getUiStrings(language), [language]);
 
   const toggleLanguage = () => {
+    playSelect();
     setLanguage(language === 'en' ? 'hinglish' : 'en');
   };
 
   const handleSelectScenario = (item: ScenarioCatalogueItem) => {
+    playSelect();
     if (item.status === 'playable') {
       selectScenario(item.id, activeDisaster);
       navigate(`/disaster/${activeDisaster}/intro?scenario=${item.id}`);
@@ -72,7 +75,14 @@ export default function ScenarioSelectScreen() {
           >
             LANG: {language === 'en' ? 'ENGLISH' : 'HINGLISH'}
           </button>
-          <button className={styles.backBtn} onClick={() => navigate('/select')}>
+          <button
+            className={styles.backBtn}
+            onClick={() => {
+              playSelect();
+              navigate('/select');
+            }}
+            onMouseEnter={() => playHover()}
+          >
             ← {ui.backToDisasters}
           </button>
         </div>
@@ -102,6 +112,7 @@ export default function ScenarioSelectScreen() {
                 isPlayable ? styles.cardPlayable : styles.cardLocked
               }`}
               onClick={() => handleSelectScenario(sc)}
+              onMouseEnter={() => playHover()}
               style={
                 {
                   '--card-accent': theme.accent,

@@ -1,13 +1,11 @@
-// src/screens/ConsequenceScreen.tsx
-// Displays immediate consequences of player action alongside authoritative NDMA insights.
-// Fully localized with English and Hinglish language support.
-
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { getScenario } from '../data';
 import { getNode } from '../engine/scenarioRunner';
 import { getLocalizedScenario, getUiStrings } from '../i18n';
+import { playConsequenceReveal } from '../utils/audio';
 import type { DisasterType } from '../data/types';
 import styles from './ConsequenceScreen.module.css';
 
@@ -20,6 +18,7 @@ const THEME_MAP: Record<DisasterType, string> = {
 export default function ConsequenceScreen() {
   const { disasterId } = useParams<{ disasterId: string }>();
   const navigate = useNavigate();
+  const shouldReduceMotion = useReducedMotion();
 
   const {
     activeDisaster,
@@ -37,6 +36,13 @@ export default function ConsequenceScreen() {
   const ui = getUiStrings(language);
 
   const themeClass = THEME_MAP[targetDisaster] || 'theme-earthquake';
+
+  // Play consequence reveal audio on mounting
+  useEffect(() => {
+    if (currentConsequence) {
+      playConsequenceReveal(currentConsequence.isCorrect);
+    }
+  }, [currentConsequence]);
 
   // If no active consequence recorded, return to scenario
   if (!currentConsequence) {
@@ -78,16 +84,25 @@ export default function ConsequenceScreen() {
     }
   };
 
+  const itemVariants = {
+    hidden: shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 },
+    visible: shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 },
+  };
+
   return (
     <div className={`${styles.screen} ${themeClass} scanlines`}>
       <motion.div
         className={styles.container}
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
+        initial="hidden"
+        animate="visible"
+        transition={{ staggerChildren: shouldReduceMotion ? 0.05 : 0.15 }}
       >
         {/* Header with status badge */}
-        <header className={styles.header}>
+        <motion.header
+          className={styles.header}
+          variants={itemVariants}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+        >
           <span className={styles.eyebrow}>{ui.decisionEvaluation}</span>
           <span
             className={`${styles.statusBadge} ${
@@ -96,23 +111,35 @@ export default function ConsequenceScreen() {
           >
             {currentConsequence.isCorrect ? ui.optimalAction : ui.highRiskAction}
           </span>
-        </header>
+        </motion.header>
 
         {/* Your Action */}
-        <div className={styles.actionTaken}>
+        <motion.div
+          className={styles.actionTaken}
+          variants={itemVariants}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+        >
           <span className={styles.actionLabel}>{ui.yourAction}</span>
           <span className={styles.actionText}>{currentConsequence.choiceLabel}</span>
-        </div>
+        </motion.div>
 
         {/* Consequence / New Risk Narrative */}
-        <div className={styles.consequenceBox}>
+        <motion.div
+          className={styles.consequenceBox}
+          variants={itemVariants}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+        >
           <div className={styles.consequenceHeading}>{ui.newRisk}</div>
           <p className={styles.consequenceText}>{currentConsequence.consequenceText}</p>
-        </div>
+        </motion.div>
 
         {/* Safer Response — deterministic learning feedback for suboptimal decisions */}
         {!currentConsequence.isCorrect && currentConsequence.optimalChoiceLabel && (
-          <div className={styles.saferResponseCard}>
+          <motion.div
+            className={styles.saferResponseCard}
+            variants={itemVariants}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+          >
             <div className={styles.saferResponseHeader}>
               <span aria-hidden="true">✓</span>
               <span>{ui.saferResponse}</span>
@@ -120,11 +147,15 @@ export default function ConsequenceScreen() {
             <p className={styles.saferResponseText}>
               {currentConsequence.optimalChoiceLabel}
             </p>
-          </div>
+          </motion.div>
         )}
 
         {/* Authoritative Safety Insight */}
-        <div className={styles.insightCard}>
+        <motion.div
+          className={styles.insightCard}
+          variants={itemVariants}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+        >
           <div className={styles.insightHeader}>
             <span aria-hidden="true">🛡️</span>
             <span>{ui.protocolGrounding}</span>
@@ -133,10 +164,14 @@ export default function ConsequenceScreen() {
           <div className={styles.insightSource}>
             Official Source: {currentConsequence.insightSource}
           </div>
-        </div>
+        </motion.div>
 
         {/* Continue Action */}
-        <div className={styles.footerActions}>
+        <motion.div
+          className={styles.footerActions}
+          variants={itemVariants}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+        >
           <motion.button
             className={styles.continueBtn}
             onClick={handleContinue}
@@ -145,7 +180,7 @@ export default function ConsequenceScreen() {
           >
             {ui.continueSimulation}
           </motion.button>
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   );
