@@ -8,7 +8,13 @@
 
 ## Current Phase
 
-**PHASE 10.5 — FINAL JUDGE POLISH & CLAIM SAFETY PASS** (Implemented & Verified — Clean Build & Browser Verified)
+**PHASE 10.5 — FINAL JUDGE POLISH & CLAIM SAFETY PASS** — Complete (Hack 2 Ignite Round 1 submission)
+
+**NEXT PHASE — ROUND 2 PRODUCTION UPGRADE** — Starting 2026-09-26
+
+Round 2 venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`.
+
+> **Agent handoff note:** `AGENTS.md` is the authoritative handoff source for any AI coding agent (Antigravity, Codex, or other) continuing this project. Read `AGENTS.md` first, then this file, before every task.
 
 ---
 
@@ -18,7 +24,9 @@
 |---|---|
 | Git repository | Initialized, clean working tree |
 | Remote | https://github.com/krushnasharma-create/survive-disaster-simulator.git |
-| Branch | main |
+| Branch | `main` (single-branch workflow — all changes to `main`) |
+| Baseline tag | `pre-production-upgrade` → commit `d3b3755` |
+| Live production URL | https://survive-disaster-simulator.vercel.app/ (Vercel, auto-deploys from `main`) |
 | Application code | ✅ 7 complete playable disaster scenarios with enhanced cinematic game feel: zero-dependency procedural Web Audio API sound effects (hover ticks, select clicks, screen transitions, urgent timer pulse, disaster choice impact thud/whoosh/surge, and consequence reveal chimes); interactive choice commitment latching with 'ACTION COMMITTED' visual badge; staggered consequence reveal hierarchy; environmental dust motes, heat distortion, and water shimmer VFX; exact scenario replay; full English + Roman Hinglish localization across all shared gameplay UI and 7 scenario graphs |
 | Build system | ✅ Vite + React 18 + TypeScript (strict) |
 | Dependencies installed | ✅ react-router-dom, zustand, framer-motion |
@@ -206,16 +214,57 @@
 
 ---
 
+## Hackathon Context
+
+| Item | Detail |
+|---|---|
+| Hackathon | Hack 2 Ignite 2026 |
+| Team | Team COSMIC |
+| Problem Statement | GD-02 — Create a simulation game that teaches disaster preparedness and emergency response |
+| Round 1 | ✅ Submitted — commit `d3b3755` — judge-ready README finalized, deployed on Vercel |
+| Round 2 | ✅ Selected — venue date **3 October 2026** |
+| Round 2 Deployment | `https://survive-disaster-simulator.vercel.app/` — Vercel, auto-deploys from `main` |
+| Git workflow | Single-branch `main` — no feature branches; commit and push after each verified unit of work |
+| Baseline tag | `pre-production-upgrade` → `d3b3755` — safe rollback point before any Round 2 changes |
+
+---
+
+## Round 2 Production Upgrade Plan
+
+> The application is functionally complete as submitted in Round 1.
+> Round 2 upgrades must be genuinely implemented and verifiable at the venue on 3 October 2026.
+> Do NOT add fake or placeholder features.
+
+**Planned upgrade areas (subject to feasibility; none started yet):**
+- Session persistence via Zustand `persist` middleware (`localStorage`) — so in-progress gameplay survives page refresh
+- Supabase integration for authentication and persistent score history — planned as optional upgrade if persistence baseline is stable
+- Any mandatory venue MVP feature (TBD; must be fully implemented before venue — not stub or placeholder)
+
+**Constraints that remain frozen:**
+- Scenario data, choice correctness, scoring math, NDMA guidance — must NOT change
+- Routing architecture, deterministic engine, Web Audio — must NOT change
+- No force push; no fabricated history; no wip/final2/asdf commit messages
+
+---
+
 ## Current Task
 
-Phase 10.5 Final Judge Polish & Claim Safety Pass completed and verified in Google Chrome.
+Round 2 production upgrade safety checkpoint complete (2026-09-26):
+- Baseline tag `pre-production-upgrade` created and pushed to origin
+- Documentation updated with Round 2 context, venue date, and Supabase upgrade plan
+- Working tree clean, build and lint verified
 
 ---
 
 ## Next Task
 
-**LIVE DEMO EXECUTION**
-- Present SURVIVE using the rehearsed 3-minute demo script focusing on the consequence-driven decision loop and NDMA grounding.
+**ROUND 2 PRODUCTION UPGRADE — PHASE 1**
+1. Add `vercel.json` for explicit SPA rewrite rules and environment variable support
+2. Add `.env.example` (committed) and `.env.local` (gitignored) for Supabase keys
+3. Install and configure `@supabase/supabase-js` in `src/lib/supabase.ts`
+4. Add Zustand `persist` middleware to `gameStore.ts` backed by `localStorage`
+5. Implement authentication screens (login/register) and auth guard
+6. Implement persistent score history via Supabase
 
 ---
 

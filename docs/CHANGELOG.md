@@ -3,7 +3,19 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
-## [2026-09-17] PHASE 10.5 — Final Judge Polish & Claim Safety Pass
+## [2026-09-26] ROUND 2 — Production Upgrade Safety Checkpoint
+- **Baseline tag created:** `pre-production-upgrade` → commit `d3b3755` — annotated, pushed to `origin`.
+- **Documentation updated:** `docs/PROJECT_STATE.md` updated with Round 2 venue date (3 October 2026), production upgrade plan, Supabase persistence intent, frozen constraints, main-branch workflow, and agent handoff note.
+- **No application code changed.** Working tree clean. Build and lint verified before commit.
+
+## [2026-09-18] ROUND 1 SUBMISSION — Hack 2 Ignite 2026
+- **Submission commit:** `d3b3755 docs: finalize judge-ready README`
+- Comprehensive 19-section judge-ready README.md published covering: live demo, demo video, gameplay flow, tech stack, safety principles, NDMA grounding, scenario catalogue, USP differentiation, known limitations, and AI disclosure.
+- Live deployment: `https://survive-disaster-simulator.vercel.app/`
+- Demo video: `https://youtu.be/voib2X3qVCs`
+- Team: Team COSMIC — Hack 2 Ignite 2026 (Problem Statement GD-02)
+
+
 - **Main Menu Console Activity Indicator (`src/screens/IntroScreen.tsx` & `.module.css`):**
   - Integrated subtle terminal blinking cursor indicator (`.consoleCursor`) in the top HUD status line beside `SIMULATION CONSOLE ACTIVE`.
   - Provides immediate visual feedback that the simulation console is live upon initial page load without adding clutter.
