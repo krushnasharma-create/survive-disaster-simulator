@@ -3,6 +3,33 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-26] PHASE 11 — Supabase Auth & Persistence Foundation
+- **Supabase Integration & Zero-Risk Environment (`src/lib/supabase.ts`, `.env.example`, `.gitignore`):**
+  - Added `@supabase/supabase-js` without bundle lock-in.
+  - Added `.env.example` template with `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+  - Added explicit `.gitignore` rules for all `.env` and `.env.local` files to guarantee zero secrets enter version control.
+  - Provided a resilient fallback client in `src/lib/supabase.ts` ensuring guest/offline play functions seamlessly without credentials.
+- **Deterministic PostgreSQL Migrations (`supabase/migrations/`):**
+  - Created 7 sequential, reproducible SQL migrations: `01_create_profiles.sql`, `02_create_player_stats.sql`, `03_create_auth_trigger.sql`, `04_create_game_runs.sql`, `05_create_decisions.sql`, `06_create_stats_trigger.sql`, `07_enable_rls_and_policies.sql`.
+  - Hardened `SECURITY DEFINER` trigger with strict `search_path = public, pg_temp;` to provision profiles and stats on registration.
+  - Implemented granular, private-only RLS policies across all tables. Zero anonymous access. Prohibited client-side updates and deletes on historical decisions and aggregate stats.
+- **Ordered FIFO Persistence Queue (`src/services/gamePersistenceService.ts`):**
+  - Implemented a per-run FIFO promise queue guaranteeing that decisions and run finalization arrive in Supabase in strict deterministic sequence.
+  - Fire-and-forget: Network latency never blocks timer countdowns, screen transitions, or tactile choice latches.
+- **Authentication Lifecycle & UI (`src/services/authService.ts`, `AuthScreen.tsx`, `AuthGuard.tsx`):**
+  - Email/password authentication with server-validated username metadata.
+  - Cinematic SURVIVE styling with clear validation feedback and sanitized error messages.
+  - Protected `/profile` route with automatic session restoration.
+- **Private Player Dossier (`src/screens/ProfileScreen.tsx`):**
+  - Displays authenticated user's callsign, average readiness rating, peak score, completed simulations, survival count, and disaster breakdown.
+- **Simulation Loop Persistence Integration (`DisasterIntro.tsx`, `ScenarioScreen.tsx`, `ReportScreen.tsx`):**
+  - Non-blocking run start, incremental decision queuing, and finalization on report mount.
+  - Unauthenticated guests play completely locally with zero network calls and full report generation.
+- **Persistence Stabilization & Session Guards (`AuthScreen.tsx`, `gamePersistenceService.ts`):**
+  - Ensured `authUserId` is only populated in store when a valid session token is confirmed.
+  - Added pre-flight active session verification in `startRun`, `recordDecision`, `finalizeRun`, and `failRun` to prevent unauthenticated/mismatched payloads from violating RLS.
+  - Wiped lingering auth state when choosing 'Continue as Guest'.
+
 ## [2026-09-26] ROUND 2 — Production Upgrade Safety Checkpoint
 - **Baseline tag created:** `pre-production-upgrade` → commit `d3b3755` — annotated, pushed to `origin`.
 - **Documentation updated:** `docs/PROJECT_STATE.md` updated with Round 2 venue date (3 October 2026), production upgrade plan, Supabase persistence intent, frozen constraints, main-branch workflow, and agent handoff note.

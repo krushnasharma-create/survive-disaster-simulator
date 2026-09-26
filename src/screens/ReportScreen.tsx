@@ -2,21 +2,43 @@
 // Comprehensive Emergency Preparedness Report.
 // Displays calculated score, decision-by-decision review, and official NDMA takeaways.
 
-import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { buildReport } from '../engine/reportBuilder';
 import { getUiStrings, FIRE_HINGLISH_TAKEAWAYS, FLOOD_HINGLISH_TAKEAWAYS } from '../i18n';
+import { finalizeRun } from '../services/gamePersistenceService';
 import styles from './ReportScreen.module.css';
 
 export default function ReportScreen() {
   const navigate = useNavigate();
-  const { decisions, activeDisaster, activeScenarioId, resetSession, language } = useGameStore();
+  const {
+    decisions,
+    activeDisaster,
+    activeScenarioId,
+    resetSession,
+    language,
+    authUserId,
+    activeRunId,
+    setActiveRunId,
+    currentOutcome,
+  } = useGameStore();
 
   const report = useMemo(() => buildReport(decisions, activeDisaster || undefined), [decisions, activeDisaster]);
   const { scoreSummary, decisionReviews, keyTakeaways, officialHelplines } = report;
   const ui = useMemo(() => getUiStrings(language), [language]);
+
+  // Asynchronously finalize active Supabase game run if authenticated
+  useEffect(() => {
+    if (authUserId && activeRunId) {
+      finalizeRun(activeRunId, authUserId, {
+        survived: currentOutcome?.survived ?? true,
+        scoreSummary,
+      });
+      setActiveRunId(null);
+    }
+  }, [authUserId, activeRunId, currentOutcome, scoreSummary, setActiveRunId]);
 
   const handlePlayAgain = () => {
     const savedDisaster = activeDisaster || 'earthquake';
@@ -233,6 +255,27 @@ export default function ReportScreen() {
         >
           {ui.educationalDisclaimer}
         </div>
+
+        {/* Guest Persistence Prompt */}
+        {!authUserId && (
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '0.75rem',
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '2px',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.75rem',
+              color: 'var(--color-fog)',
+            }}
+          >
+            <span>PLAYING AS GUEST · </span>
+            <Link to="/auth/signup" style={{ color: 'var(--color-white)', textDecoration: 'underline' }}>
+              CREATE OPERATOR ACCOUNT TO SAVE SIMULATION RECORDS
+            </Link>
+          </div>
+        )}
 
         {/* Footer Actions */}
         <div className={styles.actions}>

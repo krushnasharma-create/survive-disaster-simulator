@@ -27,11 +27,11 @@ Round 2 venue date: **3 October 2026**. Production upgrade in progress on `main`
 | Branch | `main` (single-branch workflow — all changes to `main`) |
 | Baseline tag | `pre-production-upgrade` → commit `d3b3755` |
 | Live production URL | https://survive-disaster-simulator.vercel.app/ (Vercel, auto-deploys from `main`) |
-| Application code | ✅ 7 complete playable disaster scenarios with enhanced cinematic game feel: zero-dependency procedural Web Audio API sound effects (hover ticks, select clicks, screen transitions, urgent timer pulse, disaster choice impact thud/whoosh/surge, and consequence reveal chimes); interactive choice commitment latching with 'ACTION COMMITTED' visual badge; staggered consequence reveal hierarchy; environmental dust motes, heat distortion, and water shimmer VFX; exact scenario replay; full English + Roman Hinglish localization across all shared gameplay UI and 7 scenario graphs |
-| Build system | ✅ Vite + React 18 + TypeScript (strict) |
-| Dependencies installed | ✅ react-router-dom, zustand, framer-motion |
+| Application code | ✅ 7 complete playable disaster scenarios with enhanced cinematic game feel: zero-dependency procedural Web Audio API sound effects (hover ticks, select clicks, screen transitions, urgent timer pulse, disaster choice impact thud/whoosh/surge, and consequence reveal chimes); interactive choice commitment latching with 'ACTION COMMITTED' visual badge; staggered consequence reveal hierarchy; environmental dust motes, heat distortion, and water shimmer VFX; exact scenario replay; full English + Roman Hinglish localization across all shared gameplay UI and 7 scenario graphs; Supabase Auth & asynchronous FIFO persistence layer with full guest resilience |
+| Build system | ✅ Vite + React 18/19 + TypeScript (strict) |
+| Dependencies installed | ✅ react-router-dom, zustand, framer-motion, @supabase/supabase-js |
 | TypeScript errors | ✅ 0 errors |
-| Build status | ✅ Passes (`npm run build` — 486 modules, 0 errors in 277ms) |
+| Build status | ✅ Passes (`npm run build` — 536 modules, 0 errors in 685ms) |
 | Master visual language | ✅ Dark, cinematic, HUD-inspired aesthetic strictly preserved across all screens |
 
 ---
@@ -212,6 +212,33 @@ Round 2 venue date: **3 October 2026**. Production upgrade in progress on `main`
 - [x] **Claim & Documentation Safety Verification:**
   - Audited all factual claims across documentation to ensure defensible, evidence-backed presentation (e.g., client-side execution, procedural Web Audio API, NDMA grounding, Playwright verification).
 
+### Phase 11 — Supabase Auth & Persistence Foundation
+- [x] **Zero-Risk Environment & Client Configuration (`src/lib/supabase.ts`, `.env.example`, `.gitignore`):**
+  - Added `@supabase/supabase-js` library.
+  - Added `.env.example` template with `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`.
+  - Enforced strict `.gitignore` rules for all `.env` and `.env.local` files; zero secrets committed.
+  - Safe fallback: client gracefully returns null if unconfigured, guaranteeing zero crashes in guest/offline mode.
+- [x] **Deterministic SQL Migrations (`supabase/migrations/`):**
+  - `01_create_profiles.sql`: 1:1 `public.profiles` linked to `auth.users`, case-insensitive unique username constraint.
+  - `02_create_player_stats.sql`: Private lifetime statistics with non-negative check constraints.
+  - `03_create_auth_trigger.sql`: Hardened `SECURITY DEFINER` function with strict `search_path = public, pg_temp;` to provision profile and stats on user creation.
+  - `04_create_game_runs.sql`: Lifecycle tracking for simulation runs (`in_progress`, `completed`).
+  - `05_create_decisions.sql`: Granular append-only audit trail with unique `(run_id, step_order)` constraint.
+  - `06_create_stats_trigger.sql`: Automatic calculation trigger updating lifetime stats when runs reach `completed`.
+  - `07_enable_rls_and_policies.sql`: Granular, private-only RLS policies across all tables. Zero anonymous access. Prohibited client UPDATE/DELETE on decisions and stats.
+- [x] **Asynchronous Ordered FIFO Persistence Service (`src/services/gamePersistenceService.ts`):**
+  - Implemented strict per-run FIFO promise queue ensuring decisions and run finalization arrive in deterministic order.
+  - Fire-and-forget: Network activity never blocks timer countdowns, screen transitions, or tactile choice latches.
+- [x] **Authentication Lifecycle & UI (`src/services/authService.ts`, `AuthScreen.tsx`, `AuthGuard.tsx`):**
+  - Email/password authentication with server-validated username metadata.
+  - Dark cinematic SURVIVE styling with clear validation feedback and sanitized error messages.
+  - Protected `/profile` route with automatic session restoration and guest fallback.
+- [x] **Private Player Dossier (`src/screens/ProfileScreen.tsx`):**
+  - Displays authenticated user's callsign, average readiness rating, peak score, completed simulations, survival count, and disaster breakdown.
+- [x] **Simulation Loop Persistence Integration (`DisasterIntro.tsx`, `ScenarioScreen.tsx`, `ReportScreen.tsx`):**
+  - Non-blocking run start, incremental decision queuing, and finalization on report mount.
+  - Unauthenticated guests play completely locally with zero network calls and full report generation.
+
 ---
 
 ## Hackathon Context
@@ -249,22 +276,23 @@ Round 2 venue date: **3 October 2026**. Production upgrade in progress on `main`
 
 ## Current Task
 
-Round 2 production upgrade safety checkpoint complete (2026-09-26):
-- Baseline tag `pre-production-upgrade` created and pushed to origin
-- Documentation updated with Round 2 context, venue date, and Supabase upgrade plan
-- Working tree clean, build and lint verified
+**PHASE 11 — SUPABASE AUTH + PERSISTENCE FOUNDATION COMPLETED (2026-09-26):**
+- Added `@supabase/supabase-js` with safe unconfigured/guest fallbacks in `src/lib/supabase.ts`.
+- Created `.env.example` template; ensured `.env.local` is strictly ignored by Git.
+- Created 7 sequential, idempotent SQL migrations in `supabase/migrations/` enforcing private RLS and database triggers.
+- Implemented `src/services/authService.ts` and `src/services/gamePersistenceService.ts` with strict per-run FIFO queuing.
+- Implemented `/auth/login`, `/auth/signup`, and private `/profile` routes protected by `<AuthGuard>`.
+- Verified non-blocking gameplay loop integration across `DisasterIntro`, `ScenarioScreen`, and `ReportScreen`.
+- Confirmed zero errors across build (`npm run build`) and lint (`npm run lint`).
 
 ---
 
 ## Next Task
 
-**ROUND 2 PRODUCTION UPGRADE — PHASE 1**
-1. Add `vercel.json` for explicit SPA rewrite rules and environment variable support
-2. Add `.env.example` (committed) and `.env.local` (gitignored) for Supabase keys
-3. Install and configure `@supabase/supabase-js` in `src/lib/supabase.ts`
-4. Add Zustand `persist` middleware to `gameStore.ts` backed by `localStorage`
-5. Implement authentication screens (login/register) and auth guard
-6. Implement persistent score history via Supabase
+**ROUND 2 PRODUCTION UPGRADE — PHASE 12: DATABASE MIGRATION EXECUTION & SMOKE TEST**
+1. Apply the 7 SQL migrations via Supabase SQL Editor in the Mumbai project.
+2. Verify live authentication signup, session persistence, and run recording in Chrome.
+3. Test guest fallback mode ensuring seamless unauthenticated play.
 
 ---
 

@@ -2,6 +2,7 @@
 // Root component. Sets up client-side routing with AnimatePresence for
 // cinematic screen transitions between all game screens.
 
+import { useEffect } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { ScreenTransition } from './components/ScreenTransition';
@@ -14,13 +15,66 @@ import ScenarioScreen from './screens/ScenarioScreen';
 import ConsequenceScreen from './screens/ConsequenceScreen';
 import OutcomeScreen from './screens/OutcomeScreen';
 import ReportScreen from './screens/ReportScreen';
+import AuthScreen from './screens/AuthScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import { AuthGuard } from './components/AuthGuard';
+import { getSession, subscribeToAuthChanges } from './services/authService';
+import { useGameStore } from './store/gameStore';
 
 export default function App() {
   const location = useLocation();
+  const setAuthUserId = useGameStore((state) => state.setAuthUserId);
+
+  useEffect(() => {
+    // Restore existing session on mount
+    getSession().then((session) => {
+      if (session?.user?.id) {
+        setAuthUserId(session.user.id);
+      }
+    });
+
+    // Subscribe to auth state updates
+    const { unsubscribe } = subscribeToAuthChanges((_event, session) => {
+      setAuthUserId(session?.user?.id ?? null);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [setAuthUserId]);
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        {/* Authentication Routes */}
+        <Route
+          path="/auth/login"
+          element={
+            <ScreenTransition>
+              <AuthScreen />
+            </ScreenTransition>
+          }
+        />
+        <Route
+          path="/auth/signup"
+          element={
+            <ScreenTransition>
+              <AuthScreen />
+            </ScreenTransition>
+          }
+        />
+
+        {/* Private Personnel Profile */}
+        <Route
+          path="/profile"
+          element={
+            <ScreenTransition>
+              <AuthGuard>
+                <ProfileScreen />
+              </AuthGuard>
+            </ScreenTransition>
+          }
+        />
         {/* Main Menu / Entry */}
         <Route
           path="/"

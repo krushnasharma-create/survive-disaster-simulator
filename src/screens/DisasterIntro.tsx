@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CinematicText } from '../components/CinematicText';
 import { useGameStore } from '../store/gameStore';
 import { getUiStrings } from '../i18n';
+import { startRun } from '../services/gamePersistenceService';
 import type { DisasterType } from '../data/types';
 import styles from './DisasterIntro.module.css';
 
@@ -77,7 +78,7 @@ export default function DisasterIntro() {
   const [textDone, setTextDone] = useState(false);
 
   const scenarioParam = searchParams.get('scenario');
-  const { activeScenarioId, selectScenario, selectDisaster, language } = useGameStore();
+  const { activeScenarioId, selectScenario, selectDisaster, language, authUserId, setActiveRunId } = useGameStore();
   const ui = getUiStrings(language);
 
   const currentScenarioId = scenarioParam || activeScenarioId;
@@ -105,11 +106,22 @@ export default function DisasterIntro() {
 
   const handleProceed = () => {
     const targetDisaster = disasterId as DisasterType;
+    const finalScenarioId = currentScenarioId || `${targetDisaster}-urban`;
+
     if (currentScenarioId) {
       selectScenario(currentScenarioId, targetDisaster);
     } else {
       selectDisaster(targetDisaster);
     }
+
+    // If authenticated, initiate a Supabase game_run in the background
+    if (authUserId) {
+      const newRunId = startRun(authUserId, targetDisaster, finalScenarioId);
+      setActiveRunId(newRunId);
+    } else {
+      setActiveRunId(null);
+    }
+
     navigate(`/disaster/${disasterId}/scenario`);
   };
 

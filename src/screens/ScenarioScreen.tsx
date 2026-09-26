@@ -14,6 +14,7 @@ import { EnvironmentalOverlay } from '../components/EnvironmentalOverlay';
 import { useCountdown } from '../hooks/useCountdown';
 import { getLocalizedScenario, getUiStrings } from '../i18n';
 import { playTimerTick, playDisasterChoiceImpact } from '../utils/audio';
+import { recordDecision as recordPersistenceDecision, startRun, failRun } from '../services/gamePersistenceService';
 import type { DisasterType, DecisionNode } from '../data/types';
 import styles from './ScenarioScreen.module.css';
 
@@ -54,6 +55,9 @@ export default function ScenarioScreen() {
     decisions,
     language,
     setLanguage,
+    authUserId,
+    activeRunId,
+    setActiveRunId,
   } = useGameStore();
 
   const [isTimedOut, setIsTimedOut] = useState(false);
@@ -130,6 +134,18 @@ export default function ScenarioScreen() {
       playDisasterChoiceImpact(targetDisaster);
 
       recordDecision(evalResult.record);
+
+      // Asynchronously queue decision persistence if authenticated (non-blocking)
+      if (authUserId && activeRunId) {
+        recordPersistenceDecision(
+          activeRunId,
+          authUserId,
+          evalResult.record,
+          decisions.length + 1,
+          remainingSeconds
+        );
+      }
+
       setConsequence({
         consequenceText: evalResult.consequenceText,
         insight: evalResult.insight,
@@ -145,7 +161,7 @@ export default function ScenarioScreen() {
         navigate(`/disaster/${targetDisaster}/consequence`);
       }, 150);
     },
-    [decisionNode, navigate, recordDecision, setConsequence, targetDisaster]
+    [decisionNode, navigate, recordDecision, setConsequence, targetDisaster, authUserId, activeRunId, decisions.length]
   );
 
   // Time limit hook — 15 seconds limit
@@ -172,11 +188,29 @@ export default function ScenarioScreen() {
   const handleRetryScenario = () => {
     setIsTimedOut(false);
     setRetryCount((prev) => prev + 1);
-    if (activeScenarioId) {
-      useGameStore.getState().selectScenario(activeScenarioId, targetDisaster);
+
+    // If authenticated, close previous timed-out run as 'failed' in background
+    if (authUserId && activeRunId) {
+      failRun(activeRunId, authUserId, 'failed');
+    }
+
+    // Reset local store scenario decisions and traversal
+    const currentScenarioKey = activeScenarioId;
+    if (currentScenarioKey) {
+      useGameStore.getState().selectScenario(currentScenarioKey, targetDisaster);
     } else {
       selectDisaster(targetDisaster);
     }
+
+    // Start a completely fresh game run for the new attempt
+    if (authUserId) {
+      const finalScenarioId = currentScenarioKey || `${targetDisaster}-urban`;
+      const newRunId = startRun(authUserId, targetDisaster, finalScenarioId);
+      setActiveRunId(newRunId);
+    } else {
+      setActiveRunId(null);
+    }
+
     if (scenario) {
       advanceTo(scenario.startNodeId);
     }
@@ -184,6 +218,10 @@ export default function ScenarioScreen() {
 
   const handleReturnToSelect = () => {
     setIsTimedOut(false);
+    if (authUserId && activeRunId) {
+      failRun(activeRunId, authUserId, 'abandoned');
+      setActiveRunId(null);
+    }
     navigate('/select');
   };
 

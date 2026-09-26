@@ -12,7 +12,7 @@ import styles from './IntroScreen.module.css';
 
 export default function IntroScreen() {
   const navigate = useNavigate();
-  const { markIntroSeen, resetSession, language, setLanguage } = useGameStore();
+  const { markIntroSeen, resetSession, language, setLanguage, authUserId } = useGameStore();
 
   const [showSettings, setShowSettings] = useState(false);
   const [screenShake, setScreenShake] = useState(true);
@@ -60,6 +60,16 @@ export default function IntroScreen() {
             title="Switch Language (English / Hinglish)"
           >
             LANG: {language === 'en' ? 'ENGLISH' : 'HINGLISH'}
+          </button>
+          <button
+            className={styles.langToggle}
+            onClick={() => {
+              playSelect();
+              navigate(authUserId ? '/profile' : '/auth/login');
+            }}
+            title={authUserId ? 'View Operator Dossier' : 'Operator Login'}
+          >
+            {authUserId ? 'OPERATOR: ONLINE' : 'LOGIN'}
           </button>
           <span>CODE: GD-02 · VER 1.0</span>
         </div>

@@ -60,7 +60,13 @@ interface GameState {
   // ── Language Mode ────────────────────────────────────
   language: 'en' | 'hinglish';
 
+  // ── Authentication & Persistence ───────────────────
+  authUserId: string | null;
+  activeRunId: string | null;
+
   // ── Actions ──────────────────────────────────────────
+  setAuthUserId: (id: string | null) => void;
+  setActiveRunId: (runId: string | null) => void;
   setLanguage: (language: 'en' | 'hinglish') => void;
   markIntroSeen: () => void;
   selectDisaster: (disaster: DisasterType) => void;
@@ -84,10 +90,16 @@ const initialState = {
   currentOutcome: null as OutcomeState | null,
   decisions: [] as DecisionRecord[],
   totalScore: 0,
+  authUserId: null as string | null,
+  activeRunId: null as string | null,
 };
 
 export const useGameStore = create<GameState>((set) => ({
   ...initialState,
+
+  setAuthUserId: (id) => set({ authUserId: id }),
+
+  setActiveRunId: (runId) => set({ activeRunId: runId }),
 
   setLanguage: (language) => set({ language }),
 
@@ -103,6 +115,7 @@ export const useGameStore = create<GameState>((set) => ({
       currentOutcome: null,
       decisions: [],
       totalScore: 0,
+      activeRunId: null,
     }),
 
   selectScenario: (scenarioId, disaster) =>
@@ -115,6 +128,7 @@ export const useGameStore = create<GameState>((set) => ({
       currentOutcome: null,
       decisions: [],
       totalScore: 0,
+      activeRunId: null,
     }),
 
   advanceTo: (nodeId) =>
@@ -138,5 +152,6 @@ export const useGameStore = create<GameState>((set) => ({
     set((state) => ({
       ...initialState,
       language: state.language,
+      authUserId: state.authUserId,
     })),
 }));
