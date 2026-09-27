@@ -8,6 +8,17 @@ import type { DisasterType } from '../data/types';
 let audioCtx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
 let isAudioEnabled = true;
+let hasUserInteracted = false;
+
+if (typeof window !== 'undefined') {
+  const onFirstInteraction = () => {
+    hasUserInteracted = true;
+    window.removeEventListener('pointerdown', onFirstInteraction);
+    window.removeEventListener('keydown', onFirstInteraction);
+  };
+  window.addEventListener('pointerdown', onFirstInteraction, { once: true, passive: true });
+  window.addEventListener('keydown', onFirstInteraction, { once: true, passive: true });
+}
 
 /**
  * Lazily initialize and resume AudioContext on first user interaction.
@@ -62,7 +73,7 @@ export function isSoundEnabled(): boolean {
  * Subtle UI Button Hover sound: ultra-short high-frequency click (15ms).
  */
 export function playHover() {
-  if (!isAudioEnabled) return;
+  if (!isAudioEnabled || !hasUserInteracted) return;
   const ctx = getAudioContext();
   if (!ctx || !masterGain || ctx.state !== 'running') return;
 

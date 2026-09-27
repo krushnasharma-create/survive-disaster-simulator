@@ -2,8 +2,8 @@
 // Route wrapper that checks for an active authenticated session.
 // Redirects unauthenticated visitors to /auth/login while preserving intended target.
 
-import type { ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { useEffect, useRef, type ReactNode } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useGameStore } from '../store/gameStore';
 
 interface AuthGuardProps {
@@ -12,8 +12,17 @@ interface AuthGuardProps {
 
 export function AuthGuard({ children }: AuthGuardProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const authUserId = useGameStore((state) => state.authUserId);
   const isAuthLoading = useGameStore((state) => state.isAuthLoading);
+  const hasRedirectedRef = useRef(false);
+
+  useEffect(() => {
+    if (!isAuthLoading && !authUserId && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      navigate('/auth/login', { state: { from: location }, replace: true });
+    }
+  }, [isAuthLoading, authUserId, navigate, location]);
 
   if (isAuthLoading && !authUserId) {
     return (
@@ -34,7 +43,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
   }
 
   if (!authUserId) {
-    return <Navigate to="/auth/login" state={{ from: location }} replace />;
+    return null;
   }
 
   return <>{children}</>;

@@ -9,6 +9,8 @@ import { useGameStore } from '../store/gameStore';
 import { buildReport } from '../engine/reportBuilder';
 import { getUiStrings, FIRE_HINGLISH_TAKEAWAYS, FLOOD_HINGLISH_TAKEAWAYS } from '../i18n';
 import { finalizeRun } from '../services/gamePersistenceService';
+import { OperatorBadge } from '../components/OperatorBadge';
+import { playSelect } from '../utils/audio';
 import styles from './ReportScreen.module.css';
 
 export default function ReportScreen() {
@@ -102,13 +104,16 @@ export default function ReportScreen() {
             ← {ui.selectDisaster}
           </button>
         </div>
-        <button
-          className={styles.langToggle}
-          onClick={toggleLanguage}
-          title="Switch Language (English / Hinglish)"
-        >
-          LANG: {language === 'en' ? 'ENGLISH' : 'HINGLISH'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <button
+            className={styles.langToggle}
+            onClick={toggleLanguage}
+            title="Switch Language (English / Hinglish)"
+          >
+            LANG: {language === 'en' ? 'ENGLISH' : 'HINGLISH'}
+          </button>
+          <OperatorBadge />
+        </div>
       </div>
 
       <motion.div
@@ -285,6 +290,18 @@ export default function ReportScreen() {
           <button className={styles.btnSecondary} onClick={handleSelectNew}>
             {ui.selectDisaster}
           </button>
+          {authUserId ? (
+            <button
+              className={styles.btnSecondary}
+              onClick={() => {
+                playSelect();
+                resetSession();
+                navigate('/profile');
+              }}
+            >
+              OPERATOR DOSSIER
+            </button>
+          ) : null}
           <button className={styles.btnSecondary} onClick={() => navigate('/')}>
             {ui.mainMenu}
           </button>

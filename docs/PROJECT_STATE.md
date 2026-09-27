@@ -281,6 +281,10 @@ Round 2 venue date: **3 October 2026**. Production upgrade in progress on `main`
 - Stabilized auth hydration across browser page refreshes; eliminated AuthGuard infinite clearance check by centralizing `isAuthLoading` in Zustand store.
 - Audited and resolved Operational History semantics: clearly distinguished lifetime initiated/completed stats from query archive counts, added filter tabs (`ALL RUNS`, `COMPLETED`, `INCOMPLETE / FAILED`), and made all status variants visible (`EVACUATED`, `NON-SURVIVAL`, `TIMEOUT`, `ABANDONED`, `IN PROGRESS`).
 - Implemented Black-Box Decision Replay Inspector (`RunInspectorModal.tsx`, `RunInspectorModal.module.css`): accessible modal displaying executive run summaries and chronological step-by-step telemetry (situation context, operator choice, consequence, and NDMA protocol insights with authority citations).
+- Standardized Operator Navigation (`OperatorBadge.tsx`, `OperatorBadge.module.css`): unified HUD indicator and quick dossier access across all safe non-game screens (`/`, `/how-to-play`, `/select`, `/disaster/:disasterId/scenarios`, `/disaster/:disasterId/report`). Strictly excluded from active simulation gameplay.
+- Audited and hardened session teardown in `ProfileScreen.tsx` with guaranteed memory/credential wipe on disconnect. Added quick `SIMULATION CONSOLE` navigation from dossier.
+- Resolved runtime `Maximum update depth exceeded` and Chrome navigation throttling bug by replacing uncontrolled `<Navigate>` in `AuthGuard` with single-flight guarded `useNavigate` latch, wrapping `ScreenTransition` inside `AuthGuard`, and adding state comparison guards to store actions (`setAuthUserId`, `setAuthLoading`).
+- Added user gesture activation latch (`hasUserInteracted`) to Web Audio API hover triggers (`audio.ts`), eliminating pre-interaction autoplay browser warnings.
 - Confirmed zero errors across build (`npm run build`), lint (`npm run lint`), and formatting (`git diff --check`).
 
 ---

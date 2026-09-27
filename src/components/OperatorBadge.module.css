@@ -1,0 +1,50 @@
+/* src/components/OperatorBadge.module.css */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-fog);
+  transition: all 0.2s ease;
+  line-height: 1.2;
+}
+
+.badge:hover {
+  border-color: var(--color-white);
+  color: var(--color-white);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.online {
+  background: rgba(0, 200, 150, 0.08);
+  border: 1px solid rgba(0, 200, 150, 0.35);
+  color: var(--color-safe);
+}
+
+.online:hover {
+  background: rgba(0, 200, 150, 0.16);
+  border-color: var(--color-safe);
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(0, 200, 150, 0.25);
+}
+
+.offline {
+  color: var(--color-fog);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-safe);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 6px rgba(0, 200, 150, 0.8);
+}

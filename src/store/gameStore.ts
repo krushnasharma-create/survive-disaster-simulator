@@ -101,9 +101,21 @@ const initialState = {
 export const useGameStore = create<GameState>((set) => ({
   ...initialState,
 
-  setAuthUserId: (id) => set({ authUserId: id, isAuthLoading: false }),
+  setAuthUserId: (id) =>
+    set((state) => {
+      if (state.authUserId === id && !state.isAuthLoading) {
+        return state;
+      }
+      return { authUserId: id, isAuthLoading: false };
+    }),
 
-  setAuthLoading: (loading) => set({ isAuthLoading: loading }),
+  setAuthLoading: (loading) =>
+    set((state) => {
+      if (state.isAuthLoading === loading) {
+        return state;
+      }
+      return { isAuthLoading: loading };
+    }),
 
   setActiveRunId: (runId) => set({ activeRunId: runId }),
 

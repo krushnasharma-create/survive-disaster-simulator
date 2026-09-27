@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { getUiStrings } from '../i18n';
 import { playHover, playSelect } from '../utils/audio';
+import { OperatorBadge } from '../components/OperatorBadge';
 import type { DisasterType } from '../data/types';
 import styles from './DisasterSelect.module.css';
 
@@ -103,6 +104,7 @@ export default function DisasterSelect() {
           >
             LANG: {language === 'en' ? 'ENGLISH' : 'HINGLISH'}
           </button>
+          <OperatorBadge />
           <button
             className={styles.backBtn}
             onClick={() => {

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { getUiStrings } from '../i18n';
+import { OperatorBadge } from '../components/OperatorBadge';
 import styles from './HowToPlayScreen.module.css';
 
 export default function HowToPlayScreen() {
@@ -35,6 +36,7 @@ export default function HowToPlayScreen() {
             >
               LANG: {language === 'en' ? 'ENGLISH' : 'HINGLISH'}
             </button>
+            <OperatorBadge />
             <button className={styles.backBtn} onClick={() => navigate('/')}>
               ← {ui.mainMenu}
             </button>

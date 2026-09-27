@@ -127,9 +127,18 @@ export default function ProfileScreen() {
   }, [loadData]);
 
   const handleSignOut = async () => {
-    await signOut();
-    setAuthUserId(null);
-    navigate('/', { replace: true });
+    try {
+      await signOut();
+    } catch {
+      // Teardown continues regardless of network outcome
+    } finally {
+      navigate('/', { replace: true });
+      setAuthUserId(null);
+      useGameStore.getState().resetSession();
+      setProfile(null);
+      setStats(null);
+      setRuns(null);
+    }
   };
 
   return (
@@ -138,6 +147,9 @@ export default function ProfileScreen() {
         <header className={styles.header}>
           <span className={styles.eyebrow}>PERSONNEL DOSSIER // VERIFIED STATUS</span>
           <div className={styles.navActions}>
+            <Link to="/select" className={styles.navBtn}>
+              SIMULATION CONSOLE
+            </Link>
             <Link to="/" className={styles.navBtn}>
               MAIN MENU
             </Link>

@@ -90,11 +90,11 @@ export default function App() {
         <Route
           path="/profile"
           element={
-            <ScreenTransition>
-              <AuthGuard>
+            <AuthGuard>
+              <ScreenTransition>
                 <ProfileScreen />
-              </AuthGuard>
-            </ScreenTransition>
+              </ScreenTransition>
+            </AuthGuard>
           }
         />
         {/* Main Menu / Entry */}

@@ -3,6 +3,27 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-27] PHASE 12 (Step 4) — Consistent Operator Navigation & Session UX Audit
+- **Standardized Operator Navigation (`OperatorBadge.tsx`, `OperatorBadge.module.css`):**
+  - Implemented a unified `OperatorBadge` component rendering clean dark terminal HUD status pills across safe non-game screens (`/`, `/how-to-play`, `/select`, `/disaster/:disasterId/scenarios`, and `/disaster/:disasterId/report`).
+  - Authenticated state displays a green pulsing indicator with `OPERATOR: ONLINE`, routing directly to the private dossier at `/profile`.
+  - Guest/unauthenticated state provides a clean `LOGIN` action routing to `/auth/login` without leaking private record affordances.
+  - Active gameplay screens (`ScenarioScreen`, `ConsequenceScreen`, `OutcomeScreen`, `DisasterIntro`) strictly prohibit operator navigation, eliminating accidental aborts during live 15-second simulation runs.
+- **Preparedness Report Navigation (`ReportScreen.tsx`):**
+  - Integrated `OperatorBadge` in top HUD bar next to language toggle.
+  - Added an explicit `OPERATOR DOSSIER` secondary action button in the completion footer for authenticated operators, enabling seamless transitions from scenario completion to viewing updated stats and telemetry in the Decision Replay Inspector.
+- **Dossier Quick Launch (`ProfileScreen.tsx`):**
+  - Added direct `SIMULATION CONSOLE` link in the profile header navigation bar, enabling quick transitions from the personnel dossier into disaster selection without returning to the main menu.
+- **Stabilized AuthGuard Navigation & Eliminated Re-render Loop (`AuthGuard.tsx`, `App.tsx`, `gameStore.ts`):**
+  - Resolved runtime `Maximum update depth exceeded` and Chrome navigation throttling bug caused by React Router's `<Navigate>` component executing inside Framer Motion's `AnimatePresence mode="wait"` exit animations.
+  - Replaced `<Navigate>` with a single-flight `useNavigate` call guarded by a persistent ref latch (`hasRedirectedRef`) inside `useEffect`, returning `null` while unauthenticated.
+  - Placed `<AuthGuard>` outside `<ScreenTransition>` on `/profile` so unauthenticated visitors never mount or animate the protected route container.
+  - Guarded Zustand store actions (`setAuthUserId`, `setAuthLoading`) against redundant state updates with identical values, preventing cascading subscriber re-renders.
+  - Reordered `handleSignOut` in `ProfileScreen.tsx` to initiate router navigation to `/` before state teardown, preventing conflicting redirect attempts to `/auth/login`.
+- **Autoplay-Compliant Procedural Hover Audio (`audio.ts`):**
+  - Added user gesture activation latch (`hasUserInteracted`) listening for initial pointer/keyboard interaction before initializing or resuming Web Audio API context during UI hover events.
+  - Completely eliminated yellow browser autoplay warnings (`AudioContext was not allowed to start`) during pre-interaction hovering.
+
 ## [2026-09-27] PHASE 12 — Player Profile Dashboard, Operational History & Decision Replay Inspector
 - **Authentication Hydration & Session Restoration (`src/App.tsx`, `AuthGuard.tsx`, `gameStore.ts`):**
   - Resolved page refresh regression on `/profile` where `AuthGuard` local state could become stranded in an infinite clearance check.

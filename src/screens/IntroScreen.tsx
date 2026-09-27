@@ -8,11 +8,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { getUiStrings } from '../i18n';
 import { playHover, playSelect } from '../utils/audio';
+import { OperatorBadge } from '../components/OperatorBadge';
 import styles from './IntroScreen.module.css';
 
 export default function IntroScreen() {
   const navigate = useNavigate();
-  const { markIntroSeen, resetSession, language, setLanguage, authUserId } = useGameStore();
+  const { markIntroSeen, resetSession, language, setLanguage } = useGameStore();
 
   const [showSettings, setShowSettings] = useState(false);
   const [screenShake, setScreenShake] = useState(true);
@@ -61,16 +62,7 @@ export default function IntroScreen() {
           >
             LANG: {language === 'en' ? 'ENGLISH' : 'HINGLISH'}
           </button>
-          <button
-            className={styles.langToggle}
-            onClick={() => {
-              playSelect();
-              navigate(authUserId ? '/profile' : '/auth/login');
-            }}
-            title={authUserId ? 'View Operator Dossier' : 'Operator Login'}
-          >
-            {authUserId ? 'OPERATOR: ONLINE' : 'LOGIN'}
-          </button>
+          <OperatorBadge />
           <span>CODE: GD-02 · VER 1.0</span>
         </div>
       </header>
