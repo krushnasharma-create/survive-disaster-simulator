@@ -3,6 +3,22 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-27] PHASE 12 — Player Profile Dashboard, Operational History & Decision Replay Inspector
+- **Authentication Hydration & Session Restoration (`src/App.tsx`, `AuthGuard.tsx`, `gameStore.ts`):**
+  - Resolved page refresh regression on `/profile` where `AuthGuard` local state could become stranded in an infinite clearance check.
+  - Centralized `isAuthLoading` in Zustand store and coordinated root session hydration (`subscribeToAuthChanges` + `getSession`) with single-flight resolution latch.
+- **Operational History Semantic Alignment (`ProfileScreen.tsx`, `ProfileScreen.module.css`):**
+  - Audited and resolved semantic ambiguity between lifetime stats (`SIMULATIONS COMPLETED`) and query archive count (`LOGGED RUNS`).
+  - Implemented client-side status filter tabs (`ALL RUNS`, `COMPLETED`, `INCOMPLETE / FAILED`) with synchronized breakdown counts.
+  - Made run lifecycle status explicitly visible across cards (`EVACUATED`, `NON-SURVIVAL`, `TIMEOUT`, `ABANDONED`, `IN PROGRESS`).
+  - Added filter-empty states and click affordances (`AUDIT TELEMETRY ▶`, `INSPECT LOGS ▶`).
+- **Black-Box Decision Replay & Incident Inspector (`RunInspectorModal.tsx`, `RunInspectorModal.module.css`):**
+  - Implemented in-app incident replay inspector modal backed by user-scoped `fetchRunDetails(runId, userId)`.
+  - Displays executive summary: scenario title, disaster category, preparedness score, score band, date/time, duration, and decision efficiency.
+  - Renders chronological timeline of all recorded decisions with step numbers, situation context, committed operator action, deterministic emergency consequence, and authoritative NDMA safety protocol insights with source citations.
+  - Features dedicated loading, empty, and error fallback states, full keyboard accessibility (Escape to close), backdrop blur, and responsive mobile optimization.
+  - Strictly read-only; zero synthetic decision injection; preserves RLS ownership boundaries.
+
 ## [2026-09-26] PHASE 11 — Supabase Auth & Persistence Foundation
 - **Supabase Integration & Zero-Risk Environment (`src/lib/supabase.ts`, `.env.example`, `.gitignore`):**
   - Added `@supabase/supabase-js` without bundle lock-in.

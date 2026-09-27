@@ -276,23 +276,20 @@ Round 2 venue date: **3 October 2026**. Production upgrade in progress on `main`
 
 ## Current Task
 
-**PHASE 11 — SUPABASE AUTH + PERSISTENCE FOUNDATION COMPLETED (2026-09-26):**
-- Added `@supabase/supabase-js` with safe unconfigured/guest fallbacks in `src/lib/supabase.ts`.
-- Created `.env.example` template; ensured `.env.local` is strictly ignored by Git.
-- Created 7 sequential, idempotent SQL migrations in `supabase/migrations/` enforcing private RLS and database triggers.
-- Implemented `src/services/authService.ts` and `src/services/gamePersistenceService.ts` with strict per-run FIFO queuing.
-- Implemented `/auth/login`, `/auth/signup`, and private `/profile` routes protected by `<AuthGuard>`.
-- Verified non-blocking gameplay loop integration across `DisasterIntro`, `ScenarioScreen`, and `ReportScreen`.
-- Confirmed zero errors across build (`npm run build`) and lint (`npm run lint`).
+**PHASE 12 — PLAYER PROFILE DASHBOARD, OPERATIONAL HISTORY & DECISION REPLAY INSPECTOR (2026-09-27):**
+- Completed Phase 2 read-only persistence query services (`fetchUserRuns`, `fetchRunDetails`) with strict session verification.
+- Stabilized auth hydration across browser page refreshes; eliminated AuthGuard infinite clearance check by centralizing `isAuthLoading` in Zustand store.
+- Audited and resolved Operational History semantics: clearly distinguished lifetime initiated/completed stats from query archive counts, added filter tabs (`ALL RUNS`, `COMPLETED`, `INCOMPLETE / FAILED`), and made all status variants visible (`EVACUATED`, `NON-SURVIVAL`, `TIMEOUT`, `ABANDONED`, `IN PROGRESS`).
+- Implemented Black-Box Decision Replay Inspector (`RunInspectorModal.tsx`, `RunInspectorModal.module.css`): accessible modal displaying executive run summaries and chronological step-by-step telemetry (situation context, operator choice, consequence, and NDMA protocol insights with authority citations).
+- Confirmed zero errors across build (`npm run build`), lint (`npm run lint`), and formatting (`git diff --check`).
 
 ---
 
 ## Next Task
 
-**ROUND 2 PRODUCTION UPGRADE — PHASE 12: DATABASE MIGRATION EXECUTION & SMOKE TEST**
-1. Apply the 7 SQL migrations via Supabase SQL Editor in the Mumbai project.
-2. Verify live authentication signup, session persistence, and run recording in Chrome.
-3. Test guest fallback mode ensuring seamless unauthenticated play.
+**ROUND 2 PRODUCTION UPGRADE — USER ACCEPTANCE REVIEW & VENUE HARDENING**
+1. Review live Supabase integration and Decision Replay Inspector on staging/production.
+2. Conduct final venue rehearsal and polish ahead of venue date (3 October 2026).
 
 ---
 

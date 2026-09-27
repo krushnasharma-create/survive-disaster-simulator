@@ -3,7 +3,7 @@
 // and complete chronological operational history.
 // Enforces strict private ownership — only the authenticated user's records are shown.
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signOut, fetchCurrentProfile, type UserProfile } from '../services/authService';
 import {
@@ -12,6 +12,7 @@ import {
   type PlayerStats,
   type GameRunSummary,
 } from '../services/gamePersistenceService';
+import { RunInspectorModal } from '../components/RunInspectorModal';
 import { useGameStore } from '../store/gameStore';
 import { getScenario, SCENARIO_CATALOGUE } from '../data';
 import type { DisasterType } from '../data/types';
@@ -76,8 +77,27 @@ export default function ProfileScreen() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [stats, setStats] = useState<PlayerStats | null>(null);
   const [runs, setRuns] = useState<GameRunSummary[] | null>(null);
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<'all' | 'completed' | 'incomplete'>('all');
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [loadingRuns, setLoadingRuns] = useState(true);
+
+  const totalRunsCount = runs?.length ?? 0;
+  const completedRunsCount = useMemo(() => {
+    return runs?.filter((r) => r.status === 'completed').length ?? 0;
+  }, [runs]);
+  const incompleteRunsCount = totalRunsCount - completedRunsCount;
+
+  const filteredRuns = useMemo(() => {
+    if (!runs) return null;
+    if (filter === 'completed') {
+      return runs.filter((r) => r.status === 'completed');
+    }
+    if (filter === 'incomplete') {
+      return runs.filter((r) => r.status !== 'completed');
+    }
+    return runs;
+  }, [runs, filter]);
 
   const loadData = useCallback(async (isRetry = false) => {
     if (!authUserId) return;
@@ -209,10 +229,47 @@ export default function ProfileScreen() {
               </div>
               {runs && runs.length > 0 && (
                 <span className={styles.historyCountBadge}>
-                  {runs.length} LOGGED {runs.length === 1 ? 'SESSION' : 'SESSIONS'}
+                  {filter === 'completed'
+                    ? `${completedRunsCount} COMPLETED ${completedRunsCount === 1 ? 'RUN' : 'RUNS'}`
+                    : filter === 'incomplete'
+                    ? `${incompleteRunsCount} INCOMPLETE / TERMINATED`
+                    : `${totalRunsCount} LOGGED ${totalRunsCount === 1 ? 'RUN' : 'RUNS'}`}
                 </span>
               )}
             </div>
+
+            {/* Status Filter Tabs */}
+            {runs && runs.length > 0 && (
+              <div className={styles.filterRow} role="tablist" aria-label="Filter simulation history">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={filter === 'all'}
+                  className={`${styles.filterBtn} ${filter === 'all' ? styles.filterBtnActive : ''}`}
+                  onClick={() => setFilter('all')}
+                >
+                  ALL RUNS ({totalRunsCount})
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={filter === 'completed'}
+                  className={`${styles.filterBtn} ${filter === 'completed' ? styles.filterBtnActive : ''}`}
+                  onClick={() => setFilter('completed')}
+                >
+                  COMPLETED ({completedRunsCount})
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={filter === 'incomplete'}
+                  className={`${styles.filterBtn} ${filter === 'incomplete' ? styles.filterBtnActive : ''}`}
+                  onClick={() => setFilter('incomplete')}
+                >
+                  INCOMPLETE / FAILED ({incompleteRunsCount})
+                </button>
+              </div>
+            )}
 
             {loadingRuns ? (
               <div className={styles.historyLoadingBox}>
@@ -246,18 +303,47 @@ export default function ProfileScreen() {
                   LAUNCH FIRST SIMULATION
                 </Link>
               </div>
+            ) : filteredRuns && filteredRuns.length === 0 ? (
+              <div className={styles.historyEmptyBox}>
+                <span className={styles.historyEmptyIcon}>🔍</span>
+                <p className={styles.historyEmptyTitle}>No runs match the selected filter.</p>
+                <p className={styles.historyEmptySubtext}>
+                  Switch filter view to inspect all archived simulation records.
+                </p>
+                <button
+                  type="button"
+                  className={styles.emptyActionBtn}
+                  onClick={() => setFilter('all')}
+                >
+                  SHOW ALL RUNS ({totalRunsCount})
+                </button>
+              </div>
             ) : (
               <div className={styles.runList}>
-                {runs.map((run) => {
+                {filteredRuns?.map((run) => {
                   const icon = DISASTER_ICONS[run.disasterType] || '⚠';
                   const scenarioTitle = getScenarioTitle(run.scenarioId, run.disasterType);
                   const isCompleted = run.status === 'completed';
                   const isFailed = run.status === 'failed';
                   const isAbandoned = run.status === 'abandoned';
+                  const isInProgress = run.status === 'in_progress';
                   const scoreColor = getScoreColor(run.score);
 
                   return (
-                    <article key={run.id} className={styles.runCard}>
+                    <article
+                      key={run.id}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setSelectedRunId(run.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setSelectedRunId(run.id);
+                        }
+                      }}
+                      className={`${styles.runCard} ${styles.runCardInteractive}`}
+                      aria-label={`Inspect black-box telemetry for ${scenarioTitle}`}
+                    >
                       <div className={styles.runIdentity}>
                         <span className={styles.runIcon} aria-hidden="true">
                           {icon}
@@ -273,7 +359,9 @@ export default function ProfileScreen() {
                                     : styles.statusCasualty
                                   : isFailed
                                   ? styles.statusFailed
-                                  : styles.statusAbandoned
+                                  : isAbandoned
+                                  ? styles.statusAbandoned
+                                  : styles.statusInProgress
                               }`}
                             >
                               {isCompleted
@@ -284,7 +372,7 @@ export default function ProfileScreen() {
                                 ? 'TIMEOUT'
                                 : isAbandoned
                                 ? 'ABANDONED'
-                                : 'INCOMPLETE'}
+                                : 'IN PROGRESS'}
                             </span>
                           </div>
                           <div className={styles.runDetailsRow}>
@@ -325,13 +413,19 @@ export default function ProfileScreen() {
                                 {run.scoreBand}
                               </span>
                             )}
+                            <span className={styles.inspectAffordance} aria-hidden="true">
+                              AUDIT TELEMETRY ▶
+                            </span>
                           </div>
                         ) : (
                           <div className={styles.nonCompletedBox}>
                             <span className={styles.nonCompletedStatus}>
-                              {isFailed ? 'SIMULATION FAILED' : isAbandoned ? 'SESSION ABANDONED' : 'INCOMPLETE'}
+                              {isFailed ? 'SIMULATION FAILED' : isAbandoned ? 'SESSION ABANDONED' : isInProgress ? 'IN PROGRESS' : 'INCOMPLETE'}
                             </span>
                             <span className={styles.nonCompletedDesc}>NO RATING ISSUED</span>
+                            <span className={styles.inspectAffordance} aria-hidden="true">
+                              INSPECT LOGS ▶
+                            </span>
                           </div>
                         )}
                       </div>
@@ -348,6 +442,14 @@ export default function ProfileScreen() {
             </Link>
           </div>
         </div>
+
+        {selectedRunId && authUserId && (
+          <RunInspectorModal
+            runId={selectedRunId}
+            userId={authUserId}
+            onClose={() => setSelectedRunId(null)}
+          />
+        )}
       </div>
     </div>
   );
