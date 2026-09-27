@@ -2,9 +2,8 @@
 // Route wrapper that checks for an active authenticated session.
 // Redirects unauthenticated visitors to /auth/login while preserving intended target.
 
-import { useEffect, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { getSession } from '../services/authService';
 import { useGameStore } from '../store/gameStore';
 
 interface AuthGuardProps {
@@ -14,27 +13,9 @@ interface AuthGuardProps {
 export function AuthGuard({ children }: AuthGuardProps) {
   const location = useLocation();
   const authUserId = useGameStore((state) => state.authUserId);
-  const setAuthUserId = useGameStore((state) => state.setAuthUserId);
-  const [checking, setChecking] = useState(!authUserId);
+  const isAuthLoading = useGameStore((state) => state.isAuthLoading);
 
-  useEffect(() => {
-    let mounted = true;
-    if (!authUserId) {
-      getSession().then((session) => {
-        if (!mounted) return;
-        if (session?.user?.id) {
-          setAuthUserId(session.user.id);
-        }
-        setChecking(false);
-      });
-    }
-
-    return () => {
-      mounted = false;
-    };
-  }, [authUserId, setAuthUserId]);
-
-  if (checking) {
+  if (isAuthLoading && !authUserId) {
     return (
       <div style={{
         minHeight: '100vh',

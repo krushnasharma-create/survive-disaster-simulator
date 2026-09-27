@@ -3,6 +3,7 @@
 
 import { create } from 'zustand';
 import type { DisasterType } from '../data/types';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 export interface DecisionRecord {
   nodeId: string;
@@ -62,10 +63,12 @@ interface GameState {
 
   // ── Authentication & Persistence ───────────────────
   authUserId: string | null;
+  isAuthLoading: boolean;
   activeRunId: string | null;
 
   // ── Actions ──────────────────────────────────────────
   setAuthUserId: (id: string | null) => void;
+  setAuthLoading: (loading: boolean) => void;
   setActiveRunId: (runId: string | null) => void;
   setLanguage: (language: 'en' | 'hinglish') => void;
   markIntroSeen: () => void;
@@ -91,13 +94,16 @@ const initialState = {
   decisions: [] as DecisionRecord[],
   totalScore: 0,
   authUserId: null as string | null,
+  isAuthLoading: isSupabaseConfigured,
   activeRunId: null as string | null,
 };
 
 export const useGameStore = create<GameState>((set) => ({
   ...initialState,
 
-  setAuthUserId: (id) => set({ authUserId: id }),
+  setAuthUserId: (id) => set({ authUserId: id, isAuthLoading: false }),
+
+  setAuthLoading: (loading) => set({ isAuthLoading: loading }),
 
   setActiveRunId: (runId) => set({ activeRunId: runId }),
 
@@ -153,5 +159,6 @@ export const useGameStore = create<GameState>((set) => ({
       ...initialState,
       language: state.language,
       authUserId: state.authUserId,
+      isAuthLoading: false,
     })),
 }));

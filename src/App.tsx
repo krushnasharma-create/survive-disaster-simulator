@@ -24,24 +24,46 @@ import { useGameStore } from './store/gameStore';
 export default function App() {
   const location = useLocation();
   const setAuthUserId = useGameStore((state) => state.setAuthUserId);
+  const setAuthLoading = useGameStore((state) => state.setAuthLoading);
 
   useEffect(() => {
-    // Restore existing session on mount
-    getSession().then((session) => {
-      if (session?.user?.id) {
-        setAuthUserId(session.user.id);
-      }
+    let isMounted = true;
+    let initialResolved = false;
+
+    // Subscribe to auth state updates.
+    // In Supabase v2, onAuthStateChange emits INITIAL_SESSION on registration
+    // and subsequent SIGNED_IN, SIGNED_OUT, and TOKEN_REFRESHED events.
+    const { unsubscribe } = subscribeToAuthChanges((_event, session) => {
+      if (!isMounted) return;
+      initialResolved = true;
+      setAuthUserId(session?.user?.id ?? null);
+      setAuthLoading(false);
     });
 
-    // Subscribe to auth state updates
-    const { unsubscribe } = subscribeToAuthChanges((_event, session) => {
-      setAuthUserId(session?.user?.id ?? null);
-    });
+    // Active session check fallback (ensures immediate resolution if INITIAL_SESSION is delayed or unconfigured)
+    getSession()
+      .then((session) => {
+        if (!isMounted) return;
+        if (!initialResolved) {
+          initialResolved = true;
+          setAuthUserId(session?.user?.id ?? null);
+          setAuthLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        if (!initialResolved) {
+          initialResolved = true;
+          setAuthUserId(null);
+          setAuthLoading(false);
+        }
+      });
 
     return () => {
+      isMounted = false;
       unsubscribe();
     };
-  }, [setAuthUserId]);
+  }, [setAuthUserId, setAuthLoading]);
 
   return (
     <AnimatePresence mode="wait">

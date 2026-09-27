@@ -27,6 +27,48 @@ export interface FinalizeRunPayload {
   durationSeconds?: number;
 }
 
+export interface GameRunSummary {
+  id: string;
+  userId: string;
+  disasterType: DisasterType;
+  scenarioId: string;
+  status: 'in_progress' | 'completed' | 'failed' | 'abandoned';
+  survived: boolean | null;
+  score: number | null;
+  scoreBand: string | null;
+  durationSeconds: number | null;
+  startedAt: string;
+  completedAt: string | null;
+  optimalCount: number;
+  suboptimalCount: number;
+  totalDecisions: number;
+}
+
+export interface RunDecisionDetail {
+  id: string;
+  runId: string;
+  userId: string;
+  stepOrder: number;
+  nodeId: string;
+  situationText: string;
+  choiceId: string;
+  choiceLabel: string;
+  isCorrect: boolean;
+  scoreImpact: number;
+  timeBonus: number;
+  remainingSeconds: number | null;
+  consequenceText: string;
+  insight: string;
+  insightSource: string;
+  nextNodeId: string;
+  createdAt: string;
+}
+
+export interface RunDetailView {
+  run: GameRunSummary;
+  decisions: RunDecisionDetail[];
+}
+
 // In-memory queue map guaranteeing FIFO order per runId
 const runQueues = new Map<string, Promise<void>>();
 
@@ -305,6 +347,202 @@ export async function fetchPlayerStats(userId: string): Promise<PlayerStats | nu
       updatedAt: data.updated_at,
     };
   } catch {
+    return null;
+  }
+}
+
+interface GameRunRow {
+  id: string;
+  user_id: string;
+  disaster_type: string;
+  scenario_id: string;
+  status: 'in_progress' | 'completed' | 'failed' | 'abandoned';
+  survived: boolean | null;
+  score: number | null;
+  score_band: string | null;
+  duration_seconds: number | null;
+  started_at: string;
+  completed_at: string | null;
+  optimal_count: number;
+  suboptimal_count: number;
+  total_decisions: number;
+}
+
+interface DecisionRow {
+  id: string;
+  run_id: string;
+  user_id: string;
+  step_order: number;
+  node_id: string;
+  situation_text: string;
+  choice_id: string;
+  choice_label: string;
+  is_correct: boolean;
+  score_impact: number;
+  time_bonus: number;
+  remaining_seconds: number | null;
+  consequence_text: string;
+  insight: string;
+  insight_source: string;
+  next_node_id: string;
+  created_at: string;
+}
+
+function mapGameRunRow(row: GameRunRow): GameRunSummary {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    disasterType: row.disaster_type as DisasterType,
+    scenarioId: row.scenario_id,
+    status: row.status,
+    survived: row.survived,
+    score: row.score !== null ? Number(row.score) : null,
+    scoreBand: row.score_band,
+    durationSeconds: row.duration_seconds !== null ? Number(row.duration_seconds) : null,
+    startedAt: row.started_at,
+    completedAt: row.completed_at,
+    optimalCount: Number(row.optimal_count) || 0,
+    suboptimalCount: Number(row.suboptimal_count) || 0,
+    totalDecisions: Number(row.total_decisions) || 0,
+  };
+}
+
+function mapDecisionRow(row: DecisionRow): RunDecisionDetail {
+  return {
+    id: row.id,
+    runId: row.run_id,
+    userId: row.user_id,
+    stepOrder: Number(row.step_order) || 0,
+    nodeId: row.node_id,
+    situationText: row.situation_text,
+    choiceId: row.choice_id,
+    choiceLabel: row.choice_label,
+    isCorrect: Boolean(row.is_correct),
+    scoreImpact: Number(row.score_impact) || 0,
+    timeBonus: Number(row.time_bonus) || 0,
+    remainingSeconds: row.remaining_seconds !== null ? Number(row.remaining_seconds) : null,
+    consequenceText: row.consequence_text,
+    insight: row.insight,
+    insightSource: row.insight_source,
+    nextNodeId: row.next_node_id,
+    createdAt: row.created_at,
+  };
+}
+
+/**
+ * Fetches historical game runs for the authenticated user, ordered from newest to oldest.
+ * Returns null if unauthenticated, session-mismatched, or on query error.
+ * Returns an empty array if query succeeds with zero records.
+ */
+export async function fetchUserRuns(
+  userId: string,
+  limit: number = 20
+): Promise<GameRunSummary[] | null> {
+  if (!isSupabaseConfigured || !supabase || !userId) {
+    return null;
+  }
+
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const activeUserId = sessionData?.session?.user?.id;
+    if (!activeUserId || activeUserId !== userId) {
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[Persistence] fetchUserRuns skipped: active session (${activeUserId ?? 'none'}) does not match supplied userId (${userId}).`
+        );
+      }
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from('game_runs')
+      .select('id, user_id, disaster_type, scenario_id, status, survived, score, score_band, duration_seconds, started_at, completed_at, optimal_count, suboptimal_count, total_decisions')
+      .eq('user_id', userId)
+      .order('started_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      if (import.meta.env.DEV) {
+        console.warn('[Persistence] fetchUserRuns error:', error.message);
+      }
+      return null;
+    }
+
+    if (!data) {
+      return [];
+    }
+
+    return (data as GameRunRow[]).map(mapGameRunRow);
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn('[Persistence] fetchUserRuns exception:', err);
+    }
+    return null;
+  }
+}
+
+/**
+ * Fetches complete details of a single run including all recorded decisions, ordered chronologically.
+ * Strictly verifies ownership against the active session.
+ */
+export async function fetchRunDetails(
+  runId: string,
+  userId: string
+): Promise<RunDetailView | null> {
+  if (!isSupabaseConfigured || !supabase || !runId || !userId) {
+    return null;
+  }
+
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const activeUserId = sessionData?.session?.user?.id;
+    if (!activeUserId || activeUserId !== userId) {
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[Persistence] fetchRunDetails skipped: active session (${activeUserId ?? 'none'}) does not match supplied userId (${userId}).`
+        );
+      }
+      return null;
+    }
+
+    // Fetch the run header row
+    const { data: runData, error: runError } = await supabase
+      .from('game_runs')
+      .select('id, user_id, disaster_type, scenario_id, status, survived, score, score_band, duration_seconds, started_at, completed_at, optimal_count, suboptimal_count, total_decisions')
+      .eq('id', runId)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (runError || !runData) {
+      if (runError && import.meta.env.DEV) {
+        console.warn('[Persistence] fetchRunDetails header error:', runError.message);
+      }
+      return null;
+    }
+
+    // Fetch related ordered decisions for this run
+    const { data: decisionsData, error: decisionsError } = await supabase
+      .from('decisions')
+      .select('*')
+      .eq('run_id', runId)
+      .eq('user_id', userId)
+      .order('step_order', { ascending: true });
+
+    if (decisionsError) {
+      if (import.meta.env.DEV) {
+        console.warn('[Persistence] fetchRunDetails decisions error:', decisionsError.message);
+      }
+      return null;
+    }
+
+    return {
+      run: mapGameRunRow(runData as GameRunRow),
+      decisions: ((decisionsData || []) as DecisionRow[]).map(mapDecisionRow),
+    };
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn('[Persistence] fetchRunDetails exception:', err);
+    }
     return null;
   }
 }

@@ -1,13 +1,72 @@
 // src/screens/ProfileScreen.tsx
-// Private personnel profile screen displaying verified lifetime statistics.
+// Private personnel profile screen displaying verified lifetime statistics
+// and complete chronological operational history.
 // Enforces strict private ownership — only the authenticated user's records are shown.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signOut, fetchCurrentProfile, type UserProfile } from '../services/authService';
-import { fetchPlayerStats, type PlayerStats } from '../services/gamePersistenceService';
+import {
+  fetchPlayerStats,
+  fetchUserRuns,
+  type PlayerStats,
+  type GameRunSummary,
+} from '../services/gamePersistenceService';
 import { useGameStore } from '../store/gameStore';
+import { getScenario, SCENARIO_CATALOGUE } from '../data';
+import type { DisasterType } from '../data/types';
 import styles from './ProfileScreen.module.css';
+
+const DISASTER_ICONS: Record<string, string> = {
+  earthquake: '🌍',
+  fire: '🔥',
+  flood: '🌊',
+};
+
+const DISASTER_NAMES: Record<string, string> = {
+  earthquake: 'Earthquake',
+  fire: 'Structure Fire',
+  flood: 'Flash Flood',
+};
+
+function formatRunDate(isoString: string): string {
+  try {
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return isoString;
+    return d.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  } catch {
+    return isoString;
+  }
+}
+
+function getScenarioTitle(scenarioId: string, disasterType: DisasterType): string {
+  const scenario = getScenario(scenarioId);
+  if (scenario?.title) return scenario.title;
+
+  const catalogueList = SCENARIO_CATALOGUE[disasterType] || [];
+  const found = catalogueList.find((c) => c.id === scenarioId);
+  if (found?.title) return found.title;
+
+  return scenarioId
+    .split('-')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+function getScoreColor(score: number | null): string {
+  if (score === null) return 'var(--color-fog)';
+  if (score >= 85) return 'var(--color-safe)';
+  if (score >= 65) return 'var(--color-warning)';
+  if (score >= 40) return '#ff9f40';
+  return 'var(--color-danger)';
+}
 
 export default function ProfileScreen() {
   const navigate = useNavigate();
@@ -16,34 +75,36 @@ export default function ProfileScreen() {
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [stats, setStats] = useState<PlayerStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [runs, setRuns] = useState<GameRunSummary[] | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [loadingRuns, setLoadingRuns] = useState(true);
+
+  const loadData = useCallback(async (isRetry = false) => {
+    if (!authUserId) return;
+    if (isRetry) {
+      setLoadingProfile(true);
+      setLoadingRuns(true);
+    }
+    try {
+      const [profileData, statsData, runsData] = await Promise.all([
+        fetchCurrentProfile(authUserId),
+        fetchPlayerStats(authUserId),
+        fetchUserRuns(authUserId, 20),
+      ]);
+      setProfile(profileData);
+      setStats(statsData);
+      setRuns(runsData);
+    } catch {
+      // Non-blocking fallback
+    } finally {
+      setLoadingProfile(false);
+      setLoadingRuns(false);
+    }
+  }, [authUserId]);
 
   useEffect(() => {
-    let mounted = true;
-
-    async function loadData() {
-      if (!authUserId) return;
-      try {
-        const [profileData, statsData] = await Promise.all([
-          fetchCurrentProfile(authUserId),
-          fetchPlayerStats(authUserId),
-        ]);
-        if (mounted) {
-          setProfile(profileData);
-          setStats(statsData);
-          setLoading(false);
-        }
-      } catch {
-        if (mounted) setLoading(false);
-      }
-    }
-
     loadData();
-
-    return () => {
-      mounted = false;
-    };
-  }, [authUserId]);
+  }, [loadData]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -79,7 +140,7 @@ export default function ProfileScreen() {
             <span className={styles.statusBadge}>ACTIVE OPERATOR</span>
           </div>
 
-          {loading ? (
+          {loadingProfile ? (
             <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-fog)', padding: '2rem 0' }}>
               RETRIEVING DOSSIER METRICS...
             </div>
@@ -136,6 +197,150 @@ export default function ProfileScreen() {
               </div>
             </>
           )}
+
+          {/* Operational History Section */}
+          <section className={styles.historySection}>
+            <div className={styles.historyHeader}>
+              <div>
+                <h3 className={styles.historyTitle}>OPERATIONAL HISTORY</h3>
+                <span className={styles.historySubtitle}>
+                  CHRONOLOGICAL RECORD OF INCIDENT SIMULATIONS
+                </span>
+              </div>
+              {runs && runs.length > 0 && (
+                <span className={styles.historyCountBadge}>
+                  {runs.length} LOGGED {runs.length === 1 ? 'SESSION' : 'SESSIONS'}
+                </span>
+              )}
+            </div>
+
+            {loadingRuns ? (
+              <div className={styles.historyLoadingBox}>
+                <span className={styles.pulseDot} aria-hidden="true" />
+                <span>RETRIEVING SIMULATION ARCHIVE...</span>
+              </div>
+            ) : runs === null ? (
+              <div className={styles.historyErrorBox}>
+                <span className={styles.historyErrorIcon}>⚠</span>
+                <div className={styles.historyErrorContent}>
+                  <p className={styles.historyErrorText}>
+                    UNABLE TO RETRIEVE SIMULATION ARCHIVE.
+                  </p>
+                  <button
+                    type="button"
+                    className={styles.retryBtn}
+                    onClick={() => loadData(true)}
+                  >
+                    ↻ RETRY QUERY
+                  </button>
+                </div>
+              </div>
+            ) : runs.length === 0 ? (
+              <div className={styles.historyEmptyBox}>
+                <span className={styles.historyEmptyIcon}>📋</span>
+                <p className={styles.historyEmptyTitle}>No simulation history yet.</p>
+                <p className={styles.historyEmptySubtext}>
+                  Complete an emergency scenario to record tactical survival metrics and protocol evaluation.
+                </p>
+                <Link to="/select" className={styles.emptyActionBtn}>
+                  LAUNCH FIRST SIMULATION
+                </Link>
+              </div>
+            ) : (
+              <div className={styles.runList}>
+                {runs.map((run) => {
+                  const icon = DISASTER_ICONS[run.disasterType] || '⚠';
+                  const scenarioTitle = getScenarioTitle(run.scenarioId, run.disasterType);
+                  const isCompleted = run.status === 'completed';
+                  const isFailed = run.status === 'failed';
+                  const isAbandoned = run.status === 'abandoned';
+                  const scoreColor = getScoreColor(run.score);
+
+                  return (
+                    <article key={run.id} className={styles.runCard}>
+                      <div className={styles.runIdentity}>
+                        <span className={styles.runIcon} aria-hidden="true">
+                          {icon}
+                        </span>
+                        <div className={styles.runMeta}>
+                          <div className={styles.runScenarioRow}>
+                            <h4 className={styles.runScenarioTitle}>{scenarioTitle}</h4>
+                            <span
+                              className={`${styles.statusPill} ${
+                                isCompleted
+                                  ? run.survived
+                                    ? styles.statusSurvived
+                                    : styles.statusCasualty
+                                  : isFailed
+                                  ? styles.statusFailed
+                                  : styles.statusAbandoned
+                              }`}
+                            >
+                              {isCompleted
+                                ? run.survived
+                                  ? 'EVACUATED'
+                                  : 'NON-SURVIVAL'
+                                : isFailed
+                                ? 'TIMEOUT'
+                                : isAbandoned
+                                ? 'ABANDONED'
+                                : 'INCOMPLETE'}
+                            </span>
+                          </div>
+                          <div className={styles.runDetailsRow}>
+                            <span className={styles.runDisasterType}>
+                              {DISASTER_NAMES[run.disasterType] || run.disasterType.toUpperCase()}
+                            </span>
+                            <span className={styles.runDotSeparator}>·</span>
+                            <span className={styles.runTimestamp}>
+                              {formatRunDate(run.startedAt)}
+                            </span>
+                            <span className={styles.runDotSeparator}>·</span>
+                            <span className={styles.runDecisionsCount}>
+                              {run.totalDecisions} {run.totalDecisions === 1 ? 'DECISION' : 'DECISIONS'}
+                            </span>
+                            {run.durationSeconds !== null && run.durationSeconds > 0 && (
+                              <>
+                                <span className={styles.runDotSeparator}>·</span>
+                                <span className={styles.runDuration}>
+                                  {run.durationSeconds}s DURATION
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className={styles.runOutcomeArea}>
+                        {isCompleted && run.score !== null ? (
+                          <div className={styles.runScoreBox}>
+                            <div className={styles.scoreRow}>
+                              <span className={styles.scoreNum} style={{ color: scoreColor }}>
+                                {run.score}
+                              </span>
+                              <span className={styles.scoreMax}>/100</span>
+                            </div>
+                            {run.scoreBand && (
+                              <span className={styles.scoreBandLabel} style={{ color: scoreColor }}>
+                                {run.scoreBand}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <div className={styles.nonCompletedBox}>
+                            <span className={styles.nonCompletedStatus}>
+                              {isFailed ? 'SIMULATION FAILED' : isAbandoned ? 'SESSION ABANDONED' : 'INCOMPLETE'}
+                            </span>
+                            <span className={styles.nonCompletedDesc}>NO RATING ISSUED</span>
+                          </div>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </section>
 
           <div className={styles.actionRow}>
             <Link to="/select" className={styles.playBtn}>
