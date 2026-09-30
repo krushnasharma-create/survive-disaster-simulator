@@ -783,3 +783,220 @@
   border-radius: 2px;
   border-left: 2px solid #a855f7;
 }
+
+/* ── Batch 5: NPC Squad Audit ── */
+.squadAuditBox {
+  background: rgba(16, 22, 28, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid #38bdf8;
+  border-radius: 2px;
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.squadAuditHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.squadAuditTitle {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.squadCohesionTag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 2px;
+  background: rgba(56, 189, 248, 0.12);
+  color: #bae6fd;
+}
+
+/* ── Batch 5: City Brain Audit ── */
+.cityAuditBox {
+  background: rgba(16, 20, 26, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid #10b981;
+  border-radius: 2px;
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cityAuditHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cityAuditTitle {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cityMacroAuditTag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.15rem 0.6rem;
+  border-radius: 2px;
+  border: 1px solid;
+}
+
+/* ── Batch 6: Multi-Disaster Chain Audit ── */
+.chainAuditBox {
+  background: rgba(24, 16, 18, 0.7);
+  border: 1px solid rgba(255, 82, 82, 0.25);
+  border-left: 3px solid #ff5252;
+  border-radius: 2px;
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.chainAuditHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chainAuditTitle {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #ff5252;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chainAuditBadge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.15rem 0.6rem;
+  border-radius: 2px;
+  border: 1px solid;
+}
+
+/* ── Batch 6: Alternative Timeline Audit ── */
+.altAuditBox {
+  background: rgba(20, 18, 28, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid #818cf8;
+  border-radius: 2px;
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.altAuditHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.altAuditTitle {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.altAuditBadge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid rgba(129, 140, 248, 0.4);
+  border-radius: 2px;
+  background: rgba(129, 140, 248, 0.12);
+  color: #a5b4fc;
+}
+
+/* ── Replay Item Extra Tags ── */
+.reviewSquadTag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: #bae6fd;
+  background: rgba(56, 189, 248, 0.1);
+  padding: 0.12rem 0.45rem;
+  border-radius: 2px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.reviewCityTag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: #a7f3d0;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 0.12rem 0.45rem;
+  border-radius: 2px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.reviewChainTag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: #ff9f43;
+  background: rgba(255, 82, 82, 0.1);
+  padding: 0.12rem 0.45rem;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 82, 82, 0.3);
+}
+
+.reviewAltText {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #c7d2fe;
+  background: rgba(129, 140, 248, 0.06);
+  padding: 0.4rem 0.65rem;
+  border-radius: 2px;
+  border-left: 2px solid #818cf8;
+}

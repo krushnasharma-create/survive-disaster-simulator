@@ -8,11 +8,11 @@
 
 ## Current Phase
 
-**PHASE 3 (BATCH 3 & 4) — INSTINCT VS TRAINING & ADAPTIVE DIFFICULTY** — Complete & Verified (Working tree prepared for user review; uncommitted per instructions)
+**PHASE 3 (BATCH 5 & 6) — NPC SURVIVAL SQUAD + CITY BRAIN & MULTI-DISASTER CHAIN + ALTERNATIVE TIMELINE** — Complete & Verified (Working tree prepared for user review; uncommitted per instructions)
 
-**BASELINE COMMIT BEFORE PHASE 3 BATCH 3 & 4:** `c74a095` (feat: add dynamic hazard propagation and convergence)
+**BASELINE COMMIT BEFORE PHASE 3 BATCH 5 & 6:** `1be0097` (feat: add instinct training and adaptive difficulty)
 
-Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`. Baseline commit before Phase 3 Batch 3 & 4: `c74a095`.
+Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`. Baseline commit before Phase 3 Batch 3 & 4: `c74a095`. Baseline commit before Phase 3 Batch 5 & 6: `1be0097`.
 
 > **Agent handoff note:** `AGENTS.md` is the authoritative handoff source for any AI coding agent (Antigravity, Codex, or other) continuing this project. Read `AGENTS.md` first, then this file, before every task.
 
@@ -276,34 +276,52 @@ Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseli
 
 ## Current Task
 
-**PHASE 3 (BATCH 3 & 4) — INSTINCT VS TRAINING & ADAPTIVE DIFFICULTY (2026-09-30):**
-- **Deterministic Instinct vs Training Behavioral Model (`src/engine/simulationState.ts`):**
-  - Architected dual-axis behavioral scoring: `instinctScore` (0–100, initial 50) tracking intuitive crisis reflexes and `trainingScore` (0–100, initial 50) tracking NDMA protocol compliance and structured response.
-  - Defined bounded behavioral bands: `INSTINCTIVE` (0–35), `DEVELOPING` (36–60), `TRAINED` (61–80), `DISCIPLINED` (81–100).
-  - Derived 5 holistic behavioral archetypes: `DISCIPLINED_SURVIVOR` (High training + High instinct), `METHODICAL_OPERATOR` (High training + Low instinct), `IMPULSIVE_RESPONDER` (High instinct + Low training), `VULNERABLE_HESITANT` (Low training + Low instinct), and `BALANCED_RESPONDER` (Balanced growth).
-  - Captured dynamic behavioral signals: `RAPID_DECISIVE_SAFE`, `HESITANT_SAFE_RECOVERY`, `MEASURED_PROTOCOL_ADHERENCE`, `HIGH_STRESS_COMPOSURE`, `POST_ERROR_RECOVERY`, `IMPULSIVE_RISK_REFLEX`, `HESITANT_PARALYSIS`, `PANIC_COMPROMISE`, and `COMPOUNDING_ERROR`.
-  - Safety grounding: Behavioral scores are purely evaluative; they never override deterministic NDMA safety outcomes.
-- **Deterministic Adaptive Difficulty System (`src/engine/simulationState.ts`):**
-  - Implemented bounded `difficultyLevel` (1–5, initial 2: Standard baseline) that adapts to demonstrated operator competence.
-  - Anti-Death-Spiral & Relief Protection: Critical panic (>= 70) or consecutive errors immediately downscale difficulty to prevent impossible spirals and grant a stabilized recovery window.
-  - Hysteresis Hold: Difficulty requires sustained performance (>= 2 consecutive optimal decisions, panic <= 45, training >= 55) to escalate, preventing rapid oscillation between decisions.
-  - Environmental Hazard Scaling: Level 4–5 slightly intensifies hazard impact on errors (+3%), while Level 1 mitigates hazard impact (-3%) to foster learning.
-  - Timer Pressure Modifiers: Level 1 (+1s grace), Level 2 (0s baseline), Level 3 (-1s), Level 4 (-2s), Level 5 (-3s).
-  - **Strict Safety Floor:** Composed timer modifier `Math.max(10, baseTimer + panicModifier + difficultyModifier)` strictly guarantees that decision windows NEVER fall below 10 seconds under any condition.
-- **Scenario HUD & Telemetry Extensions (`src/screens/ScenarioScreen.tsx`, `ScenarioScreen.module.css`):**
-  - Added live `TRAIN: {band}` and `DIFF: L{lvl}/5` chips to the telemetry HUD bar.
-  - Added dynamic combined pressure indicator (`⚡ Xs PRESSURE (PANIC + DIFF Lx)`) and Level 1 assisted grace badge (`⏱ +1s GRACE (DIFF L1)`).
-- **Consequence Screen Behavioral Response Card (`src/screens/ConsequenceScreen.tsx`, `ConsequenceScreen.module.css`):**
-  - Added dedicated **BEHAVIORAL RESPONSE // INSTINCT VS TRAINING** card displaying active Instinctive Reflex, Protocol Training scores and bands, Operator Profile, and Difficulty Level with deterministic narrative feedback.
-- **Report Screen Behavior & Adaptation Audit (`src/screens/ReportScreen.tsx`, `ReportScreen.module.css`):**
-  - Integrated dedicated **Behavior & Adaptation Audit** section featuring final Instinct & Training metrics, Peak Difficulty reached, Primary Behavioral Asset, Observed Vulnerability, Operator Survival Profile with bilingual NDMA explanation, and overall adaptation trajectory (`IMPROVED`, `STABILIZED`, `COMPROMISED`).
-  - Enriched Decision Breakdown replay cards with `DIFF: Lx`, `TRAIN: {band}`, and `🧠 Behavior` evaluation notes.
-- **Run Inspector Modal Replay Telemetry (`src/components/RunInspectorModal.tsx`):**
-  - Extended client-side deterministic telemetry reconstruction (`reconstructRunTelemetry`) with difficulty, training band, instinct score, and training score.
-  - Added `DIFF: Lx` and `TRAIN: {band}` chips to historical flight recorder cards without any Supabase schema changes.
+**PHASE 3 (BATCH 5 & 6) — NPC SURVIVAL SQUAD + CITY BRAIN & MULTI-DISASTER CHAIN + ALTERNATIVE TIMELINE (2026-09-30):**
+- **Deterministic NPC Survival Squad Engine (`src/engine/simulationState.ts`):**
+  - Architected modular companion model (`NpcMember`) with distinct roles (`MEDIC`, `TECHNICIAN`, `ELDER`, `GUIDE`, `VULNERABLE_CIVILIAN`), individual health/safety (0–100), trust (0–100), stress (0–100), and statuses (`SAFE`, `STABLE`, `DISTRESSED`, `INJURED`, `CRITICAL`).
+  - Implemented authentic disaster-specific companion squads:
+    - Earthquake: Dr. Aarti (Medic), Kabir (Technician), Sunita (Elder).
+    - Fire: Captain Verma (Guide), Ananya (Medic), Rohan (Vulnerable civilian).
+    - Flood: Vikram (Guide), Nurse Deepa (Medic), Tariq (Technician).
+  - Derived holistic Squad Cohesion score (0–100) dynamically weighted by average trust (40%), member safety (35%), and stress resilience (25%).
+  - Implemented deterministic Specialist Synergies: Active Medic provides panic buffer (-3) during trauma when cohesion >= 65; active Technician provides hazard buffer (-2 to -3) during structural/utility crises when cohesion >= 65.
+  - Authentic context-driven dialogue barks reflecting live member status and stress tiers.
+- **City Brain Municipal Crisis Simulation (`src/engine/simulationState.ts`):**
+  - Macro-level municipal infrastructure and emergency response modeling: `infrastructureIntegrity` (0–100), `trafficFlow` (0–100), `emergencyAccess` (0–100), `publicOrder` (0–100), `utilityStability` (0–100), and `responderAvailability` (0–100).
+  - Categorical City Macro Status: `OPERATIONAL`, `STRAINED`, `OVERWHELMED`, `CRITICAL_GRIDLOCK`.
+  - Micro-decisions cascade into city grid: prompt utility shutdowns safeguard grid integrity and clear emergency corridors; delayed alerts or stampedes reduce public order and block rescue access.
+- **Multi-Disaster Secondary Hazard Chain Engine (`src/engine/simulationState.ts`):**
+  - Deterministic secondary disaster escalation:
+    - Earthquake -> Gas Leak & Electrical Fire (`CHAIN-EQ-GAS-ARC`).
+    - Flood -> Submerged Grid Electrocution & Contaminated Runoff (`CHAIN-FL-ELEC-SEW`).
+    - Fire -> Structural Collapse & Toxic Polymer Flashover (`CHAIN-FR-STRUCT-TOX`).
+  - Dynamic Chain Severity progression: `INACTIVE` -> `MONITORING` -> `IMMINENT` -> `ACTIVE` -> `CONTAINED`.
+  - Deterministic trigger calibration: activates when city utility stability <= 45 or local hazard level >= 65; transitions to `CONTAINED` when player takes prompt NDMA protective actions while chain is imminent/active.
+- **Alternative Timeline & "What If?" Counterfactual Engine (`src/engine/simulationState.ts`):**
+  - Pure, non-mutating counterfactual simulator `simulateAlternativeChoice(node, chosenChoiceId, stateAtDecision, disasterType)`.
+  - Evaluates unchosen paths to project counterfactual panic, hazard, safety, squad cohesion, and emergency access.
+  - Dynamically synthesizes divergence summary and classifies regret/validation level (`STRONG_VALIDATION`, `MARGINAL_DIFFERENCE`, `TACTICAL_REGRET`, `CRITICAL_MISTAKE`).
+  - 100% deterministic rule-based evaluation without runtime LLMs or hallucinations.
+- **Scenario HUD & Telemetry Extensions (`src/screens/ScenarioScreen.tsx`, `.module.css`):**
+  - Added live `SQUAD: {cohesion}%` and `CITY: {status}` chips with dynamic status-color mapping to the telemetry HUD bar.
+  - Added dynamic **Multi-Disaster Chain Warning Banner** (`.chainBannerActive`, `.chainBannerImminent`) providing immediate visual and tactical alert when cascading crises threaten.
+- **Consequence Screen Multi-System Cards (`src/screens/ConsequenceScreen.tsx`, `.module.css`):**
+  - Added **NPC SURVIVAL SQUAD // COMPANION STATUS** card: shows overall squad cohesion gauge, individual member cards with role badges, status pills, trust/stress/safety bars, and contextual spoken dialogue barks.
+  - Added **CITY BRAIN // MUNICIPAL CRISIS IMPACT** card: tracks infrastructure integrity, emergency access, utility stability, and public order with live deltas.
+  - Added **MULTI-DISASTER CHAIN** card: alerts player when secondary cascade is active/imminent or confirms successful containment.
+  - Added **ALTERNATIVE TIMELINE // WHAT IF?** card: displays the unchosen counterfactual action, projected metrics, divergence summary, and regret tag.
+- **Report Screen Quad-System Audits (`src/screens/ReportScreen.tsx`, `.module.css`):**
+  - Dedicated **NPC SURVIVAL SQUAD & COMPANION AUDIT**: final cohesion, casualty count, companion roster with final health/trust/stress and bilingual NDMA evaluation.
+  - Dedicated **CITY BRAIN & MUNICIPAL INFRASTRUCTURE AUDIT**: final municipal status, emergency access corridor rating, utility stability, and civic resilience assessment.
+  - Dedicated **MULTI-DISASTER CHAIN & SECONDARY HAZARDS**: cascading threat status, trigger timeline, containment assessment, and NDMA cascading risk protocol grounding.
+  - Dedicated **ALTERNATIVE TIMELINES & WHAT-IF ANALYSIS**: comparative breakdown of key divergent junctures, highlighting catastrophic traps avoided and alternative outcomes.
+  - Enriched Decision Breakdown replay cards with `SQUAD`, `CITY`, and `CHAIN` tags, plus `🔀 What If` branch comparative explanations.
+- **Run Inspector Modal Replay Telemetry (`src/components/RunInspectorModal.tsx`, `.module.css`):**
+  - Extended client-side deterministic telemetry reconstruction (`reconstructRunTelemetry`) with squad cohesion, city macro status, chain severity, and alternative timeline counterfactuals.
+  - Enriched historical run cards with `SQUAD: XX%`, `CITY: {status}`, `CHAIN: {status}` chips, and expandable `What If` comparative panels without modifying Supabase database schema.
 - **Verification & QA:**
-  - Automated simulation test (`scratch/test_batch3_batch4_simulation.ts`) verified 100% pass across all 7 scenarios with 789 individual assert validations (bounded scores, timer floor >= 10s, determinism, anti-spiral relief).
-  - Regression test (`scratch/test_batch2_simulation.ts`) confirmed 100% pass on all 7 scenarios.
+  - Automated simulation test (`scratch/test_batch5_batch6_simulation.ts`) verified 100% pass across all 7 scenarios with 964 assert validations (squad dynamics, city brain metrics, chain state progression, counterfactual evaluation, timer floor >= 10s, and determinism).
+  - Regression tests `scratch/test_batch3_batch4_simulation.ts` (789/789 passed) and `scratch/test_batch2_simulation.ts` (100% passed).
   - `npm run lint`: 0 errors.
   - `npm run build`: 0 errors.
   - `git diff --check`: 0 whitespace warnings.
@@ -313,8 +331,8 @@ Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseli
 
 ## Next Task
 
-**PHASE 3 BATCH 3 & 4 REVIEW & POLISH:**
-1. Awaiting user review and manual testing approval of Phase 3 Batch 3 & 4.
+**PHASE 3 BATCH 5 & 6 REVIEW & POLISH:**
+1. Awaiting user review and manual testing approval of Phase 3 Batch 5 & 6.
 2. Proceed to git commit and push checkpoint once approved.
 
 ---

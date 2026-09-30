@@ -17,6 +17,69 @@ export type BehaviorProfile =
   | 'VULNERABLE_HESITANT'
   | 'BALANCED_RESPONDER';
 
+// ── Batch 5 Types: NPC Survival Squad & City Brain ──
+export type NpcRole = 'MEDIC' | 'GUIDE' | 'TECHNICIAN' | 'ELDER' | 'VULNERABLE_CIVILIAN';
+export type NpcStatus = 'SAFE' | 'STABLE' | 'DISTRESSED' | 'INJURED' | 'CRITICAL';
+
+export interface NpcMember {
+  id: string;
+  name: string;
+  role: NpcRole;
+  trust: number; // 0–100
+  stress: number; // 0–100
+  safety: number; // 0–100
+  status: NpcStatus;
+  dialogue?: string;
+}
+
+export type CityMacroStatus = 'OPERATIONAL' | 'STRAINED' | 'CRITICAL_DISRUPTION';
+
+export interface CityBrainState {
+  infrastructureIntegrity: number; // 0–100
+  trafficFlow: number; // 0–100
+  emergencyAccess: number; // 0–100
+  publicOrder: number; // 0–100
+  utilityStability: number; // 0–100
+  responderAvailability: number; // 0–100
+  macroStatus: CityMacroStatus;
+  macroSummary: string;
+}
+
+// ── Batch 6 Types: Multi-Disaster Chain & Alternative Timeline ──
+export type ChainSeverity = 'NONE' | 'IMMINENT' | 'ACTIVE' | 'CONTAINED';
+
+export interface DisasterChainState {
+  chainStage: number; // 0: None, 1: Imminent, 2: Active
+  secondaryDisaster: 'gas_leak' | 'electrical_hazard' | 'structural_collapse' | null;
+  chainSeverity: ChainSeverity;
+  chainTitle: string;
+  chainDescription: string;
+  chainTriggerNodeId?: string;
+  isContained: boolean;
+  containmentAction?: string;
+}
+
+export type RegretLevel =
+  | 'OPTIMAL_CHOICE_MADE'
+  | 'MARGINAL_DIFFERENCE'
+  | 'MISSED_OPTIMAL_PATH'
+  | 'CRITICAL_MISTAKE_AVOIDED';
+
+export interface AlternativeTimelineBranch {
+  choiceId: string;
+  choiceLabel: string;
+  isCorrect: boolean;
+  scoreImpact: number;
+  consequenceText: string;
+  projectedPanic: number;
+  projectedHazard: number;
+  projectedSafety: number;
+  projectedSquadCohesion: number;
+  projectedCityAccess: number;
+  divergenceSummary: string;
+  regretLevel: RegretLevel;
+}
+
 export interface ConvergenceContext {
   band: ConvergenceRiskBand;
   status: EnvironmentStatus;
@@ -82,6 +145,18 @@ export interface SimulationState {
   lastBehaviorSummary?: string;
   /** Primary behavioral signal triggered on last decision */
   lastBehaviorSignal?: string;
+
+  // ── Batch 5 & 6 Extensions: NPC Squad, City Brain, Multi-Disaster Chain & Alternative Branch ──
+  /** NPC Companion squad members in current simulation */
+  squadMembers: NpcMember[];
+  /** Composite squad cohesion score bounded 0–100 */
+  squadCohesion: number;
+  /** City Brain macro-environmental municipal crisis status */
+  cityBrain: CityBrainState;
+  /** Multi-disaster cascading secondary hazard state */
+  disasterChain: DisasterChainState;
+  /** Evaluated counterfactual alternative timeline branch for the last decision */
+  alternativeBranch?: AlternativeTimelineBranch | null;
 }
 
 export interface SimulationStateDelta {
@@ -97,6 +172,17 @@ export interface SimulationStateDelta {
   difficultyChange: number;
   behaviorSummary: string;
   behaviorSignal: string;
+  // Batch 5 & 6 extensions
+  squadTrustChange?: number;
+  squadStressChange?: number;
+  squadSafetyChange?: number;
+  squadCohesionChange?: number;
+  cityAccessChange?: number;
+  cityUtilityChange?: number;
+  chainTriggered?: boolean;
+  chainContained?: boolean;
+  chainSummary?: string;
+  alternativeBranch?: AlternativeTimelineBranch | null;
 }
 
 /**
@@ -401,6 +487,348 @@ export function getConvergenceContext(
 }
 
 /**
+ * Pure function to calculate composite squad cohesion (0–100) from member metrics.
+ */
+export function calculateSquadCohesion(members: NpcMember[]): number {
+  if (!members || members.length === 0) return 50;
+  const total = members.reduce((sum, m) => {
+    // 40% trust, 40% safety, 20% stress resilience (100 - stress)
+    const score = 0.4 * m.trust + 0.4 * m.safety + 0.2 * (100 - m.stress);
+    return sum + score;
+  }, 0);
+  return clamp(Math.round(total / members.length), 0, 100);
+}
+
+/**
+ * Initializes deterministic companion squad tailored by disaster scenario domain.
+ */
+export function createInitialNpcSquad(disasterType?: DisasterType | null): NpcMember[] {
+  if (disasterType === 'earthquake') {
+    return [
+      {
+        id: 'npc-rohan',
+        name: 'Rohan',
+        role: 'GUIDE',
+        trust: 75,
+        stress: 25,
+        safety: 85,
+        status: 'STABLE',
+        dialogue: 'Stairwells might be compromised, stay close and watch for falling masonry!',
+      },
+      {
+        id: 'npc-sharma',
+        name: 'Mrs. Sharma',
+        role: 'ELDER',
+        trust: 80,
+        stress: 40,
+        safety: 75,
+        status: 'DISTRESSED',
+        dialogue: 'Beta, my legs are shaking... I will follow your lead.',
+      },
+      {
+        id: 'npc-vikram',
+        name: 'Vikram',
+        role: 'TECHNICIAN',
+        trust: 70,
+        stress: 30,
+        safety: 80,
+        status: 'STABLE',
+        dialogue: 'Checking main lines. If you smell gas, do NOT flip electrical switches!',
+      },
+    ];
+  }
+
+  if (disasterType === 'fire') {
+    return [
+      {
+        id: 'npc-arjun',
+        name: 'Arjun',
+        role: 'TECHNICIAN',
+        trust: 75,
+        stress: 35,
+        safety: 75,
+        status: 'STABLE',
+        dialogue: 'Check doors with the back of your hand before turning handles. Keep low!',
+      },
+      {
+        id: 'npc-sunita',
+        name: 'Dr. Sunita',
+        role: 'MEDIC',
+        trust: 85,
+        stress: 25,
+        safety: 85,
+        status: 'STABLE',
+        dialogue: 'Cover your mouth and nose with a damp cloth to filter particulate smoke.',
+      },
+      {
+        id: 'npc-kabir',
+        name: 'Kabir',
+        role: 'VULNERABLE_CIVILIAN',
+        trust: 65,
+        stress: 55,
+        safety: 70,
+        status: 'DISTRESSED',
+        dialogue: "There's too much smoke... which way do we go?!",
+      },
+    ];
+  }
+
+  if (disasterType === 'flood') {
+    return [
+      {
+        id: 'npc-raju',
+        name: 'Raju',
+        role: 'GUIDE',
+        trust: 80,
+        stress: 30,
+        safety: 80,
+        status: 'STABLE',
+        dialogue: 'Stay away from stormwater drains and open manholes! Seek higher ground!',
+      },
+      {
+        id: 'npc-verma',
+        name: 'Mr. Verma',
+        role: 'ELDER',
+        trust: 75,
+        stress: 45,
+        safety: 70,
+        status: 'DISTRESSED',
+        dialogue: 'The water is rising past my knees... hold onto the railing.',
+      },
+      {
+        id: 'npc-ananya',
+        name: 'Ananya',
+        role: 'MEDIC',
+        trust: 85,
+        stress: 25,
+        safety: 85,
+        status: 'STABLE',
+        dialogue: 'Avoid walking through floodwaters—open wounds risk severe sepsis.',
+      },
+    ];
+  }
+
+  // Fallback generic squad
+  return [
+    {
+      id: 'npc-lead',
+      name: 'Kavita',
+      role: 'GUIDE',
+      trust: 75,
+      stress: 30,
+      safety: 80,
+      status: 'STABLE',
+      dialogue: 'Maintain buddy check and follow standard evacuation protocols.',
+    },
+    {
+      id: 'npc-supp',
+      name: 'Deepak',
+      role: 'TECHNICIAN',
+      trust: 70,
+      stress: 35,
+      safety: 75,
+      status: 'STABLE',
+      dialogue: 'Keep watch for utility hazards and structural displacement.',
+    },
+    {
+      id: 'npc-civ',
+      name: 'Asha',
+      role: 'VULNERABLE_CIVILIAN',
+      trust: 70,
+      stress: 50,
+      safety: 75,
+      status: 'DISTRESSED',
+      dialogue: 'Stay together, please!',
+    },
+  ];
+}
+
+/**
+ * Initializes City Brain macro-environmental state calibrated by disaster archetype.
+ */
+export function createInitialCityBrain(disasterType?: DisasterType | null): CityBrainState {
+  if (disasterType === 'earthquake') {
+    return {
+      infrastructureIntegrity: 60,
+      trafficFlow: 55,
+      emergencyAccess: 65,
+      publicOrder: 70,
+      utilityStability: 50,
+      responderAvailability: 70,
+      macroStatus: 'STRAINED',
+      macroSummary:
+        'Seismic tremors have strained municipal bridges and triggered localized utility trips across the urban sector.',
+    };
+  }
+
+  if (disasterType === 'fire') {
+    return {
+      infrastructureIntegrity: 75,
+      trafficFlow: 70,
+      emergencyAccess: 80,
+      publicOrder: 80,
+      utilityStability: 65,
+      responderAvailability: 85,
+      macroStatus: 'OPERATIONAL',
+      macroSummary:
+        'Municipal fire department dispatched to commercial/residential sector; primary access lanes remain open.',
+    };
+  }
+
+  if (disasterType === 'flood') {
+    return {
+      infrastructureIntegrity: 50,
+      trafficFlow: 40,
+      emergencyAccess: 45,
+      publicOrder: 65,
+      utilityStability: 55,
+      responderAvailability: 60,
+      macroStatus: 'STRAINED',
+      macroSummary:
+        'Low-lying arterial roads inundated; storm drainage backflow impacting municipal transport arteries.',
+    };
+  }
+
+  return {
+    infrastructureIntegrity: 70,
+    trafficFlow: 65,
+    emergencyAccess: 70,
+    publicOrder: 75,
+    utilityStability: 65,
+    responderAvailability: 75,
+    macroStatus: 'OPERATIONAL',
+    macroSummary: 'Municipal crisis coordination network activated.',
+  };
+}
+
+/**
+ * Initializes Multi-Disaster cascading secondary hazard state.
+ */
+export function createInitialDisasterChain(disasterType?: DisasterType | null): DisasterChainState {
+  if (disasterType === 'earthquake') {
+    return {
+      chainStage: 0,
+      secondaryDisaster: 'gas_leak',
+      chainSeverity: 'NONE',
+      chainTitle: 'SECONDARY HAZARD: RUPTURED GAS LINE & ELECTRICAL ARC',
+      chainDescription:
+        'Structural racking poses severe risk of sheared piped gas connections and live wiring exposure.',
+      isContained: false,
+    };
+  }
+
+  if (disasterType === 'flood') {
+    return {
+      chainStage: 0,
+      secondaryDisaster: 'electrical_hazard',
+      chainSeverity: 'NONE',
+      chainTitle: 'SECONDARY HAZARD: SUBMERGED GRID & ENERGIZED RUNOFF',
+      chainDescription:
+        'Rising water encroachment threatens subterranean transformer vaults and energized junction boxes.',
+      isContained: false,
+    };
+  }
+
+  if (disasterType === 'fire') {
+    return {
+      chainStage: 0,
+      secondaryDisaster: 'structural_collapse',
+      chainSeverity: 'NONE',
+      chainTitle: 'SECONDARY HAZARD: LOAD-BEARING FAILURE & EGRESS BLOCKADE',
+      chainDescription:
+        'Thermal degradation of floor assemblies and structural trusses threatens imminent transit collapse.',
+      isContained: false,
+    };
+  }
+
+  return {
+    chainStage: 0,
+    secondaryDisaster: null,
+    chainSeverity: 'NONE',
+    chainTitle: 'SECONDARY THREAT CHAIN',
+    chainDescription: 'Monitoring potential cascading emergency risks.',
+    isContained: false,
+  };
+}
+
+/**
+ * Simulates a counterfactual alternative player choice deterministically.
+ * Evaluates divergence in Panic, Hazard, Safety, Squad Cohesion, and City Access without mutating live state.
+ */
+export function simulateAlternativeChoice(
+  node: DecisionNode,
+  chosenChoiceId: string,
+  stateAtDecision: SimulationState,
+  disasterType?: DisasterType | null
+): AlternativeTimelineBranch | null {
+  const otherChoices = node.choices.filter((c) => c.id !== chosenChoiceId);
+  if (otherChoices.length === 0) return null;
+
+  const chosenChoice = node.choices.find((c) => c.id === chosenChoiceId);
+  const chosenIsCorrect = chosenChoice?.isCorrect ?? false;
+
+  // Select target alternative:
+  // If chosen choice was suboptimal, pick the optimal alternative to illustrate the missed path.
+  // If chosen choice was optimal, pick the most severe suboptimal alternative to illustrate avoided disaster.
+  let targetAlt: Choice;
+  if (!chosenIsCorrect) {
+    targetAlt = otherChoices.find((c) => c.isCorrect) || otherChoices[0];
+  } else {
+    const wrongChoices = otherChoices.filter((c) => !c.isCorrect);
+    if (wrongChoices.length > 0) {
+      targetAlt = wrongChoices.reduce((min, c) => (c.scoreImpact < min.scoreImpact ? c : min), wrongChoices[0]);
+    } else {
+      targetAlt = otherChoices[0];
+    }
+  }
+
+  // Clone stateAtDecision safely
+  const clonedState: SimulationState = {
+    ...stateAtDecision,
+    squadMembers: stateAtDecision.squadMembers?.map((m) => ({ ...m })) ?? createInitialNpcSquad(disasterType),
+    cityBrain: { ...(stateAtDecision.cityBrain ?? createInitialCityBrain(disasterType)) },
+    disasterChain: { ...(stateAtDecision.disasterChain ?? createInitialDisasterChain(disasterType)) },
+  };
+
+  const altDelta = calculateDecisionDelta(clonedState, targetAlt, node);
+  const altProjectedState = applySimulationState(clonedState, altDelta, targetAlt.isCorrect, disasterType);
+
+  let regretLevel: RegretLevel = 'MARGINAL_DIFFERENCE';
+  let divergenceSummary = '';
+
+  if (chosenIsCorrect && !targetAlt.isCorrect) {
+    regretLevel = 'CRITICAL_MISTAKE_AVOIDED';
+    divergenceSummary = `Choosing "${targetAlt.label}" would have spiked panic by +${altDelta.panicChange}, reduced squad cohesion, and degraded municipal corridor safety. Your disciplined decision avoided this compound crisis.`;
+  } else if (!chosenIsCorrect && targetAlt.isCorrect) {
+    regretLevel = 'MISSED_OPTIMAL_PATH';
+    divergenceSummary = `Choosing "${targetAlt.label}" was the NDMA-aligned protocol. It would have mitigated panic by ${Math.abs(
+      altDelta.panicChange
+    )} points, stabilized squad trust, and kept emergency access routes viable.`;
+  } else if (chosenIsCorrect && targetAlt.isCorrect) {
+    regretLevel = 'OPTIMAL_CHOICE_MADE';
+    divergenceSummary = `Both choices represented viable containment strategies, though "${chosenChoice?.label}" prioritized immediate localized protection.`;
+  } else {
+    regretLevel = 'MARGINAL_DIFFERENCE';
+    divergenceSummary = `Alternative choice "${targetAlt.label}" also carried substantial operational hazards under current crisis parameters.`;
+  }
+
+  return {
+    choiceId: targetAlt.id,
+    choiceLabel: targetAlt.label,
+    isCorrect: targetAlt.isCorrect,
+    scoreImpact: targetAlt.scoreImpact,
+    consequenceText: targetAlt.consequenceText,
+    projectedPanic: altProjectedState.panic,
+    projectedHazard: altProjectedState.hazardLevel,
+    projectedSafety: altProjectedState.safetyIntegrity,
+    projectedSquadCohesion: altProjectedState.squadCohesion,
+    projectedCityAccess: altProjectedState.cityBrain.emergencyAccess,
+    divergenceSummary,
+    regretLevel,
+  };
+}
+
+/**
  * Initializes simulation state with deterministic baselines calibrated by disaster archetype.
  */
 export function createInitialSimulationState(disasterType?: DisasterType | null): SimulationState {
@@ -436,6 +864,11 @@ export function createInitialSimulationState(disasterType?: DisasterType | null)
   const difficultyLevel = 2; // Standard operational baseline
   const difficultyModifierSeconds = getDifficultyTimerModifier(difficultyLevel);
 
+  const squadMembers = createInitialNpcSquad(disasterType);
+  const squadCohesion = calculateSquadCohesion(squadMembers);
+  const cityBrain = createInitialCityBrain(disasterType);
+  const disasterChain = createInitialDisasterChain(disasterType);
+
   return {
     panic,
     panicBand,
@@ -462,6 +895,12 @@ export function createInitialSimulationState(disasterType?: DisasterType | null)
     lowestDifficulty: difficultyLevel,
     lastBehaviorSummary: 'Baseline crisis readiness initialized.',
     lastBehaviorSignal: 'STANDARD_INITIALIZATION',
+    // Batch 5 & 6 baselines
+    squadMembers,
+    squadCohesion,
+    cityBrain,
+    disasterChain,
+    alternativeBranch: null,
   };
 }
 
@@ -487,6 +926,14 @@ export function calculateDecisionDelta(
   const inSeverePanic = currentState.panic >= 60;
   const wasRecovering = currentState.consecutiveSuboptimal >= 1 && choice.isCorrect;
 
+  // Specialist Synergy bonuses from high squad cohesion
+  const hasMedic = currentState.squadMembers?.some((m) => m.role === 'MEDIC' && m.status !== 'CRITICAL') ?? false;
+  const hasTech = currentState.squadMembers?.some((m) => m.role === 'TECHNICIAN' && m.status !== 'CRITICAL') ?? false;
+  const squadSynergyActive = (currentState.squadCohesion ?? 50) >= 65;
+
+  const medicPanicBonus = squadSynergyActive && hasMedic ? (choice.isCorrect ? -3 : -3) : 0;
+  const techHazardBonus = squadSynergyActive && hasTech ? (choice.isCorrect ? -3 : -2) : 0;
+
   // Adaptive difficulty scaling:
   // Demanding difficulty (>= 4) slightly intensifies hazard on errors (+3)
   // Low difficulty (1) mitigates hazard on errors (-3) to allow learning
@@ -504,6 +951,14 @@ export function calculateDecisionDelta(
   let behaviorSignal = '';
   let behaviorSummary = '';
 
+  // Squad and City Brain Deltas
+  const squadTrustChange = choice.isCorrect ? 6 : -10;
+  const squadStressChange = choice.isCorrect ? -8 : 14;
+  const squadSafetyChange = choice.isCorrect ? 8 : -14;
+  const squadCohesionChange = choice.isCorrect ? 6 : -10;
+  const cityAccessChange = choice.isCorrect ? 4 : -8;
+  const cityUtilityChange = choice.isCorrect ? 3 : -7;
+
   if (choice.isCorrect) {
     // ── Optimal / Protective Decision ──
     const streakBonus = currentState.consecutiveOptimal >= 1 ? -4 : 0;
@@ -512,8 +967,8 @@ export function calculateDecisionDelta(
         ? -3
         : 0;
 
-    const panicChange = custom?.panicChange ?? (-12 + streakBonus + rapidDecisiveBonus);
-    const hazardChange = custom?.hazardChange ?? -15;
+    const panicChange = custom?.panicChange ?? (-12 + streakBonus + rapidDecisiveBonus + medicPanicBonus);
+    const hazardChange = custom?.hazardChange ?? (-15 + techHazardBonus);
     const safetyChange = custom?.safetyChange ?? 10;
     const visibilityChange = custom?.visibilityChange ?? 5;
 
@@ -563,6 +1018,11 @@ export function calculateDecisionDelta(
       instinctChange += 2;
     }
 
+    // Check Multi-Disaster Chain Containment
+    const isChainActive =
+      currentState.disasterChain?.chainSeverity === 'ACTIVE' ||
+      currentState.disasterChain?.chainSeverity === 'IMMINENT';
+
     return {
       panicChange,
       hazardChange,
@@ -574,6 +1034,14 @@ export function calculateDecisionDelta(
       difficultyChange: 0,
       behaviorSummary,
       behaviorSignal,
+      squadTrustChange,
+      squadStressChange,
+      squadSafetyChange,
+      squadCohesionChange,
+      cityAccessChange,
+      cityUtilityChange,
+      chainContained: isChainActive,
+      chainTriggered: false,
     };
   } else {
     // ── Suboptimal / High-Risk Decision ──
@@ -582,8 +1050,8 @@ export function calculateDecisionDelta(
     const hesitationPenalty =
       node.timeLimit && remainingSeconds !== undefined && remainingSeconds <= 3 ? 5 : 0;
 
-    const panicChange = custom?.panicChange ?? (18 + streakPenalty + severePenalty + hesitationPenalty);
-    const hazardChange = custom?.hazardChange ?? (20 + severePenalty + difficultyHazardBias);
+    const panicChange = custom?.panicChange ?? (18 + streakPenalty + severePenalty + hesitationPenalty + medicPanicBonus);
+    const hazardChange = custom?.hazardChange ?? (20 + severePenalty + difficultyHazardBias + techHazardBonus);
     const safetyChange = custom?.safetyChange ?? (-20 - severePenalty);
     const visibilityChange = custom?.visibilityChange ?? (-15);
 
@@ -628,6 +1096,12 @@ export function calculateDecisionDelta(
       behaviorSummary = 'Consecutive high-risk decisions compromised safety margins and escalated systemic threat.';
     }
 
+    // Check Multi-Disaster Chain Trigger
+    const currentUtil = currentState.cityBrain?.utilityStability ?? 60;
+    const projectedUtil = currentUtil + cityUtilityChange;
+    const projectedHazard = currentState.hazardLevel + hazardChange;
+    const chainTriggered = projectedUtil <= 45 || projectedHazard >= 65;
+
     return {
       panicChange,
       hazardChange,
@@ -639,6 +1113,14 @@ export function calculateDecisionDelta(
       difficultyChange: 0,
       behaviorSummary,
       behaviorSignal,
+      squadTrustChange,
+      squadStressChange,
+      squadSafetyChange,
+      squadCohesionChange,
+      cityAccessChange,
+      cityUtilityChange,
+      chainTriggered,
+      chainContained: false,
     };
   }
 }
@@ -647,7 +1129,7 @@ export function calculateDecisionDelta(
  * Pure function that applies a state delta to current simulation state,
  * enforcing hard bounds (0–100) and updating streaks, panic band, convergence risk,
  * environmental status, forward propagation narrative, instinct vs training scores,
- * and adaptive difficulty with hysteresis.
+ * adaptive difficulty with hysteresis, squad cohesion, city brain, and disaster chains.
  */
 export function applySimulationState(
   currentState: SimulationState,
@@ -714,6 +1196,120 @@ export function applySimulationState(
   const isEscalation = delta.hazardChange > 0;
   const isRecovery = delta.hazardChange <= 0 && isCorrect;
 
+  // ── Batch 5: NPC Squad State Updates ──
+  const squadTrustChange = delta.squadTrustChange ?? (isCorrect ? 6 : -10);
+  const squadStressChange = delta.squadStressChange ?? (isCorrect ? -8 : 14);
+  const squadSafetyChange = delta.squadSafetyChange ?? (isCorrect ? 8 : -14);
+
+  const squadMembers: NpcMember[] = (currentState.squadMembers ?? createInitialNpcSquad(resolvedDisasterType)).map((member) => {
+    const trust = clamp(member.trust + squadTrustChange, 0, 100);
+    const stress = clamp(member.stress + squadStressChange, 0, 100);
+    const safety = clamp(member.safety + squadSafetyChange, 0, 100);
+
+    let status: NpcStatus = 'STABLE';
+    let dialogue = member.dialogue;
+
+    if (safety <= 25) {
+      status = 'CRITICAL';
+      dialogue = `${member.name} is severely compromised! Immediate medical stabilization required!`;
+    } else if (safety <= 45) {
+      status = 'INJURED';
+      dialogue = `${member.name} sustained injury from debris/smoke; moving at reduced speed.`;
+    } else if (stress >= 70) {
+      status = 'DISTRESSED';
+      dialogue = `${member.name} is struggling with intense crisis panic; needs clear direction.`;
+    } else if (safety >= 75 && stress <= 35) {
+      status = 'SAFE';
+      dialogue = `${member.name} is composed and holding secure perimeter position.`;
+    } else {
+      status = 'STABLE';
+    }
+
+    return {
+      ...member,
+      trust,
+      stress,
+      safety,
+      status,
+      dialogue,
+    };
+  });
+
+  const squadCohesion = calculateSquadCohesion(squadMembers);
+
+  // ── Batch 5: City Brain State Updates ──
+  const baseCity = currentState.cityBrain ?? createInitialCityBrain(resolvedDisasterType);
+  const infraDelta = isCorrect ? 3 : -6;
+  const trafficDelta = isCorrect ? 4 : -7;
+  const accessDelta = delta.cityAccessChange ?? (isCorrect ? 4 : -8);
+  const orderDelta = isCorrect ? 3 : -5;
+  const utilityDelta = delta.cityUtilityChange ?? (isCorrect ? 3 : -7);
+  const responderDelta = isCorrect ? 2 : -4;
+
+  const infrastructureIntegrity = clamp(baseCity.infrastructureIntegrity + infraDelta, 0, 100);
+  const trafficFlow = clamp(baseCity.trafficFlow + trafficDelta, 0, 100);
+  const emergencyAccess = clamp(baseCity.emergencyAccess + accessDelta, 0, 100);
+  const publicOrder = clamp(baseCity.publicOrder + orderDelta, 0, 100);
+  const utilityStability = clamp(baseCity.utilityStability + utilityDelta, 0, 100);
+  const responderAvailability = clamp(baseCity.responderAvailability + responderDelta, 0, 100);
+
+  const macroScore = Math.round((emergencyAccess + utilityStability + infrastructureIntegrity) / 3);
+  let macroStatus: CityMacroStatus = 'OPERATIONAL';
+  let macroSummary = '';
+
+  if (macroScore <= 40) {
+    macroStatus = 'CRITICAL_DISRUPTION';
+    macroSummary = 'Municipal emergency corridor gridlock. 112 response units delayed; utility failures compounding sector hazards.';
+  } else if (macroScore <= 65) {
+    macroStatus = 'STRAINED';
+    macroSummary = 'Municipal infrastructure under significant strain. Emergency response viable but transit corridors restricted.';
+  } else {
+    macroStatus = 'OPERATIONAL';
+    macroSummary = 'Emergency response corridors clear; municipal utility systems stabilized by disciplined incident containment.';
+  }
+
+  const cityBrain: CityBrainState = {
+    infrastructureIntegrity,
+    trafficFlow,
+    emergencyAccess,
+    publicOrder,
+    utilityStability,
+    responderAvailability,
+    macroStatus,
+    macroSummary,
+  };
+
+  // ── Batch 6: Multi-Disaster Chain Updates ──
+  const baseChain = currentState.disasterChain ?? createInitialDisasterChain(resolvedDisasterType);
+  let chainStage = baseChain.chainStage;
+  let chainSeverity: ChainSeverity = baseChain.chainSeverity;
+  let isContained = baseChain.isContained;
+  let containmentAction = baseChain.containmentAction;
+
+  if (delta.chainContained) {
+    isContained = true;
+    chainSeverity = 'CONTAINED';
+    chainStage = Math.max(0, chainStage - 1);
+    containmentAction = isCorrect ? 'Disciplined safety protocol neutralized secondary hazard ignition.' : undefined;
+  } else if (delta.chainTriggered) {
+    chainStage = 2;
+    chainSeverity = 'ACTIVE';
+    isContained = false;
+  } else if (hazardLevel >= 55 || utilityStability <= 50) {
+    if (chainSeverity !== 'ACTIVE' && !isContained) {
+      chainStage = 1;
+      chainSeverity = 'IMMINENT';
+    }
+  }
+
+  const disasterChain: DisasterChainState = {
+    ...baseChain,
+    chainStage,
+    chainSeverity,
+    isContained,
+    containmentAction,
+  };
+
   return {
     panic,
     panicBand,
@@ -742,5 +1338,11 @@ export function applySimulationState(
     lowestDifficulty,
     lastBehaviorSummary: delta.behaviorSummary,
     lastBehaviorSignal: delta.behaviorSignal,
+    // Batch 5 & 6
+    squadMembers,
+    squadCohesion,
+    cityBrain,
+    disasterChain,
+    alternativeBranch: delta.alternativeBranch ?? currentState.alternativeBranch ?? null,
   };
 }

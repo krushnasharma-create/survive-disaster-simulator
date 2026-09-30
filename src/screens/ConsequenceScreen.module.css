@@ -469,3 +469,433 @@
   line-height: 1.55;
   margin: 0;
 }
+
+/* ── Batch 5: NPC Squad Card ── */
+.squadCard {
+  background: rgba(16, 22, 28, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid #38bdf8;
+  padding: 1.35rem 1.6rem;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.squadHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.squadTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.squadCohesionBadge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 2px;
+  background: rgba(56, 189, 248, 0.12);
+  color: #bae6fd;
+}
+
+.squadList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.squadMemberRow {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  padding: 0.65rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.squadMemberTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.squadMemberName {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.squadRoleTag {
+  font-size: 0.62rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-fog);
+  font-weight: normal;
+}
+
+.squadMemberStatus {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.1rem 0.4rem;
+  border-radius: 2px;
+  border: 1px solid;
+}
+
+.statusSafe {
+  background: rgba(57, 211, 83, 0.12);
+  border-color: rgba(57, 211, 83, 0.4);
+  color: #39d353;
+}
+
+.statusStable {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+.statusDistressed {
+  background: rgba(236, 201, 75, 0.12);
+  border-color: rgba(236, 201, 75, 0.4);
+  color: #ecc94b;
+}
+
+.statusInjured {
+  background: rgba(237, 137, 54, 0.15);
+  border-color: rgba(237, 137, 54, 0.5);
+  color: #ed8936;
+}
+
+.statusCritical {
+  background: rgba(245, 101, 101, 0.18);
+  border-color: rgba(245, 101, 101, 0.5);
+  color: #f56565;
+}
+
+.squadMemberStats {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--color-fog);
+  display: flex;
+  gap: 0.8rem;
+}
+
+.squadMemberBark {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+}
+
+/* ── Batch 5: City Brain Card ── */
+.cityCard {
+  background: rgba(16, 20, 26, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid #10b981;
+  padding: 1.35rem 1.6rem;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.cityHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cityTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #34d399;
+  font-weight: 600;
+}
+
+.cityMacroTag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border-radius: 2px;
+  border: 1px solid;
+}
+
+.cityMacroOperational {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.cityMacroStrained {
+  background: rgba(236, 201, 75, 0.12);
+  border-color: rgba(236, 201, 75, 0.4);
+  color: #ecc94b;
+}
+
+.cityMacroCritical {
+  background: rgba(245, 101, 101, 0.15);
+  border-color: rgba(245, 101, 101, 0.5);
+  color: #f56565;
+}
+
+.cityGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.6rem;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.75rem 1rem;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cityMetric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.cityMetricLabel {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+}
+
+.cityMetricValue {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.citySummaryText {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Batch 6: Multi-Disaster Chain Card ── */
+.chainCard {
+  background: rgba(24, 16, 18, 0.75);
+  border: 1px solid rgba(255, 82, 82, 0.25);
+  border-left: 3px solid #ff5252;
+  padding: 1.35rem 1.6rem;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.chainHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chainTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #ff5252;
+  font-weight: 700;
+}
+
+.chainSeverityBadge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.12rem 0.55rem;
+  border-radius: 2px;
+  border: 1px solid;
+}
+
+.chainSeverityActive {
+  background: rgba(255, 42, 42, 0.18);
+  border-color: rgba(255, 42, 42, 0.6);
+  color: #ff5252;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.chainSeverityImminent {
+  background: rgba(237, 137, 54, 0.15);
+  border-color: rgba(237, 137, 54, 0.5);
+  color: #ed8936;
+}
+
+.chainSeverityContained {
+  background: rgba(57, 211, 83, 0.15);
+  border-color: rgba(57, 211, 83, 0.5);
+  color: #39d353;
+}
+
+.chainText {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Batch 6: Alternative Timeline ("What If?") Card ── */
+.altCard {
+  background: rgba(20, 18, 28, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid #818cf8;
+  padding: 1.35rem 1.6rem;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.altHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.altTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #818cf8;
+  font-weight: 600;
+}
+
+.altRegretTag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border-radius: 2px;
+  border: 1px solid;
+}
+
+.regretAvoided {
+  background: rgba(57, 211, 83, 0.15);
+  border-color: rgba(57, 211, 83, 0.4);
+  color: #39d353;
+}
+
+.regretMissed {
+  background: rgba(245, 101, 101, 0.15);
+  border-color: rgba(245, 101, 101, 0.4);
+  color: #f56565;
+}
+
+.regretOptimal {
+  background: rgba(129, 140, 248, 0.15);
+  border-color: rgba(129, 140, 248, 0.4);
+  color: #a5b4fc;
+}
+
+.regretMarginal {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--color-fog);
+}
+
+.altChoiceBox {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #e0e7ff;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.5rem 0.75rem;
+  border-radius: 2px;
+  border: 1px solid rgba(129, 140, 248, 0.2);
+}
+
+.altMetricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.6rem;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.75rem 1rem;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.altMetricItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.altMetricLabel {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+}
+
+.altMetricValue {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.altSummaryText {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+  margin: 0;
+}

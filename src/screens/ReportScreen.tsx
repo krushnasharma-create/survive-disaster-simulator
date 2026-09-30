@@ -342,6 +342,225 @@ export default function ReportScreen() {
     };
   }, [decisions, language]);
 
+  // ── Batch 5: NPC Squad Audit ──
+  const squadAudit = useMemo(() => {
+    if (decisions.length === 0) {
+      return {
+        finalCohesion: 75,
+        minCohesion: 75,
+        membersSurvived: 3,
+        membersInjured: 0,
+        membersCritical: 0,
+        synergyEvents: 0,
+        rating: 'COHESIVE_SQUAD' as const,
+        summary: 'No active squad decisions recorded.',
+      };
+    }
+
+    const lastDec = decisions[decisions.length - 1];
+    const finalCohesion = lastDec?.squadCohesion ?? 75;
+    let minCohesion = 100;
+    let synergyEvents = 0;
+
+    decisions.forEach((d) => {
+      const coh = d.squadCohesion ?? 75;
+      if (coh < minCohesion) minCohesion = coh;
+      if (coh >= 65 && d.isCorrect) synergyEvents++;
+    });
+
+    const squadMembers = lastDec?.squadMembers ?? [];
+    let membersCritical = 0;
+    let membersInjured = 0;
+    let membersSurvived = 0;
+
+    if (squadMembers.length > 0) {
+      squadMembers.forEach((m) => {
+        if (m.status === 'CRITICAL' || m.safety <= 25) {
+          membersCritical++;
+        } else if (m.status === 'INJURED' || m.safety <= 45) {
+          membersInjured++;
+          membersSurvived++;
+        } else {
+          membersSurvived++;
+        }
+      });
+    } else {
+      membersSurvived = 3;
+    }
+
+    let rating: 'ELITE_UNIT' | 'COHESIVE_SQUAD' | 'STRAINED_COMPANIONS' | 'FRACTURED_UNIT' = 'COHESIVE_SQUAD';
+    if (finalCohesion >= 80 && membersCritical === 0) {
+      rating = 'ELITE_UNIT';
+    } else if (finalCohesion >= 60 && membersCritical === 0) {
+      rating = 'COHESIVE_SQUAD';
+    } else if (finalCohesion >= 40) {
+      rating = 'STRAINED_COMPANIONS';
+    } else {
+      rating = 'FRACTURED_UNIT';
+    }
+
+    let summary = '';
+    if (language === 'hinglish') {
+      if (rating === 'ELITE_UNIT') {
+        summary = `Behtareen leadership! Aapne companion squad ka vishwas ${finalCohesion}% banaye rakha aur bina kisi critical nuksaan ke sabhi ko surakshit nikala.`;
+      } else if (rating === 'COHESIVE_SQUAD') {
+        summary = `Acche talmel ke sath squad ko lead kiya. Cohesion ${finalCohesion}% par sthir raha aur specialist sahayog ka poora labh mila.`;
+      } else {
+        summary = `Crisis stress ke kaaran squad cohesion ${finalCohesion}% par gir gaya. Emergency mein sath chalne walon ki pacing aur suraksha par dhyan dena zaroori hai.`;
+      }
+    } else {
+      if (rating === 'ELITE_UNIT') {
+        summary = `Exceptional squad stewardship. Maintained ${finalCohesion}% unit cohesion with zero critical casualties, activating specialist medical and technical synergies.`;
+      } else if (rating === 'COHESIVE_SQUAD') {
+        summary = `Steady group leadership. Kept companions composed and responsive with ${finalCohesion}% final cohesion through disciplined directions.`;
+      } else {
+        summary = `Squad cohesion degraded under crisis strain to ${finalCohesion}%. Panic and rapid decisions compromised vulnerable companions.`;
+      }
+    }
+
+    return {
+      finalCohesion,
+      minCohesion,
+      membersSurvived,
+      membersInjured,
+      membersCritical,
+      synergyEvents,
+      rating,
+      summary,
+    };
+  }, [decisions, language]);
+
+  // ── Batch 5: City Brain Audit ──
+  const cityAudit = useMemo(() => {
+    if (decisions.length === 0) {
+      return {
+        finalAccess: 70,
+        finalUtility: 65,
+        finalInfrastructure: 70,
+        macroStatus: 'OPERATIONAL' as const,
+        summary: 'No active decisions recorded.',
+      };
+    }
+
+    const lastDec = decisions[decisions.length - 1];
+    const finalAccess = lastDec?.cityEmergencyAccess ?? 70;
+    const finalUtility = lastDec?.cityUtilityStability ?? 65;
+    const macroStatus = lastDec?.cityMacroStatus ?? 'OPERATIONAL';
+
+    let summary = '';
+    if (language === 'hinglish') {
+      if (macroStatus === 'OPERATIONAL') {
+        summary = `Aapke niyamit faislon ne municipal evacuation routes aur 112 emergency corridors ko khula rakha. Grid aur utility sthir rahe.`;
+      } else if (macroStatus === 'STRAINED') {
+        summary = `Shehari infrastructure par bhari dawab darj hua. Choke points aur utility trips ne emergency access ko simit kiya.`;
+      } else {
+        summary = `Shehar ke sector mein gambhir disruption hua. Corridor blockade aur utility crash ne rescue teams ki pohanch ko rokk diya.`;
+      }
+    } else {
+      if (macroStatus === 'OPERATIONAL') {
+        summary = `Local actions preserved vital municipal corridors. 112 emergency access held at ${finalAccess}% and utility stability at ${finalUtility}%.`;
+      } else if (macroStatus === 'STRAINED') {
+        summary = `Macro municipal infrastructure operated under significant strain. Emergency response was restricted along primary transit corridors.`;
+      } else {
+        summary = `Severe municipal corridor disruption. Utility grid collapse and street bottlenecks impeded first-responder dispatch.`;
+      }
+    }
+
+    return {
+      finalAccess,
+      finalUtility,
+      macroStatus,
+      summary,
+    };
+  }, [decisions, language]);
+
+  // ── Batch 6: Multi-Disaster Chain Audit ──
+  const chainAudit = useMemo(() => {
+    if (decisions.length === 0) {
+      return {
+        chainEncountered: false,
+        chainTitle: 'None',
+        finalSeverity: 'NONE' as const,
+        contained: false,
+        summary: 'No active disaster chain recorded.',
+      };
+    }
+
+    let chainEncountered = false;
+    let contained = false;
+    let chainTitle = 'Secondary Threat';
+    let finalSeverity: string = 'NONE';
+
+    decisions.forEach((d) => {
+      if (d.chainSeverity && d.chainSeverity !== 'NONE') {
+        chainEncountered = true;
+        finalSeverity = d.chainSeverity;
+        if (d.chainTitle) chainTitle = d.chainTitle;
+        if (d.chainSeverity === 'CONTAINED') contained = true;
+      }
+    });
+
+    let summary = '';
+    if (chainEncountered) {
+      if (contained) {
+        summary = language === 'hinglish'
+          ? `Secondary disaster risk (${chainTitle}) ko proactive NDMA protocols dwara safaltapurvak contain kar liya gaya.`
+          : `Secondary cascading hazard (${chainTitle}) was systematically neutralized before compound disaster ignition.`;
+      } else {
+        summary = language === 'hinglish'
+          ? `Secondary hazard (${chainTitle}) active raha, jisse situation compounding aur localized risk badh gaya.`
+          : `Secondary cascading threat (${chainTitle}) breached thresholds, escalating overall operational hazard.`;
+      }
+    } else {
+      summary = language === 'hinglish'
+        ? 'Aapke faislon ne secondary cascading disaster triggers ko active hone se roke rakha.'
+        : 'Controlled mitigation prevented cascading secondary hazard triggers from activating.';
+    }
+
+    return {
+      chainEncountered,
+      chainTitle,
+      finalSeverity,
+      contained,
+      summary,
+    };
+  }, [decisions, language]);
+
+  // ── Batch 6: Alternative Timeline Audit ──
+  const altAudit = useMemo(() => {
+    if (decisions.length === 0) {
+      return {
+        totalEvaluated: 0,
+        mistakesAvoided: 0,
+        missedOptimal: 0,
+        summary: 'No alternative timeline branches evaluated.',
+      };
+    }
+
+    let mistakesAvoided = 0;
+    let missedOptimal = 0;
+    let totalEvaluated = 0;
+
+    decisions.forEach((d) => {
+      if (d.alternativeBranch) {
+        totalEvaluated++;
+        if (d.alternativeBranch.regretLevel === 'CRITICAL_MISTAKE_AVOIDED') mistakesAvoided++;
+        if (d.alternativeBranch.regretLevel === 'MISSED_OPTIMAL_PATH') missedOptimal++;
+      }
+    });
+
+    const summary = language === 'hinglish'
+      ? `Alternative timeline analysis: Aapne ${mistakesAvoided} critical traps se bachaav kiya, aur ${missedOptimal} jagah aur behtar path chune ja sakte the.`
+      : `What-If Analysis: Your decisions successfully steered away from ${mistakesAvoided} high-risk traps, with ${missedOptimal} instances where alternative NDMA protocols offered superior containment.`;
+
+    return {
+      totalEvaluated,
+      mistakesAvoided,
+      missedOptimal,
+      summary,
+    };
+  }, [decisions, language]);
+
   const scoreColor = useMemo(() => {
     if (scoreSummary.score >= 85) return 'var(--color-safe)';
     if (scoreSummary.score >= 65) return 'var(--color-warning)';
@@ -670,6 +889,176 @@ export default function ReportScreen() {
           <p className={styles.behaviorAuditDesc}>{behaviorAudit.summary}</p>
         </div>
 
+        {/* NPC Survival Squad Audit */}
+        <div className={styles.squadAuditBox}>
+          <div className={styles.squadAuditHeader}>
+            <div className={styles.squadAuditTitle}>
+              <span aria-hidden="true">👥</span>
+              <span>NPC SURVIVAL SQUAD & COMPANION AUDIT</span>
+            </div>
+            <span className={styles.squadCohesionTag}>
+              RATING: {squadAudit.rating.replace(/_/g, ' ')}
+            </span>
+          </div>
+
+          <div className={styles.behaviorMetricsRow}>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#38bdf8' }}>
+                {squadAudit.finalCohesion}%
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                {language === 'hinglish' ? 'Final Cohesion' : 'Final Squad Cohesion'}
+              </span>
+            </div>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#48bb78' }}>
+                {squadAudit.membersSurvived}/3
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                {language === 'hinglish' ? 'Survivors' : 'Squad Members Survived'}
+              </span>
+            </div>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: squadAudit.membersInjured > 0 ? '#ecc94b' : '#39d353' }}>
+                {squadAudit.membersInjured}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                {language === 'hinglish' ? 'Injured' : 'Injured Companions'}
+              </span>
+            </div>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#c084fc' }}>
+                {squadAudit.synergyEvents}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                {language === 'hinglish' ? 'Synergy Bonus' : 'Specialist Synergies'}
+              </span>
+            </div>
+          </div>
+
+          <p className={styles.behaviorAuditDesc}>{squadAudit.summary}</p>
+        </div>
+
+        {/* City Brain & Municipal Infrastructure Audit */}
+        <div className={styles.cityAuditBox}>
+          <div className={styles.cityAuditHeader}>
+            <div className={styles.cityAuditTitle}>
+              <span aria-hidden="true">🏙️</span>
+              <span>CITY BRAIN & MUNICIPAL INFRASTRUCTURE AUDIT</span>
+            </div>
+            <span
+              className={styles.cityMacroAuditTag}
+              style={{
+                color:
+                  cityAudit.macroStatus === 'OPERATIONAL'
+                    ? '#34d399'
+                    : cityAudit.macroStatus === 'STRAINED'
+                    ? '#ecc94b'
+                    : '#f56565',
+                borderColor:
+                  cityAudit.macroStatus === 'OPERATIONAL'
+                    ? 'rgba(16, 185, 129, 0.4)'
+                    : cityAudit.macroStatus === 'STRAINED'
+                    ? 'rgba(236, 201, 75, 0.4)'
+                    : 'rgba(245, 101, 101, 0.5)',
+                backgroundColor:
+                  cityAudit.macroStatus === 'OPERATIONAL'
+                    ? 'rgba(16, 185, 129, 0.12)'
+                    : cityAudit.macroStatus === 'STRAINED'
+                    ? 'rgba(236, 201, 75, 0.12)'
+                    : 'rgba(245, 101, 101, 0.15)',
+              }}
+            >
+              SECTOR: {cityAudit.macroStatus}
+            </span>
+          </div>
+
+          <div className={styles.behaviorMetricsRow}>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#34d399' }}>
+                {cityAudit.finalAccess}%
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                {language === 'hinglish' ? '112 Emergency Access' : '112 Emergency Access'}
+              </span>
+            </div>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#38bdf8' }}>
+                {cityAudit.finalUtility}%
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                {language === 'hinglish' ? 'Utility Stability' : 'Municipal Utility Stability'}
+              </span>
+            </div>
+          </div>
+
+          <p className={styles.behaviorAuditDesc}>{cityAudit.summary}</p>
+        </div>
+
+        {/* Multi-Disaster Chain Audit */}
+        <div className={styles.chainAuditBox}>
+          <div className={styles.chainAuditHeader}>
+            <div className={styles.chainAuditTitle}>
+              <span aria-hidden="true">⛓️</span>
+              <span>MULTI-DISASTER CHAIN & SECONDARY HAZARDS</span>
+            </div>
+            <span
+              className={styles.chainAuditBadge}
+              style={{
+                color: chainAudit.contained
+                  ? '#39d353'
+                  : chainAudit.finalSeverity === 'ACTIVE'
+                  ? '#ff5252'
+                  : '#ff9f43',
+                borderColor: chainAudit.contained
+                  ? 'rgba(57, 211, 83, 0.5)'
+                  : 'rgba(255, 82, 82, 0.5)',
+                backgroundColor: chainAudit.contained
+                  ? 'rgba(57, 211, 83, 0.12)'
+                  : 'rgba(255, 82, 82, 0.12)',
+              }}
+            >
+              STATUS: {chainAudit.contained ? 'CONTAINED' : chainAudit.finalSeverity}
+            </span>
+          </div>
+
+          <p className={styles.behaviorAuditDesc}>{chainAudit.summary}</p>
+        </div>
+
+        {/* Alternative Timeline ("What-If?") Audit */}
+        <div className={styles.altAuditBox}>
+          <div className={styles.altAuditHeader}>
+            <div className={styles.altAuditTitle}>
+              <span aria-hidden="true">🔀</span>
+              <span>ALTERNATIVE TIMELINES & WHAT-IF ANALYSIS</span>
+            </div>
+            <span className={styles.altAuditBadge}>
+              BRANCHES: {altAudit.totalEvaluated} ANALYZED
+            </span>
+          </div>
+
+          <div className={styles.behaviorMetricsRow}>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#39d353' }}>
+                {altAudit.mistakesAvoided}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                {language === 'hinglish' ? 'Critical Traps Se Bachaav' : 'Critical Traps Avoided'}
+              </span>
+            </div>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: altAudit.missedOptimal > 0 ? '#ff9f40' : '#48bb78' }}>
+                {altAudit.missedOptimal}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                {language === 'hinglish' ? 'Missed Optimal Paths' : 'Missed Optimal Protocols'}
+              </span>
+            </div>
+          </div>
+
+          <p className={styles.behaviorAuditDesc}>{altAudit.summary}</p>
+        </div>
+
         {/* Decision-by-Decision Replay */}
         {decisionReviews.length > 0 && (
           <div>
@@ -698,6 +1087,21 @@ export default function ReportScreen() {
                         {dec?.difficultyLevel !== undefined && (
                           <span className={styles.reviewDiffTag}>
                             DIFF: L{dec.difficultyLevel}
+                          </span>
+                        )}
+                        {dec?.squadCohesion !== undefined && (
+                          <span className={styles.reviewSquadTag}>
+                            SQUAD: {dec.squadCohesion}%
+                          </span>
+                        )}
+                        {dec?.cityMacroStatus && (
+                          <span className={styles.reviewCityTag}>
+                            CITY: {dec.cityMacroStatus}
+                          </span>
+                        )}
+                        {dec?.chainSeverity && dec.chainSeverity !== 'NONE' && (
+                          <span className={styles.reviewChainTag}>
+                            CHAIN: {dec.chainSeverity}
                           </span>
                         )}
                         {dec?.trainingBand && (
@@ -753,6 +1157,13 @@ export default function ReportScreen() {
                     {dec?.behaviorSummary && (
                       <div className={styles.reviewBehaviorText}>
                         <strong>🧠 Behavior:</strong> {dec.behaviorSummary}
+                      </div>
+                    )}
+
+                    {dec?.alternativeBranch && (
+                      <div className={styles.reviewAltText}>
+                        <strong>🔀 What If:</strong> If chosen "{dec.alternativeBranch.choiceLabel}" →{' '}
+                        {dec.alternativeBranch.divergenceSummary}
                       </div>
                     )}
 

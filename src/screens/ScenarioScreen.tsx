@@ -254,6 +254,11 @@ export default function ScenarioScreen() {
         propagationSummary: evalResult.nextSimulationState?.propagationSummary,
         behaviorSummary: evalResult.stateDelta.behaviorSummary,
         behaviorSignal: evalResult.stateDelta.behaviorSignal,
+        squadMembers: evalResult.nextSimulationState?.squadMembers,
+        squadCohesion: evalResult.nextSimulationState?.squadCohesion,
+        cityBrain: evalResult.nextSimulationState?.cityBrain,
+        disasterChain: evalResult.nextSimulationState?.disasterChain,
+        alternativeBranch: evalResult.stateDelta.alternativeBranch ?? evalResult.nextSimulationState?.alternativeBranch,
       });
 
       // Brief 150ms commitment pulse gives tactile weight to the decision before transition
@@ -458,6 +463,12 @@ export default function ScenarioScreen() {
             ENV: <strong style={{ color: envStatusColor }}>{simulationState.environmentStatus || 'STABLE'}</strong>
           </span>
           <span className={styles.statChip}>
+            SQUAD: <strong>{simulationState.squadCohesion ?? 75}%</strong>
+          </span>
+          <span className={styles.statChip}>
+            CITY: <strong>{simulationState.cityBrain?.macroStatus ?? 'OPERATIONAL'}</strong>
+          </span>
+          <span className={styles.statChip}>
             TRAIN: <strong>{simulationState.trainingBand || 'DEVELOPING'}</strong>
           </span>
           <span className={styles.statChip}>
@@ -518,6 +529,35 @@ export default function ScenarioScreen() {
             <p className={styles.convergenceText}>{convergenceContext.advisoryText}</p>
           </div>
         )}
+
+        {/* Multi-Disaster Secondary Hazard Chain Alert */}
+        {simulationState.disasterChain &&
+          (simulationState.disasterChain.chainSeverity === 'ACTIVE' ||
+            simulationState.disasterChain.chainSeverity === 'IMMINENT') && (
+            <div
+              className={`${styles.chainBanner} ${
+                simulationState.disasterChain.chainSeverity === 'ACTIVE'
+                  ? styles.chainBannerActive
+                  : styles.chainBannerImminent
+              }`}
+            >
+              <div className={styles.chainBannerHeader}>
+                <span className={styles.chainAlertIcon}>⚡</span>
+                <span className={styles.chainAlertTitle}>
+                  {simulationState.disasterChain.chainSeverity === 'ACTIVE'
+                    ? 'SECONDARY DISASTER ACTIVE'
+                    : 'SECONDARY THREAT IMMINENT'}
+                  : {simulationState.disasterChain.chainTitle}
+                </span>
+                <span className={styles.chainAlertBadge}>
+                  CHAIN STAGE {simulationState.disasterChain.chainStage}/2
+                </span>
+              </div>
+              <p className={styles.chainBannerDesc}>
+                {simulationState.disasterChain.chainDescription}
+              </p>
+            </div>
+          )}
 
         {/* Situation Card */}
         <motion.div

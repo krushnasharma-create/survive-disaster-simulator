@@ -11,6 +11,7 @@ import {
   calculateDecisionDelta,
   applySimulationState,
   createInitialSimulationState,
+  simulateAlternativeChoice,
 } from './simulationState';
 
 export interface EvaluationResult {
@@ -67,7 +68,16 @@ export function evaluateChoice(
     remainingSeconds
   );
 
+  // Evaluate counterfactual alternative timeline branch ("What If?")
+  const alternativeBranch = simulateAlternativeChoice(node, choice.id, baseState, disasterType);
+  if (alternativeBranch) {
+    stateDelta.alternativeBranch = alternativeBranch;
+  }
+
   const nextSimulationState = applySimulationState(baseState, stateDelta, choice.isCorrect, disasterType);
+  if (nextSimulationState && alternativeBranch) {
+    nextSimulationState.alternativeBranch = alternativeBranch;
+  }
 
   const record: DecisionRecord = {
     nodeId: node.id,
@@ -99,6 +109,15 @@ export function evaluateChoice(
     difficultyLevel: nextSimulationState?.difficultyLevel,
     behaviorSignal: stateDelta.behaviorSignal,
     behaviorSummary: stateDelta.behaviorSummary,
+    // Batch 5 & 6 Telemetry
+    squadCohesion: nextSimulationState?.squadCohesion,
+    squadMembers: nextSimulationState?.squadMembers,
+    cityMacroStatus: nextSimulationState?.cityBrain?.macroStatus,
+    cityEmergencyAccess: nextSimulationState?.cityBrain?.emergencyAccess,
+    cityUtilityStability: nextSimulationState?.cityBrain?.utilityStability,
+    chainSeverity: nextSimulationState?.disasterChain?.chainSeverity,
+    chainTitle: nextSimulationState?.disasterChain?.chainTitle,
+    alternativeBranch: alternativeBranch ?? null,
   };
 
   return {

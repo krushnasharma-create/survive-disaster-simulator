@@ -11,6 +11,12 @@ import type {
   EnvironmentStatus,
   BehavioralBand,
   BehaviorProfile,
+  NpcMember,
+  CityBrainState,
+  CityMacroStatus,
+  DisasterChainState,
+  ChainSeverity,
+  AlternativeTimelineBranch,
 } from '../engine/simulationState';
 import {
   createInitialSimulationState,
@@ -49,6 +55,15 @@ export interface DecisionRecord {
   difficultyLevel?: number;
   behaviorSignal?: string;
   behaviorSummary?: string;
+  /** Batch 5 & 6 Extensions: NPC Squad, City Brain, Multi-Disaster Chain, Alternative Timeline */
+  squadCohesion?: number;
+  squadMembers?: NpcMember[];
+  cityMacroStatus?: CityMacroStatus;
+  cityEmergencyAccess?: number;
+  cityUtilityStability?: number;
+  chainSeverity?: ChainSeverity;
+  chainTitle?: string;
+  alternativeBranch?: AlternativeTimelineBranch | null;
 }
 
 export interface ConsequenceState {
@@ -68,6 +83,12 @@ export interface ConsequenceState {
   /** Batch 3 & 4 Extensions: Behavioral and adaptation feedback */
   behaviorSummary?: string;
   behaviorSignal?: string;
+  /** Batch 5 & 6 Extensions: NPC Squad, City Brain, Multi-Disaster Chain, Alternative Timeline */
+  squadMembers?: NpcMember[];
+  squadCohesion?: number;
+  cityBrain?: CityBrainState;
+  disasterChain?: DisasterChainState;
+  alternativeBranch?: AlternativeTimelineBranch | null;
 }
 
 export interface OutcomeState {

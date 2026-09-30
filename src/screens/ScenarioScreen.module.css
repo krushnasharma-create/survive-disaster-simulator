@@ -472,3 +472,66 @@
   color: rgba(255, 255, 255, 0.85);
   margin: 0;
 }
+
+/* Multi-Disaster Secondary Hazard Chain Alert */
+.chainBanner {
+  padding: 0.85rem 1.25rem;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  animation: fadeIn 0.35s ease-out;
+}
+
+.chainBannerActive {
+  background: rgba(255, 42, 42, 0.1);
+  border: 1px solid rgba(255, 42, 42, 0.45);
+  border-left: 3px solid #ff2a2a;
+}
+
+.chainBannerImminent {
+  background: rgba(237, 137, 54, 0.1);
+  border: 1px solid rgba(237, 137, 54, 0.4);
+  border-left: 3px solid #ed8936;
+}
+
+.chainBannerHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.chainAlertIcon {
+  font-size: 0.95rem;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.chainAlertTitle {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #ff5252;
+}
+
+.chainAlertBadge {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 82, 82, 0.3);
+  color: #ff9f43;
+}
+
+.chainBannerDesc {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}

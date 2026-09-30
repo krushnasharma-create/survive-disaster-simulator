@@ -555,6 +555,35 @@
   margin: 0;
 }
 
+/* Alternative Branch Block */
+.altBranchBlock {
+  background: rgba(129, 140, 248, 0.06);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  border-left: 2px solid #818cf8;
+  padding: 0.55rem 0.8rem;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.altBranchLabel {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #a5b4fc;
+}
+
+.altBranchSummary {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: #e0e7ff;
+  margin: 0;
+}
+
 /* Empty Decisions */
 .emptyDecisions {
   text-align: center;

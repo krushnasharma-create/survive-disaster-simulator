@@ -358,6 +358,217 @@ export default function ConsequenceScreen() {
           </motion.div>
         )}
 
+        {/* NPC Companion Squad Card */}
+        {currentConsequence.simulationState?.squadMembers && currentConsequence.simulationState.squadMembers.length > 0 && (
+          <motion.div
+            className={styles.squadCard}
+            variants={itemVariants}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
+          >
+            <div className={styles.squadHeader}>
+              <div className={styles.squadTitle}>
+                <span aria-hidden="true">👥</span>
+                <span>NPC SURVIVAL SQUAD // COMPANION STATUS</span>
+              </div>
+              <span className={styles.squadCohesionBadge}>
+                COHESION: {currentConsequence.simulationState.squadCohesion ?? 75}%
+              </span>
+            </div>
+
+            <div className={styles.squadList}>
+              {currentConsequence.simulationState.squadMembers.map((member) => (
+                <div key={member.id} className={styles.squadMemberRow}>
+                  <div className={styles.squadMemberTop}>
+                    <span className={styles.squadMemberName}>
+                      {member.name}
+                      <span className={styles.squadRoleTag}>{member.role}</span>
+                    </span>
+                    <span
+                      className={`${styles.squadMemberStatus} ${
+                        member.status === 'SAFE'
+                          ? styles.statusSafe
+                          : member.status === 'STABLE'
+                          ? styles.statusStable
+                          : member.status === 'DISTRESSED'
+                          ? styles.statusDistressed
+                          : member.status === 'INJURED'
+                          ? styles.statusInjured
+                          : styles.statusCritical
+                      }`}
+                    >
+                      {member.status}
+                    </span>
+                  </div>
+                  <div className={styles.squadMemberStats}>
+                    <span>Trust: {member.trust}%</span>
+                    <span>Stress: {member.stress}%</span>
+                    <span>Safety: {member.safety}%</span>
+                  </div>
+                  {member.dialogue && (
+                    <div className={styles.squadMemberBark}>
+                      "{member.dialogue}"
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* City Brain Macro Environmental Impact Card */}
+        {currentConsequence.simulationState?.cityBrain && (
+          <motion.div
+            className={styles.cityCard}
+            variants={itemVariants}
+            transition={{ duration: 0.46, ease: 'easeOut' }}
+          >
+            <div className={styles.cityHeader}>
+              <div className={styles.cityTitle}>
+                <span aria-hidden="true">🏙️</span>
+                <span>CITY BRAIN // MUNICIPAL CRISIS IMPACT</span>
+              </div>
+              <span
+                className={`${styles.cityMacroTag} ${
+                  currentConsequence.simulationState.cityBrain.macroStatus === 'OPERATIONAL'
+                    ? styles.cityMacroOperational
+                    : currentConsequence.simulationState.cityBrain.macroStatus === 'STRAINED'
+                    ? styles.cityMacroStrained
+                    : styles.cityMacroCritical
+                }`}
+              >
+                STATUS: {currentConsequence.simulationState.cityBrain.macroStatus}
+              </span>
+            </div>
+
+            <div className={styles.cityGrid}>
+              <div className={styles.cityMetric}>
+                <span className={styles.cityMetricLabel}>INFRASTRUCTURE</span>
+                <span className={styles.cityMetricValue}>
+                  {currentConsequence.simulationState.cityBrain.infrastructureIntegrity}%
+                </span>
+              </div>
+              <div className={styles.cityMetric}>
+                <span className={styles.cityMetricLabel}>EMERGENCY ACCESS</span>
+                <span className={styles.cityMetricValue}>
+                  {currentConsequence.simulationState.cityBrain.emergencyAccess}%
+                </span>
+              </div>
+              <div className={styles.cityMetric}>
+                <span className={styles.cityMetricLabel}>UTILITY STABILITY</span>
+                <span className={styles.cityMetricValue}>
+                  {currentConsequence.simulationState.cityBrain.utilityStability}%
+                </span>
+              </div>
+              <div className={styles.cityMetric}>
+                <span className={styles.cityMetricLabel}>PUBLIC ORDER</span>
+                <span className={styles.cityMetricValue}>
+                  {currentConsequence.simulationState.cityBrain.publicOrder}%
+                </span>
+              </div>
+            </div>
+
+            <p className={styles.citySummaryText}>
+              {currentConsequence.simulationState.cityBrain.macroSummary}
+            </p>
+          </motion.div>
+        )}
+
+        {/* Multi-Disaster Chain Card */}
+        {currentConsequence.simulationState?.disasterChain &&
+          currentConsequence.simulationState.disasterChain.chainSeverity !== 'NONE' && (
+            <motion.div
+              className={styles.chainCard}
+              variants={itemVariants}
+              transition={{ duration: 0.47, ease: 'easeOut' }}
+            >
+              <div className={styles.chainHeader}>
+                <div className={styles.chainTitle}>
+                  <span aria-hidden="true">⛓️</span>
+                  <span>MULTI-DISASTER CHAIN // {currentConsequence.simulationState.disasterChain.chainTitle}</span>
+                </div>
+                <span
+                  className={`${styles.chainSeverityBadge} ${
+                    currentConsequence.simulationState.disasterChain.chainSeverity === 'ACTIVE'
+                      ? styles.chainSeverityActive
+                      : currentConsequence.simulationState.disasterChain.chainSeverity === 'IMMINENT'
+                      ? styles.chainSeverityImminent
+                      : styles.chainSeverityContained
+                  }`}
+                >
+                  {currentConsequence.simulationState.disasterChain.chainSeverity}
+                </span>
+              </div>
+              <p className={styles.chainText}>
+                {currentConsequence.simulationState.disasterChain.containmentAction ||
+                  currentConsequence.simulationState.disasterChain.chainDescription}
+              </p>
+            </motion.div>
+          )}
+
+        {/* Alternative Timeline ("What If?") Card */}
+        {currentConsequence.alternativeBranch && (
+          <motion.div
+            className={styles.altCard}
+            variants={itemVariants}
+            transition={{ duration: 0.48, ease: 'easeOut' }}
+          >
+            <div className={styles.altHeader}>
+              <div className={styles.altTitle}>
+                <span aria-hidden="true">🔀</span>
+                <span>ALTERNATIVE TIMELINE // WHAT IF?</span>
+              </div>
+              <span
+                className={`${styles.altRegretTag} ${
+                  currentConsequence.alternativeBranch.regretLevel === 'CRITICAL_MISTAKE_AVOIDED'
+                    ? styles.regretAvoided
+                    : currentConsequence.alternativeBranch.regretLevel === 'MISSED_OPTIMAL_PATH'
+                    ? styles.regretMissed
+                    : currentConsequence.alternativeBranch.regretLevel === 'OPTIMAL_CHOICE_MADE'
+                    ? styles.regretOptimal
+                    : styles.regretMarginal
+                }`}
+              >
+                {currentConsequence.alternativeBranch.regretLevel.replace(/_/g, ' ')}
+              </span>
+            </div>
+
+            <div className={styles.altChoiceBox}>
+              <strong>Alternative Choice Evaluated:</strong> "{currentConsequence.alternativeBranch.choiceLabel}"
+            </div>
+
+            <div className={styles.altMetricsGrid}>
+              <div className={styles.altMetricItem}>
+                <span className={styles.altMetricLabel}>PROJECTED PANIC</span>
+                <span className={styles.altMetricValue}>
+                  {currentConsequence.alternativeBranch.projectedPanic}/100
+                </span>
+              </div>
+              <div className={styles.altMetricItem}>
+                <span className={styles.altMetricLabel}>PROJECTED HAZARD</span>
+                <span className={styles.altMetricValue}>
+                  {currentConsequence.alternativeBranch.projectedHazard}%
+                </span>
+              </div>
+              <div className={styles.altMetricItem}>
+                <span className={styles.altMetricLabel}>PROJECTED SAFETY</span>
+                <span className={styles.altMetricValue}>
+                  {currentConsequence.alternativeBranch.projectedSafety}%
+                </span>
+              </div>
+              <div className={styles.altMetricItem}>
+                <span className={styles.altMetricLabel}>SQUAD COHESION</span>
+                <span className={styles.altMetricValue}>
+                  {currentConsequence.alternativeBranch.projectedSquadCohesion}%
+                </span>
+              </div>
+            </div>
+
+            <p className={styles.altSummaryText}>
+              {currentConsequence.alternativeBranch.divergenceSummary}
+            </p>
+          </motion.div>
+        )}
+
         {/* Authoritative Safety Insight */}
         <motion.div
           className={styles.insightCard}

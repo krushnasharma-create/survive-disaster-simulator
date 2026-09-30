@@ -9,6 +9,8 @@ import {
   createInitialSimulationState,
   calculateDecisionDelta,
   applySimulationState,
+  simulateAlternativeChoice,
+  type AlternativeTimelineBranch,
 } from '../engine/simulationState';
 import type { DisasterType, DecisionNode } from '../data/types';
 import styles from './RunInspectorModal.module.css';
@@ -89,15 +91,21 @@ function reconstructRunTelemetry(
       trainingBand: string;
       instinctScore: number;
       trainingScore: number;
+      squadCohesion: number;
+      cityMacroStatus: string;
+      chainSeverity: string;
+      alternativeBranch: AlternativeTimelineBranch | null;
     }
   > = {};
 
   for (const step of decisions) {
     let nextState = currentState;
+    let altBranch: AlternativeTimelineBranch | null = null;
     if (scenario && scenario.nodes[step.nodeId] && scenario.nodes[step.nodeId].type === 'decision') {
       const node = scenario.nodes[step.nodeId] as DecisionNode;
       const choice = node.choices.find((c) => c.id === step.choiceId);
       if (choice) {
+        altBranch = simulateAlternativeChoice(node, step.choiceId, currentState, disasterType);
         const delta = calculateDecisionDelta(
           currentState,
           choice,
@@ -136,6 +144,10 @@ function reconstructRunTelemetry(
       trainingBand: nextState.trainingBand,
       instinctScore: nextState.instinctScore,
       trainingScore: nextState.trainingScore,
+      squadCohesion: nextState.squadCohesion,
+      cityMacroStatus: nextState.cityBrain?.macroStatus ?? 'OPERATIONAL',
+      chainSeverity: nextState.disasterChain?.chainSeverity ?? 'NONE',
+      alternativeBranch: altBranch,
     };
 
     currentState = nextState;
@@ -440,6 +452,30 @@ export function RunInspectorModal({ runId, userId, onClose }: RunInspectorModalP
                               >
                                 DIFF: <strong>L{stepTelemetry[step.id].difficultyLevel}</strong>
                               </span>
+                              {stepTelemetry[step.id].squadCohesion !== undefined && (
+                                <span
+                                  className={styles.telemetryChip}
+                                  style={{ color: '#38bdf8', borderColor: 'rgba(56, 189, 248, 0.4)' }}
+                                >
+                                  SQUAD: <strong>{stepTelemetry[step.id].squadCohesion}%</strong>
+                                </span>
+                              )}
+                              {stepTelemetry[step.id].cityMacroStatus && (
+                                <span
+                                  className={styles.telemetryChip}
+                                  style={{ color: '#34d399', borderColor: 'rgba(16, 185, 129, 0.4)' }}
+                                >
+                                  CITY: <strong>{stepTelemetry[step.id].cityMacroStatus}</strong>
+                                </span>
+                              )}
+                              {stepTelemetry[step.id].chainSeverity && stepTelemetry[step.id].chainSeverity !== 'NONE' && (
+                                <span
+                                  className={styles.telemetryChip}
+                                  style={{ color: '#ff5252', borderColor: 'rgba(255, 82, 82, 0.4)' }}
+                                >
+                                  CHAIN: <strong>{stepTelemetry[step.id].chainSeverity}</strong>
+                                </span>
+                              )}
                               <span
                                 className={styles.telemetryChip}
                                 style={{ color: '#38bdf8', borderColor: 'rgba(56, 189, 248, 0.4)' }}
@@ -476,6 +512,19 @@ export function RunInspectorModal({ runId, userId, onClose }: RunInspectorModalP
                               <p className={styles.actionText}>{step.choiceLabel}</p>
                             </div>
                           </div>
+
+                          {/* Alternative Branch Telemetry */}
+                          {stepTelemetry[step.id]?.alternativeBranch && (
+                            <div className={styles.altBranchBlock}>
+                              <span className={styles.altBranchLabel}>
+                                🔀 WHAT-IF BRANCH ({stepTelemetry[step.id].alternativeBranch?.regretLevel.replace(/_/g, ' ')})
+                              </span>
+                              <p className={styles.altBranchSummary}>
+                                Alternative: "{stepTelemetry[step.id].alternativeBranch?.choiceLabel}" →{' '}
+                                {stepTelemetry[step.id].alternativeBranch?.divergenceSummary}
+                              </p>
+                            </div>
+                          )}
 
                           {/* Emergency Consequence */}
                           <div className={styles.consequenceBlock}>
