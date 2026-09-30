@@ -7,6 +7,8 @@ import { isSupabaseConfigured } from '../lib/supabase';
 import type {
   SimulationState,
   SimulationStateDelta,
+  ConvergenceRiskBand,
+  EnvironmentStatus,
 } from '../engine/simulationState';
 import {
   createInitialSimulationState,
@@ -28,6 +30,12 @@ export interface DecisionRecord {
   /** Simulation State telemetry recorded at the moment of decision */
   panicLevel?: number;
   panicBand?: string;
+  hazardLevel?: number;
+  safetyIntegrity?: number;
+  visibility?: number;
+  convergenceBand?: ConvergenceRiskBand;
+  environmentStatus?: EnvironmentStatus;
+  propagationSummary?: string;
   stateShiftSummary?: string;
   stateDelta?: SimulationStateDelta;
 }
@@ -45,6 +53,7 @@ export interface ConsequenceState {
   simulationState?: SimulationState;
   stateDelta?: SimulationStateDelta;
   shiftSummary?: string;
+  propagationSummary?: string;
 }
 
 export interface OutcomeState {
@@ -156,7 +165,7 @@ export const useGameStore = create<GameState>((set) => ({
       currentOutcome: null,
       decisions: [],
       totalScore: 0,
-      simulationState: createInitialSimulationState(),
+      simulationState: createInitialSimulationState(disaster),
       activeRunId: null,
     }),
 
@@ -170,7 +179,7 @@ export const useGameStore = create<GameState>((set) => ({
       currentOutcome: null,
       decisions: [],
       totalScore: 0,
-      simulationState: createInitialSimulationState(),
+      simulationState: createInitialSimulationState(disaster),
       activeRunId: null,
     }),
 
@@ -191,7 +200,7 @@ export const useGameStore = create<GameState>((set) => ({
 
   updateSimulationState: (delta, isCorrect) =>
     set((state) => ({
-      simulationState: applySimulationState(state.simulationState, delta, isCorrect),
+      simulationState: applySimulationState(state.simulationState, delta, isCorrect, state.activeDisaster),
     })),
 
   setSimulationState: (simulationState) => set({ simulationState }),

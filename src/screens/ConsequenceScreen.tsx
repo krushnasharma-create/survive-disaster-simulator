@@ -263,6 +263,36 @@ export default function ConsequenceScreen() {
               )}
             </div>
 
+            {/* Environmental Forward Propagation Trajectory */}
+            {(currentConsequence.propagationSummary || currentConsequence.simulationState.propagationSummary) && (
+              <div className={styles.propagationSection}>
+                <div className={styles.propagationHeader}>
+                  <div className={styles.propagationTitle}>
+                    <span aria-hidden="true">🌐</span>
+                    <span>FORWARD PROPAGATION // ENVIRONMENTAL TRAJECTORY</span>
+                  </div>
+                  {currentConsequence.simulationState.convergenceBand && (
+                    <span
+                      className={`${styles.convergenceTag} ${
+                        currentConsequence.simulationState.convergenceBand === 'CRITICAL_RISK'
+                          ? styles.convergenceCriticalTag
+                          : currentConsequence.simulationState.convergenceBand === 'HIGH_RISK'
+                          ? styles.convergenceHighTag
+                          : currentConsequence.simulationState.convergenceBand === 'MODERATE_RISK'
+                          ? styles.convergenceModerateTag
+                          : styles.convergenceLowTag
+                      }`}
+                    >
+                      {currentConsequence.simulationState.convergenceBand.replace('_', ' ')}
+                    </span>
+                  )}
+                </div>
+                <p className={styles.propagationText}>
+                  {currentConsequence.propagationSummary || currentConsequence.simulationState.propagationSummary}
+                </p>
+              </div>
+            )}
+
             {currentConsequence.simulationState.timerModifierSeconds < 0 && (
               <div className={styles.shiftWarningBanner}>
                 <span>⚠</span>

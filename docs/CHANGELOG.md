@@ -3,6 +3,35 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-30] PHASE 3 (Batch 2) — Deep Simulation Systems: Dynamic Hazard Propagation & Advanced Convergence
+- **Hazard Convergence Risk Engine & Pure Evaluation (`src/engine/simulationState.ts`):**
+  - Designed multi-tiered Hazard Convergence Risk Bands: `LOW_RISK`, `MODERATE_RISK`, `HIGH_RISK`, `CRITICAL_RISK`.
+  - Defined categorical environmental statuses: `STABLE`, `ELEVATED`, `ESCALATING`, `CRITICAL`.
+  - Implemented pure evaluation function `calculatePropagationSummary(disasterType, convergenceBand, hazardLevel, safetyIntegrity, visibility, isCorrect)` delivering disaster-specific grounded narrative trajectories for Earthquake, Fire, Flood, and generic scenarios without runtime LLM generation.
+  - Implemented `getConvergenceContext(state, disasterType)` delivering real-time tactical environmental advisories, modifiers, and briefing context without modifying underlying NDMA safety truths.
+  - Initialized deterministic disaster baselines in `createInitialSimulationState(disasterType)` (Earthquake: 30% hazard / 80% visibility; Fire: 35% hazard / 70% visibility; Flood: 25% hazard / 85% visibility).
+  - Extended `applySimulationState` to calculate cumulative `hazardEscalationCount`, `recoveryEventCount`, and forward `propagationSummary`.
+- **Gameplay Telemetry & Hazard Convergence Advisory (`src/screens/ScenarioScreen.tsx`, `ScenarioScreen.module.css`):**
+  - Added real-time `ENV: {status}` badge to the simulation telemetry HUD bar with dynamic color mapping (Green `#39d353` → Amber `#ecc94b` → Orange `#ed8936` → Red `#f56565`).
+  - Added dynamic **Hazard Convergence Advisory Banner** (`.convergenceBanner`) rendered above the situation card whenever `convergenceBand !== 'LOW_RISK'`. Shows warning icon, advisory title, environmental modifier badge, and contextual warning text.
+  - Updated `handleSelectChoice` to pass `targetDisaster` to `evaluateChoice` and pass `propagationSummary` forward to `setConsequence`.
+- **Forward Environmental Trajectory in Consequences (`src/screens/ConsequenceScreen.tsx`, `ConsequenceScreen.module.css`):**
+  - Integrated dedicated **FORWARD PROPAGATION // ENVIRONMENTAL TRAJECTORY** card inside the Situation Shift block.
+  - Displays the active convergence risk band badge (`LOW RISK`, `MODERATE RISK`, `HIGH RISK`, `CRITICAL RISK`) alongside the forward narrative consequence explaining how current environmental degradation impacts subsequent movement.
+- **Comprehensive Environmental Containment & Hazard Audit (`src/screens/ReportScreen.tsx`, `ReportScreen.module.css`):**
+  - Added dedicated **Environmental Containment & Hazard Audit** section to the Preparedness Report.
+  - Computes and visualizes: Peak Hazard Reached, Lowest Safety Integrity, Lowest Visibility, Total Hazard Escalations, and Containment Recoveries.
+  - Derives authoritative Containment Rating (`OPTIMAL`, `CONTROLLED`, `COMPROMISED`, `CRITICAL_BREACH`) with bilingual NDMA-aligned containment evaluations.
+  - Enriched Decision Replay items with real-time `RISK: BAND` and `HAZARD: XX%` chips, plus forward propagation narrative notes.
+- **Flight Recorder Decision Replay Telemetry (`src/components/RunInspectorModal.tsx`, `RunInspectorModal.module.css`):**
+  - Implemented client-side deterministic telemetry reconstruction (`reconstructRunTelemetry`): runs simulation state evaluation over historical run decision sequences without requiring Supabase schema changes or database migrations.
+  - Displays `RISK`, `HAZARD`, `SAFETY`, and `VISIBILITY` chips on each historical chronological decision card.
+- **Verification & QA:**
+  - Automated simulation test (`scratch/test_batch2_simulation.ts`) verified 100% pass across all 7 scenarios.
+  - `npm run lint`: 0 errors.
+  - `npm run build`: 0 errors (strict TypeScript verbatimModuleSyntax verified).
+  - `git diff --check`: 0 whitespace warnings.
+
 ## [2026-09-30] PHASE 3 (Batch 1) — Deep Simulation Systems: Butterfly Effect, Panic Engine & Timer Lifecycle Polish
 - **Deterministic Butterfly Effect & Simulation State Engine (`src/engine/simulationState.ts`):**
   - Architected a pure-function simulation state machine tracking multi-dimensional disaster variables: `panic` (clamped 0–100), `panicBand` (`CALM`, `CONTROLLED`, `ELEVATED`, `HIGH`, `CRITICAL`), `hazardLevel` (0–100), `safetyIntegrity` (0–100), `visibility` (0–100), and dynamic `timerModifierSeconds` (0 to -5s).

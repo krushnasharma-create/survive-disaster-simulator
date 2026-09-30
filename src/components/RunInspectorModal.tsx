@@ -2,10 +2,15 @@
 // In-app Black-Box Incident Replay & Decision Inspector.
 // Displays detailed chronological decisions, NDMA compliance, and educational insights.
 
-import { useEffect, useState, useCallback } from 'react';
-import { fetchRunDetails, type RunDetailView } from '../services/gamePersistenceService';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { fetchRunDetails, type RunDetailView, type RunDecisionDetail } from '../services/gamePersistenceService';
 import { getScenario, SCENARIO_CATALOGUE } from '../data';
-import type { DisasterType } from '../data/types';
+import {
+  createInitialSimulationState,
+  calculateDecisionDelta,
+  applySimulationState,
+} from '../engine/simulationState';
+import type { DisasterType, DecisionNode } from '../data/types';
 import styles from './RunInspectorModal.module.css';
 
 interface RunInspectorModalProps {
@@ -65,6 +70,65 @@ function getScoreColor(score: number | null): string {
   return 'var(--color-danger)';
 }
 
+function reconstructRunTelemetry(
+  disasterType: DisasterType,
+  scenarioId: string,
+  decisions: RunDecisionDetail[]
+) {
+  const scenario = getScenario(scenarioId) || getScenario(disasterType);
+  let currentState = createInitialSimulationState(disasterType);
+  const telemetryByStepId: Record<
+    string,
+    {
+      hazardLevel: number;
+      safetyIntegrity: number;
+      visibility: number;
+      convergenceBand: string;
+      environmentStatus: string;
+    }
+  > = {};
+
+  for (const step of decisions) {
+    let nextState = currentState;
+    if (scenario && scenario.nodes[step.nodeId] && scenario.nodes[step.nodeId].type === 'decision') {
+      const node = scenario.nodes[step.nodeId] as DecisionNode;
+      const choice = node.choices.find((c) => c.id === step.choiceId);
+      if (choice) {
+        const delta = calculateDecisionDelta(
+          currentState,
+          choice,
+          node,
+          step.remainingSeconds ?? undefined
+        );
+        nextState = applySimulationState(currentState, delta, step.isCorrect, disasterType);
+      }
+    } else {
+      const delta = {
+        panicChange: step.isCorrect ? -12 : 18,
+        hazardChange: step.isCorrect ? -15 : 20,
+        safetyChange: step.isCorrect ? 10 : -20,
+        visibilityChange: step.isCorrect ? 5 : -15,
+        shiftSummary: step.isCorrect
+          ? 'Controlled response mitigated immediate risk and maintained situational composure.'
+          : 'Compromised action escalated stress levels and degraded personal safety integrity.',
+      };
+      nextState = applySimulationState(currentState, delta, step.isCorrect, disasterType);
+    }
+
+    telemetryByStepId[step.id] = {
+      hazardLevel: nextState.hazardLevel,
+      safetyIntegrity: nextState.safetyIntegrity,
+      visibility: nextState.visibility,
+      convergenceBand: nextState.convergenceBand,
+      environmentStatus: nextState.environmentStatus,
+    };
+
+    currentState = nextState;
+  }
+
+  return telemetryByStepId;
+}
+
 export function RunInspectorModal({ runId, userId, onClose }: RunInspectorModalProps) {
   const [data, setData] = useState<RunDetailView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -105,7 +169,13 @@ export function RunInspectorModal({ runId, userId, onClose }: RunInspectorModalP
   }, [onClose]);
 
   const run = data?.run;
-  const decisions = data?.decisions || [];
+  const rawDecisions = data?.decisions;
+  const decisions = useMemo(() => rawDecisions || [], [rawDecisions]);
+
+  const stepTelemetry = useMemo(() => {
+    if (!run || decisions.length === 0) return {};
+    return reconstructRunTelemetry(run.disasterType, run.scenarioId, decisions);
+  }, [run, decisions]);
 
   const scenarioTitle = run ? getScenarioTitle(run.scenarioId, run.disasterType) : 'SIMULATION';
   const disasterName = run ? DISASTER_NAMES[run.disasterType] || run.disasterType.toUpperCase() : '';
@@ -322,6 +392,46 @@ export function RunInspectorModal({ runId, userId, onClose }: RunInspectorModalP
                               )}
                             </div>
                           </div>
+
+                          {/* Environmental Telemetry Chips */}
+                          {stepTelemetry[step.id] && (
+                            <div className={styles.telemetryChipsRow}>
+                              <span
+                                className={styles.telemetryChip}
+                                style={{
+                                  color:
+                                    stepTelemetry[step.id].convergenceBand === 'CRITICAL_RISK'
+                                      ? '#f56565'
+                                      : stepTelemetry[step.id].convergenceBand === 'HIGH_RISK'
+                                      ? '#ed8936'
+                                      : stepTelemetry[step.id].convergenceBand === 'MODERATE_RISK'
+                                      ? '#ecc94b'
+                                      : '#39d353',
+                                  borderColor:
+                                    stepTelemetry[step.id].convergenceBand === 'CRITICAL_RISK'
+                                      ? 'rgba(245, 101, 101, 0.4)'
+                                      : stepTelemetry[step.id].convergenceBand === 'HIGH_RISK'
+                                      ? 'rgba(237, 137, 54, 0.4)'
+                                      : stepTelemetry[step.id].convergenceBand === 'MODERATE_RISK'
+                                      ? 'rgba(236, 201, 75, 0.4)'
+                                      : 'rgba(57, 211, 83, 0.4)',
+                                }}
+                              >
+                                RISK: {stepTelemetry[step.id].convergenceBand.replace('_', ' ')}
+                              </span>
+                              <span className={styles.telemetryChip}>
+                                HAZARD: <strong>{stepTelemetry[step.id].hazardLevel}%</strong>
+                              </span>
+                              <span className={styles.telemetryChip}>
+                                SAFETY: <strong>{stepTelemetry[step.id].safetyIntegrity}%</strong>
+                              </span>
+                              {stepTelemetry[step.id].visibility < 100 && (
+                                <span className={styles.telemetryChip}>
+                                  VISIBILITY: <strong>{stepTelemetry[step.id].visibility}%</strong>
+                                </span>
+                              )}
+                            </div>
+                          )}
 
                           {/* Situation Context */}
                           <div className={styles.block}>

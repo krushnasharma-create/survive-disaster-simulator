@@ -301,3 +301,78 @@
   color: #ff6b6b;
   line-height: 1.4;
 }
+
+/* ── Environmental Propagation Section ── */
+.propagationSection {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 2px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.propagationHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.propagationTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-fog, #999);
+  font-weight: 600;
+}
+
+.propagationText {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.convergenceTag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border-radius: 2px;
+  border: 1px solid;
+}
+
+.convergenceCriticalTag {
+  background: rgba(245, 101, 101, 0.15);
+  border-color: rgba(245, 101, 101, 0.5);
+  color: #f56565;
+}
+
+.convergenceHighTag {
+  background: rgba(237, 137, 54, 0.15);
+  border-color: rgba(237, 137, 54, 0.5);
+  color: #ed8936;
+}
+
+.convergenceModerateTag {
+  background: rgba(236, 201, 75, 0.15);
+  border-color: rgba(236, 201, 75, 0.5);
+  color: #ecc94b;
+}
+
+.convergenceLowTag {
+  background: rgba(72, 187, 120, 0.15);
+  border-color: rgba(72, 187, 120, 0.5);
+  color: #48bb78;
+}

@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { getScenario } from '../data';
 import { getNode, evaluateChoice } from '../engine/scenarioRunner';
+import { getConvergenceContext } from '../engine/simulationState';
 import { CountdownTimer } from '../components/CountdownTimer';
 import { DecisionPanel } from '../components/DecisionPanel';
 import { EnvironmentalOverlay } from '../components/EnvironmentalOverlay';
@@ -92,6 +93,28 @@ export default function ScenarioScreen() {
         return 'var(--color-danger, #f56565)';
     }
   }, [simulationState.panicBand]);
+
+  // Dynamic Hazard Convergence & Advisory Context
+  const convergenceContext = useMemo(
+    () => getConvergenceContext(simulationState, targetDisaster),
+    [simulationState, targetDisaster]
+  );
+
+  // Dynamic Environment Status Color
+  const envStatusColor = useMemo(() => {
+    switch (simulationState.environmentStatus) {
+      case 'STABLE':
+        return 'var(--color-safe, #39d353)';
+      case 'ELEVATED':
+        return 'var(--color-warning, #ecc94b)';
+      case 'ESCALATING':
+        return '#ed8936';
+      case 'CRITICAL':
+        return 'var(--color-danger, #f56565)';
+      default:
+        return 'var(--color-cloud)';
+    }
+  }, [simulationState.environmentStatus]);
 
   // Ensure active disaster is synchronized in store
   useEffect(() => {
@@ -178,7 +201,7 @@ export default function ScenarioScreen() {
       if (!decisionNode) return;
       stop(); // Immediately stop the timer to freeze countdown and clear interval
 
-      const evalResult = evaluateChoice(decisionNode, choiceId, remainingSeconds, simulationState);
+      const evalResult = evaluateChoice(decisionNode, choiceId, remainingSeconds, simulationState, targetDisaster);
 
       // Find the safer/optimal choice from existing scenario data if current choice was incorrect
       const optimalChoice = decisionNode.choices.find((c) => c.isCorrect);
@@ -223,6 +246,7 @@ export default function ScenarioScreen() {
         simulationState: evalResult.nextSimulationState,
         stateDelta: evalResult.stateDelta,
         shiftSummary: evalResult.nextSimulationState?.lastShiftSummary,
+        propagationSummary: evalResult.nextSimulationState?.propagationSummary,
       });
 
       // Brief 150ms commitment pulse gives tactile weight to the decision before transition
@@ -412,6 +436,12 @@ export default function ScenarioScreen() {
         )}
 
         <div className={styles.telemetryStats}>
+          <span
+            className={`${styles.statChip} ${styles.envChip}`}
+            style={{ borderColor: envStatusColor }}
+          >
+            ENV: <strong style={{ color: envStatusColor }}>{simulationState.environmentStatus || 'STABLE'}</strong>
+          </span>
           <span className={styles.statChip}>
             HAZARD: <strong>{simulationState.hazardLevel}%</strong>
           </span>
@@ -439,6 +469,32 @@ export default function ScenarioScreen() {
             <p className={styles.historicalDisclaimer}>
               {scenario.historicalMeta.disclaimer}
             </p>
+          </div>
+        )}
+
+        {/* Dynamic Hazard Convergence Advisory */}
+        {convergenceContext.band !== 'LOW_RISK' && (
+          <div
+            className={`${styles.convergenceBanner} ${
+              convergenceContext.band === 'CRITICAL_RISK'
+                ? styles.convergenceCritical
+                : convergenceContext.band === 'HIGH_RISK'
+                ? styles.convergenceHigh
+                : styles.convergenceModerate
+            }`}
+          >
+            <div className={styles.convergenceHeader}>
+              <span className={styles.convergenceIcon} aria-hidden="true">
+                {convergenceContext.band === 'CRITICAL_RISK' ? '⚡' : '⚠'}
+              </span>
+              <span className={styles.convergenceTitle}>
+                {convergenceContext.advisoryTitle}
+              </span>
+              <span className={styles.convergenceBadge}>
+                {convergenceContext.environmentalModifier}
+              </span>
+            </div>
+            <p className={styles.convergenceText}>{convergenceContext.advisoryText}</p>
           </div>
         )}
 

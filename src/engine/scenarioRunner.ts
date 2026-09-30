@@ -1,7 +1,7 @@
 // src/engine/scenarioRunner.ts
 // Pure function engine for scenario node retrieval and player decision evaluation.
 
-import type { Scenario, ScenarioNode, DecisionNode, Choice } from '../data/types';
+import type { Scenario, ScenarioNode, DecisionNode, Choice, DisasterType } from '../data/types';
 import type { DecisionRecord } from '../store/gameStore';
 import type {
   SimulationState,
@@ -43,7 +43,8 @@ export function evaluateChoice(
   node: DecisionNode,
   choiceId: string,
   remainingSeconds?: number,
-  currentState?: SimulationState
+  currentState?: SimulationState,
+  disasterType?: DisasterType | null
 ): EvaluationResult {
   const choice = node.choices.find((c) => c.id === choiceId);
   if (!choice) {
@@ -57,8 +58,8 @@ export function evaluateChoice(
     timeBonus = Math.min(5, Math.ceil((remainingSeconds / node.timeLimit) * 5));
   }
 
-  // Deterministic simulation state delta (Butterfly Effect)
-  const baseState = currentState || createInitialSimulationState();
+  // Deterministic simulation state delta (Butterfly Effect & Hazard Propagation)
+  const baseState = currentState || createInitialSimulationState(disasterType);
   const stateDelta = calculateDecisionDelta(
     baseState,
     choice,
@@ -66,7 +67,7 @@ export function evaluateChoice(
     remainingSeconds
   );
 
-  const nextSimulationState = applySimulationState(baseState, stateDelta, choice.isCorrect);
+  const nextSimulationState = applySimulationState(baseState, stateDelta, choice.isCorrect, disasterType);
 
   const record: DecisionRecord = {
     nodeId: node.id,
@@ -82,6 +83,12 @@ export function evaluateChoice(
     nextNodeId: choice.nextNodeId,
     panicLevel: nextSimulationState?.panic,
     panicBand: nextSimulationState?.panicBand,
+    hazardLevel: nextSimulationState?.hazardLevel,
+    safetyIntegrity: nextSimulationState?.safetyIntegrity,
+    visibility: nextSimulationState?.visibility,
+    convergenceBand: nextSimulationState?.convergenceBand,
+    environmentStatus: nextSimulationState?.environmentStatus,
+    propagationSummary: nextSimulationState?.propagationSummary,
     stateShiftSummary: nextSimulationState?.lastShiftSummary || stateDelta.shiftSummary,
     stateDelta,
   };

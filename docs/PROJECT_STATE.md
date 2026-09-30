@@ -8,11 +8,11 @@
 
 ## Current Phase
 
-**PHASE 3 (BATCH 1) — DEEP SIMULATION SYSTEMS: BUTTERFLY EFFECT & PANIC ENGINE** — Complete & Verified (Working tree prepared for user review; uncommitted per instructions)
+**PHASE 3 (BATCH 2) — DYNAMIC HAZARD PROPAGATION & ADVANCED CONVERGENCE** — Complete & Verified (Working tree prepared for user review; uncommitted per instructions)
 
-**NEXT BATCH — PHASE 3 BATCH 2: DYNAMIC HAZARD PROPAGATION & BRANCH CONVERGENCE**
+**BASELINE COMMIT BEFORE PHASE 3 BATCH 2:** `b229cfe` (feat: add butterfly effect and panic engine)
 
-Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`.
+Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`.
 
 > **Agent handoff note:** `AGENTS.md` is the authoritative handoff source for any AI coding agent (Antigravity, Codex, or other) continuing this project. Read `AGENTS.md` first, then this file, before every task.
 
@@ -276,35 +276,43 @@ Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseli
 
 ## Current Task
 
-**PHASE 3 (BATCH 1) — DEEP SIMULATION SYSTEMS: BUTTERFLY EFFECT & PANIC ENGINE (2026-09-30):**
-- Architected the pure-function deterministic Simulation State Engine (`src/engine/simulationState.ts`): tracks multi-dimensional simulation variables (`panic` 0–100, `panicBand` 5 tiers, `hazardLevel` 0–100, `safetyIntegrity` 0–100, `visibility` 0–100, and `timerModifierSeconds` 0 to -5s).
-- Implemented pure evaluation function `calculateDecisionDelta` incorporating correctness, score impact, hesitation penalty (<3s remaining), streak momentum, and optional choice-specific overrides. Pure mathematical determinism with zero LLM generation and zero runtime randomness.
-- Enforced a hard minimum timer floor of 10 seconds under all conditions to ensure fair, playable, and NDMA-verifiable gameplay.
-- Integrated real-time Psychological Stress & Telemetry HUD bar in `ScenarioScreen.tsx` with animated progress track, dynamic color mapping, explicit timer penalty tags, and procedural audio alert pulse on entering severe stress bands (`playPanicSpike` in `audio.ts`).
-- Created **SITUATION SHIFT // BUTTERFLY EFFECT** card in `ConsequenceScreen.tsx` displaying exact delta pills (`▲ +22 Panic`, `▲ +25% Hazard`, `▼ -25% Safety`, `▼ -40% Visibility`), shift narrative, and dynamic panic band warnings (`{panicBand} STRESS PRESSURE:`).
-- Added **Stress Regulation & Panic Audit** section in `ReportScreen.tsx` calculating peak panic, final composure band, timer compression count, and authoritative crisis psychology evaluation. Enriched decision replay cards with per-step stress indicators and shift summaries.
-- Added targeted `stateDelta` definitions to key critical decisions across Earthquake, Fire, and Flood scenarios (`earthquake.ts`, `fire.ts`, `flood.ts`).
-- **Resolved Timer Lifecycle Regression & Scenario Graph Completion:**
-  - Resolved root cause where countdown timers disappeared on Decision 2+ by equipping all decision nodes across all 7 scenarios with `timeLimit: 15`.
-  - Hardened `useCountdown.ts` lifecycle by clearing intervals on duration/key change, stopping the timer immediately on choice commitment, and resetting state reliably across decision transitions via `${activeNodeId}_${retryCount}` reset keys.
-  - Implemented UI Correction A: Displayed HUD timer penalty badge as `⚡ {simulationState.timerModifierSeconds}s PANIC PRESSURE` (e.g. `-2s PANIC PRESSURE`).
-  - Implemented UI Correction B: Rendered dynamic consequence stress warning banner based on actual panic band (`{currentConsequence.simulationState.panicBand} STRESS PRESSURE:`).
-- **Resolved DecisionPanel Runtime Crash & Choice Shuffle Overflow:**
-  - Resolved `Uncaught TypeError: Cannot read properties of undefined (reading 'id')` in `DecisionPanel.tsx` caused by a signed integer 32-bit bitwise overflow in `ScenarioScreen.tsx`'s pseudo-random choice shuffle. The signed modulus `% 233280` yielded negative numbers, leading to negative swap index `j = -1` and introducing `undefined` elements into the `displayedChoices` array.
-  - Replaced signed calculation with an unsigned 32-bit Mulberry32 PRNG (`>>> 0`), guaranteeing strictly positive random floats in $[0, 1)$ and valid swap indices $j \in [0, i]$.
-  - Added a defensive boundary in `DecisionPanel.tsx` logging invalid choice objects to console diagnostics rather than crashing the component tree.
-  - Formally verified all 176 decision nodes and choices across all 7 disaster scenarios with an automated audit script, confirming 100% data integrity and zero undefined choices.
-  - Ran full headless Chrome DevTools Protocol test across all 7 scenarios, verifying flawless Decision 1 → Consequence → Decision 2 progression with zero console errors or render exceptions.
-- Passed all verification checks: `npm run lint` (0 errors), `npm run build` (0 errors, strict TypeScript verbatimModuleSyntax verified), `git diff --check` (clean).
-- Working tree remains dirty and uncommitted per user instructions for manual inspection.
+**PHASE 3 (BATCH 2) — DYNAMIC HAZARD PROPAGATION & ADVANCED CONVERGENCE (2026-09-30):**
+- **Dynamic Hazard Convergence & Pure Evaluation Engine (`src/engine/simulationState.ts`):**
+  - Architected multi-tiered Hazard Convergence Risk Bands: `LOW_RISK`, `MODERATE_RISK`, `HIGH_RISK`, `CRITICAL_RISK`.
+  - Defined categorical environmental statuses: `STABLE`, `ELEVATED`, `ESCALATING`, `CRITICAL`.
+  - Implemented pure evaluation function `calculatePropagationSummary(disasterType, convergenceBand, hazardLevel, safetyIntegrity, visibility, isCorrect)` delivering disaster-archetype grounded narrative trajectories for Earthquake, Fire, Flood, and generic scenarios.
+  - Implemented `getConvergenceContext(state, disasterType)` delivering real-time tactical environmental advisories, modifiers, and briefing context without modifying underlying NDMA safety truths.
+  - Initialized deterministic disaster baselines in `createInitialSimulationState(disasterType)` (Earthquake: 30% hazard / 80% visibility; Fire: 35% hazard / 70% visibility; Flood: 25% hazard / 85% visibility).
+  - Extended `applySimulationState` to calculate cumulative `hazardEscalationCount`, `recoveryEventCount`, and forward `propagationSummary`.
+- **Gameplay Telemetry & Hazard Convergence Advisory (`src/screens/ScenarioScreen.tsx`, `ScenarioScreen.module.css`):**
+  - Added real-time `ENV: {status}` badge to the simulation telemetry HUD bar with dynamic color mapping (Green `#39d353` → Amber `#ecc94b` → Orange `#ed8936` → Red `#f56565`).
+  - Added dynamic **Hazard Convergence Advisory Banner** (`.convergenceBanner`) rendered above the situation card whenever `convergenceBand !== 'LOW_RISK'`. Shows warning icon, advisory title, environmental modifier badge, and contextual warning text.
+  - Updated `handleSelectChoice` to pass `targetDisaster` to `evaluateChoice` and pass `propagationSummary` forward to `setConsequence`.
+- **Forward Environmental Trajectory in Consequences (`src/screens/ConsequenceScreen.tsx`, `ConsequenceScreen.module.css`):**
+  - Integrated dedicated **FORWARD PROPAGATION // ENVIRONMENTAL TRAJECTORY** card inside the Situation Shift block.
+  - Displays the active convergence risk band badge (`LOW RISK`, `MODERATE RISK`, `HIGH RISK`, `CRITICAL RISK`) alongside the forward narrative consequence explaining how current environmental degradation impacts subsequent movement.
+- **Comprehensive Environmental Containment & Hazard Audit (`src/screens/ReportScreen.tsx`, `ReportScreen.module.css`):**
+  - Added dedicated **Environmental Containment & Hazard Audit** section to the Preparedness Report.
+  - Computes and visualizes: Peak Hazard Reached, Lowest Safety Integrity, Lowest Visibility, Total Hazard Escalations, and Containment Recoveries.
+  - Derives authoritative Containment Rating (`OPTIMAL`, `CONTROLLED`, `COMPROMISED`, `CRITICAL_BREACH`) with bilingual NDMA-aligned containment evaluations.
+  - Enriched Decision Replay items with real-time `RISK: BAND` and `HAZARD: XX%` chips, plus forward propagation narrative notes.
+- **Flight Recorder Decision Replay Telemetry (`src/components/RunInspectorModal.tsx`, `RunInspectorModal.module.css`):**
+  - Implemented client-side deterministic telemetry reconstruction (`reconstructRunTelemetry`): runs simulation state evaluation over historical run decision sequences without requiring Supabase schema changes or database migrations.
+  - Displays `RISK`, `HAZARD`, `SAFETY`, and `VISIBILITY` chips on each historical chronological decision card.
+- **Verification & QA:**
+  - Automated simulation test (`scratch/test_batch2_simulation.ts`) verified 100% pass across all 7 scenarios.
+  - `npm run lint`: 0 errors.
+  - `npm run build`: 0 errors (strict TypeScript verbatimModuleSyntax verified).
+  - `git diff --check`: 0 whitespace warnings.
+  - Working tree remains dirty on `main` and UNCOMMITTED / UNPUSHED per user instructions.
 
 ---
 
 ## Next Task
 
-**PHASE 3 (BATCH 2) — DYNAMIC HAZARD PROPAGATION & ADVANCED CONVERGENCE:**
-1. Awaiting user review and approval of Phase 3 Batch 1.
-2. Proceed to next batch upon user confirmation.
+**PHASE 3 BATCH 2 REVIEW & PHASE 4 PLANNING:**
+1. Awaiting user review and manual testing approval of Phase 3 Batch 2.
+2. Proceed to git commit and push checkpoint once approved.
 
 ---
 

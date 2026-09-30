@@ -145,6 +145,86 @@ export default function ReportScreen() {
     };
   }, [decisions, language]);
 
+  const envAudit = useMemo(() => {
+    if (decisions.length === 0) {
+      return {
+        peakHazard: 25,
+        minSafety: 85,
+        minVisibility: 85,
+        escalations: 0,
+        recoveries: 0,
+        containmentRating: 'OPTIMAL',
+        finalBand: 'LOW_RISK',
+        summary: 'No active decisions recorded.',
+      };
+    }
+
+    let peakHazard = 0;
+    let minSafety = 100;
+    let minVisibility = 100;
+    let escalations = 0;
+    let recoveries = 0;
+
+    decisions.forEach((d) => {
+      if (d.hazardLevel !== undefined) {
+        if (d.hazardLevel > peakHazard) peakHazard = d.hazardLevel;
+      }
+      if (d.safetyIntegrity !== undefined) {
+        if (d.safetyIntegrity < minSafety) minSafety = d.safetyIntegrity;
+      }
+      if (d.visibility !== undefined) {
+        if (d.visibility < minVisibility) minVisibility = d.visibility;
+      }
+      if (d.stateDelta) {
+        if (d.stateDelta.hazardChange > 0) escalations++;
+        if (d.stateDelta.hazardChange <= 0 && d.isCorrect) recoveries++;
+      }
+    });
+
+    const lastDecision = decisions[decisions.length - 1];
+    const finalBand = lastDecision?.convergenceBand ?? 'LOW_RISK';
+
+    // Containment Rating
+    let containmentRating = 'OPTIMAL';
+    if (peakHazard >= 70 || minSafety <= 30) {
+      containmentRating = 'CRITICAL_BREACH';
+    } else if (peakHazard >= 50 || minSafety <= 50) {
+      containmentRating = 'COMPROMISED';
+    } else if (peakHazard >= 35 || minSafety <= 65) {
+      containmentRating = 'CONTROLLED';
+    }
+
+    let summary = '';
+    if (language === 'hinglish') {
+      if (containmentRating === 'OPTIMAL') {
+        summary = 'Aadarniya paryavaran niyantran! Aapke faislon ne khatarnak hazards ko badhne nahi diya aur surakshit nikaas raste barkarar rakhe.';
+      } else if (containmentRating === 'CONTROLLED') {
+        summary = 'Sthir paryavaran santulan. Kuch secondary hazards ubhre, par aapne samay par suraksha banaye rakhi.';
+      } else {
+        summary = 'Paryavaran sthiti mein gambhir bigaad darj hua. Hazard compounding ne nikaas margon aur suraksha ko sankat mein daala.';
+      }
+    } else {
+      if (containmentRating === 'OPTIMAL') {
+        summary = 'Exceptional environmental containment. Decisions systematically mitigated secondary hazards, preserving structural integrity and viable evacuation corridors.';
+      } else if (containmentRating === 'CONTROLLED') {
+        summary = 'Controlled hazard trajectory. Contained active escalation with focused protocol execution, maintaining tenable margins.';
+      } else {
+        summary = 'Severe hazard escalation. Compounding risks degraded pathway safety and narrowed survival margins across consecutive decision phases.';
+      }
+    }
+
+    return {
+      peakHazard,
+      minSafety,
+      minVisibility,
+      escalations,
+      recoveries,
+      containmentRating,
+      finalBand,
+      summary,
+    };
+  }, [decisions, language]);
+
   const scoreColor = useMemo(() => {
     if (scoreSummary.score >= 85) return 'var(--color-safe)';
     if (scoreSummary.score >= 65) return 'var(--color-warning)';
@@ -288,6 +368,92 @@ export default function ReportScreen() {
           <p className={styles.panicAuditDesc}>{panicAudit.summary}</p>
         </div>
 
+        {/* Environmental Response Audit */}
+        <div className={styles.envAuditBlock}>
+          <div className={styles.envAuditTop}>
+            <div className={styles.envAuditTitle}>
+              <span aria-hidden="true">🌐</span>
+              <span>
+                {language === 'hinglish'
+                  ? 'Paryavaran Niyantran & Hazard Audit'
+                  : 'Environmental Containment & Hazard Audit'}
+              </span>
+            </div>
+            <span
+              className={styles.envAuditBadge}
+              style={{
+                color:
+                  envAudit.containmentRating === 'OPTIMAL'
+                    ? '#39d353'
+                    : envAudit.containmentRating === 'CONTROLLED'
+                    ? '#ecc94b'
+                    : envAudit.containmentRating === 'COMPROMISED'
+                    ? '#ed8936'
+                    : '#f56565',
+                borderColor:
+                  envAudit.containmentRating === 'OPTIMAL'
+                    ? '#39d353'
+                    : envAudit.containmentRating === 'CONTROLLED'
+                    ? '#ecc94b'
+                    : envAudit.containmentRating === 'COMPROMISED'
+                    ? '#ed8936'
+                    : '#f56565',
+              }}
+            >
+              CONTAINMENT: {envAudit.containmentRating.replace('_', ' ')}
+            </span>
+          </div>
+
+          <div className={styles.envMetricsRow}>
+            <div className={styles.envMetricCard}>
+              <span className={styles.envMetricVal} style={{ color: '#ed8936' }}>
+                {envAudit.peakHazard}%
+              </span>
+              <span className={styles.envMetricLabel}>
+                {language === 'hinglish' ? 'Peak Hazard Level' : 'Peak Hazard Reached'}
+              </span>
+            </div>
+
+            <div className={styles.envMetricCard}>
+              <span className={styles.envMetricVal} style={{ color: '#68d391' }}>
+                {envAudit.minSafety}%
+              </span>
+              <span className={styles.envMetricLabel}>
+                {language === 'hinglish' ? 'Min Safety Integrity' : 'Lowest Safety Integrity'}
+              </span>
+            </div>
+
+            <div className={styles.envMetricCard}>
+              <span className={styles.envMetricVal} style={{ color: '#38bdf8' }}>
+                {envAudit.minVisibility}%
+              </span>
+              <span className={styles.envMetricLabel}>
+                {language === 'hinglish' ? 'Min Visibility' : 'Lowest Visibility'}
+              </span>
+            </div>
+
+            <div className={styles.envMetricCard}>
+              <span className={styles.envMetricVal} style={{ color: envAudit.escalations > 0 ? '#f56565' : '#39d353' }}>
+                {envAudit.escalations}
+              </span>
+              <span className={styles.envMetricLabel}>
+                {language === 'hinglish' ? 'Hazard Escalations' : 'Hazard Escalations'}
+              </span>
+            </div>
+
+            <div className={styles.envMetricCard}>
+              <span className={styles.envMetricVal} style={{ color: '#39d353' }}>
+                {envAudit.recoveries}
+              </span>
+              <span className={styles.envMetricLabel}>
+                {language === 'hinglish' ? 'Containment Actions' : 'Containment Recoveries'}
+              </span>
+            </div>
+          </div>
+
+          <p className={styles.envAuditDesc}>{envAudit.summary}</p>
+        </div>
+
         {/* Decision-by-Decision Replay */}
         {decisionReviews.length > 0 && (
           <div>
@@ -312,10 +478,20 @@ export default function ReportScreen() {
                       <span className={styles.reviewStep}>
                         {ui.stepLabel} {String(item.step).padStart(2, '0')}
                       </span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                         {dec?.panicLevel !== undefined && (
                           <span className={styles.reviewStressTag}>
                             STRESS: {dec.panicBand || 'CONTROLLED'} ({dec.panicLevel}/100)
+                          </span>
+                        )}
+                        {dec?.convergenceBand && (
+                          <span className={styles.reviewEnvTag}>
+                            RISK: {dec.convergenceBand.replace('_', ' ')}
+                          </span>
+                        )}
+                        {dec?.hazardLevel !== undefined && (
+                          <span className={styles.reviewEnvTag}>
+                            HAZARD: {dec.hazardLevel}%
                           </span>
                         )}
                         <span
@@ -339,6 +515,12 @@ export default function ReportScreen() {
                     {dec?.stateShiftSummary && (
                       <div className={styles.reviewShift}>
                         <strong>⚡ Shift:</strong> {dec.stateShiftSummary}
+                      </div>
+                    )}
+
+                    {dec?.propagationSummary && (
+                      <div className={styles.reviewPropText}>
+                        <strong>🌐 Propagation:</strong> {dec.propagationSummary}
                       </div>
                     )}
 

@@ -388,3 +388,75 @@
   color: var(--color-white);
   font-weight: 600;
 }
+
+.envChip {
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Convergence Risk Advisory Banner */
+.convergenceBanner {
+  padding: 0.85rem 1.25rem;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  animation: fadeIn 0.35s ease-out;
+}
+
+.convergenceCritical {
+  background: rgba(245, 101, 101, 0.08);
+  border: 1px solid rgba(245, 101, 101, 0.4);
+  border-left: 3px solid var(--color-danger, #f56565);
+}
+
+.convergenceHigh {
+  background: rgba(237, 137, 54, 0.08);
+  border: 1px solid rgba(237, 137, 54, 0.35);
+  border-left: 3px solid #ed8936;
+}
+
+.convergenceModerate {
+  background: rgba(236, 201, 75, 0.06);
+  border: 1px solid rgba(236, 201, 75, 0.3);
+  border-left: 3px solid var(--color-warning, #ecc94b);
+}
+
+.convergenceHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.convergenceIcon {
+  font-size: 0.9rem;
+}
+
+.convergenceTitle {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-white);
+}
+
+.convergenceBadge {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  padding: 0.15rem 0.45rem;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-fog);
+}
+
+.convergenceText {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+}
