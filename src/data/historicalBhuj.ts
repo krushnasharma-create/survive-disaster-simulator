@@ -79,6 +79,7 @@ export const historicalBhujScenario: Scenario = {
     'bhj-d2-masonry-triage': {
       id: 'bhj-d2-masonry-triage',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'The primary ground shaking subsides, leaving an eerie silence broken only by distant cries and thick white limestone dust. Looking up from under the table, you see wide diagonal "X" shear cracks splitting both exterior load-bearing walls. The upper floor timbers are sagging precariously.',
       contextHint: 'Severely cracked unreinforced masonry structures can pancake completely during early aftershocks.',
@@ -114,6 +115,7 @@ export const historicalBhujScenario: Scenario = {
     'bhj-d2b-injured-evacuation': {
       id: 'bhj-d2b-injured-evacuation',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'Nursing a bleeding scalp laceration and bruised ribs from falling parapet rubble, you pull yourself upright in the dust-choked doorway. The walls around you are severely fractured, and a dazed neighbor is shouting in panic from across the lane.',
       contextHint: 'Control personal bleeding quickly and move clear of the compromised building envelope.',
@@ -186,6 +188,7 @@ export const historicalBhujScenario: Scenario = {
     'bhj-d4-utility-secondary': {
       id: 'bhj-d4-utility-secondary',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'At the lane intersection, an electrical transformer pole has toppled, draping tangled high-voltage wires across a pool of leaking water. Beside it, an overturned tea stall is hissing loudly with the unmistakable pungent odor of leaking domestic LPG gas.',
       contextHint: 'Severed electrical conductors and flammable gas leaks are prime triggers for secondary post-earthquake infernos.',
@@ -258,6 +261,7 @@ export const historicalBhujScenario: Scenario = {
     'bhj-d6-community-response': {
       id: 'bhj-d6-community-response',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'On the town maidan, the full scale of the regional catastrophe becomes apparent: telecommunication towers are down, landlines are severed, and local government offices have collapsed. Civilian mutual aid is the immediate lifeline before military and state relief convoys can mobilize.',
       contextHint: 'Organize mutual aid: prioritize bleeding triage, water distribution, and physical messenger dispatch.',

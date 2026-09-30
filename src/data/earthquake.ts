@@ -34,6 +34,12 @@ export const earthquakeScenario: Scenario = {
             'NDMA Drop, Cover, and Hold On guidance: Drop to your hands and knees to avoid being thrown, cover your head and torso under sturdy furniture, and hold on until shaking stops completely.',
           insightSource: 'NDMA Earthquake Safety Guidelines',
           nextNodeId: 'eq-d2-gas-hazard',
+          stateDelta: {
+            panicChange: -8,
+            hazardChange: -10,
+            safetyChange: 15,
+            shiftSummary: 'Taking immediate sturdy cover deflected falling overhead fixtures and stabilized tactical composure.',
+          },
         },
         {
           id: 'eq-c1-run-stairs',
@@ -46,6 +52,12 @@ export const earthquakeScenario: Scenario = {
             'NDMA guidelines advise against running outside or into stairwells while ground shaking is active. Falling masonry, glass, and overhead debris pose the greatest danger to people in motion.',
           insightSource: 'NDMA Earthquake Safety Guidelines',
           nextNodeId: 'eq-d2b-injured-hazard',
+          stateDelta: {
+            panicChange: 22,
+            hazardChange: 25,
+            safetyChange: -25,
+            shiftSummary: 'Stairwell tremor and falling plaster inflicted lacerations, triggering acute panic escalation.',
+          },
         },
         {
           id: 'eq-c1-stand-doorway',
@@ -58,6 +70,12 @@ export const earthquakeScenario: Scenario = {
             'In modern buildings, interior doorways are not reinforced shelters and leave you exposed to swinging doors and falling objects. Sheltering under sturdy furniture provides much better protection.',
           insightSource: 'NDMA Earthquake Preparedness Advice',
           nextNodeId: 'eq-d2b-injured-hazard',
+          stateDelta: {
+            panicChange: 16,
+            hazardChange: 15,
+            safetyChange: -15,
+            shiftSummary: 'Standing exposed in doorway caused blunt finger trauma from swinging door, elevating stress levels.',
+          },
         },
       ],
     },
@@ -68,6 +86,7 @@ export const earthquakeScenario: Scenario = {
       situationText:
         'The main ground shaking stops after a tense period. The room has books and broken kitchenware scattered across the floor. In the quiet, you notice the distinct smell of leaking LPG cooking gas from the kitchen area, along with a sparking appliance cable.',
       contextHint: 'Damaged gas connections and electrical short-circuits are primary fire hazards following an earthquake.',
+      timeLimit: 15,
       choices: [
         {
           id: 'eq-c2-gas-power-off',
@@ -114,6 +133,7 @@ export const earthquakeScenario: Scenario = {
       situationText:
         'Your forearm is bleeding from broken glass and dust stings your eyes. The ground shaking has paused, but you smell leaking LPG cooking gas from the kitchen. You are shaken and breathing rapidly.',
       contextHint: 'Control bleeding while ensuring you do not leave an active ignition hazard behind.',
+      timeLimit: 15,
       choices: [
         {
           id: 'eq-c2b-firstaid-gas',
@@ -148,6 +168,7 @@ export const earthquakeScenario: Scenario = {
       situationText:
         'You step out into the 4th-floor residential corridor. Neighbours are calling out and alarms echo. Plaster cracks are visible along the walls. You need to descend four floors to ground level.',
       contextHint: 'Vertical evacuation: The passenger elevator is standing with doors open, while the staircase door is accessible.',
+      timeLimit: 15,
       choices: [
         {
           id: 'eq-c3-stairwell',
@@ -194,6 +215,7 @@ export const earthquakeScenario: Scenario = {
       situationText:
         'You are stuck inside the stalled elevator car in near darkness. Dust filters in through the top vent. A neighbour starts to panic. The building vibrates faintly with ground movement.',
       contextHint: 'Remain calm and avoid risky attempts to climb out into the elevator shaft.',
+      timeLimit: 15,
       choices: [
         {
           id: 'eq-c3b-alarm-call',
@@ -276,6 +298,7 @@ export const earthquakeScenario: Scenario = {
       situationText:
         'You exit the lobby doors into the open courtyard. Distressed residents are standing directly beneath building balconies and outdoor air conditioner units. Loose overhead utility wires sway in the breeze.',
       contextHint: 'The area directly around high-rise exteriors is vulnerable to falling glass and debris.',
+      timeLimit: 15,
       choices: [
         {
           id: 'eq-c5-open-ground',
@@ -322,6 +345,7 @@ export const earthquakeScenario: Scenario = {
       situationText:
         'You are safely in the open park along with other community members. Cellular voice networks are congested with failing calls. Sirens sound in the distance as emergency services deploy. A neighbour asks how to reach family and whether to call emergency services.',
       contextHint: 'Use telecommunication channels responsibly during widespread emergencies.',
+      timeLimit: 15,
       choices: [
         {
           id: 'eq-c6-sms-sachet-112',

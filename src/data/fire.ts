@@ -35,6 +35,13 @@ export const fireScenario: Scenario = {
             'Always test closed doors and doorknobs with the back of your hand before opening. A warm door indicates intense fire on the other side that can trigger an explosive flashover if opened.',
           insightSource: 'NDMA Fire Safety Guidelines',
           nextNodeId: 'fire-d2-smoke-crawl',
+          stateDelta: {
+            panicChange: -6,
+            hazardChange: -5,
+            safetyChange: 15,
+            visibilityChange: 0,
+            shiftSummary: 'Testing door temperature prevented explosive backdraft and preserved vital breathable room air.',
+          },
         },
         {
           id: 'fire-c1-open-wide',
@@ -47,6 +54,13 @@ export const fireScenario: Scenario = {
             'Never open a door rapidly during a fire. If fire or smoke is present outside, opening the door feeds oxygen to the blaze and draws lethal toxic gases directly into your room.',
           insightSource: 'NDMA Fire Safety Guidelines',
           nextNodeId: 'fire-d2b-smoke-room',
+          stateDelta: {
+            panicChange: 26,
+            hazardChange: 35,
+            safetyChange: -25,
+            visibilityChange: -40,
+            shiftSummary: 'Flinging open the door pulled toxic smoke inside, reducing visibility to near zero and spiking acute panic.',
+          },
         },
       ],
     },
@@ -58,6 +72,7 @@ export const fireScenario: Scenario = {
       situationText:
         'You are in the hallway. Thick, dark smoke is billowing across the ceiling and gradually descending. Visibility is dropping rapidly. The exit staircase door is thirty feet ahead at the end of the passage.',
       contextHint: 'Toxic smoke rises to the ceiling; cleaner air remains near the floor.',
+      timeLimit: 15,
       choices: [
         {
           id: 'fire-c2-crawl-low',
@@ -93,6 +108,7 @@ export const fireScenario: Scenario = {
       situationText:
         'Dense smoke has flooded the corridor and is pouring into your bedroom. Stepping into the hallway now without protection will cause rapid suffocation. You have moments before the room fills completely.',
       contextHint: 'The hallway is impassable without sealing or respiratory protection.',
+      timeLimit: 15,
       choices: [
         {
           id: 'fire-c2b-retreat-seal',
@@ -128,6 +144,7 @@ export const fireScenario: Scenario = {
       situationText:
         'You reach the main staircase landing on the 3rd floor. You open the stairwell door and discover thick smoke rising up the shaft from a lower floor. The passenger elevator doors stand open with an emergency indicator blinking.',
       contextHint: 'The stairwell has become an active chimney for rising heat and smoke.',
+      timeLimit: 15,
       choices: [
         {
           id: 'fire-c3-reclose-alternate',
@@ -209,6 +226,7 @@ export const fireScenario: Scenario = {
     'fire-d4b-window-signal': {
       id: 'fire-d4b-window-signal',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'You are isolated in the bedroom. The door is sealed with damp cloth, holding the smoke at bay. You are at the window. Below in the courtyard, flashing red emergency lights reflect off the tarmac.',
       contextHint: 'Communicate your exact location to arriving emergency responders.',
@@ -244,6 +262,7 @@ export const fireScenario: Scenario = {
     'fire-d5-evacuate-ground': {
       id: 'fire-d5-evacuate-ground',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'You reach the ground floor exit door and push out into the night. Thick smoke is pouring from upper balconies, and burning debris is showering near the building entrance. A crowd of onlookers has gathered right outside the doorway.',
       contextHint: 'Falling glass and thermal hazards make the immediate building perimeter hazardous.',
@@ -291,6 +310,7 @@ export const fireScenario: Scenario = {
     'fire-d6-emergency-call': {
       id: 'fire-d6-emergency-call',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'You are safely at the assembly perimeter. The local fire department has not yet arrived on scene. You take out your mobile phone to contact emergency services.',
       contextHint: 'Providing structured, actionable information ensures rapid emergency response.',
@@ -326,6 +346,7 @@ export const fireScenario: Scenario = {
     'fire-d7-assembly-accountability': {
       id: 'fire-d7-assembly-accountability',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'Sirens wail as three fire tenders pull up to the building. Firefighters begin laying hose lines. The incident commander is setting up a command post near the entrance gate.',
       contextHint: 'Coordination and roll-call assist emergency responders in rescue targeting.',

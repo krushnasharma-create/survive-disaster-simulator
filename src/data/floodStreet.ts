@@ -69,6 +69,7 @@ export const floodStreetScenario: Scenario = {
     'fls-d2-abandoned-vehicle-safety': {
       id: 'fls-d2-abandoned-vehicle-safety',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'You reach the elevated service flyover, safely above the inundated underpass. However, a police wireless alert broadcasts that an upstream municipal drainage canal has breached, and arterial road traffic is completely gridlocked. Rain continues falling at 40 mm per hour.',
       contextHint: 'Elevated ground safety: Secure your vehicle without blocking emergency tenders.',
@@ -104,6 +105,7 @@ export const floodStreetScenario: Scenario = {
     'fls-d2b-stranded-vehicle-triage': {
       id: 'fls-d2b-stranded-vehicle-triage',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'Your stalled car is floating in cold, muddy water reaching halfway up the door panels. Electrical power is dead, and external water pressure is holding the driver door firmly shut against the frame.',
       contextHint: 'Differential hydraulic pressure: Doors cannot open until internal and external pressure equalizes, or exit via window.',
@@ -176,6 +178,7 @@ export const floodStreetScenario: Scenario = {
     'fls-d4-water-probe-shelter': {
       id: 'fls-d4-water-probe-shelter',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'You descend the pedestrian overpass near the shelter entrance. A 10-meter stretch of calf-deep, murky runoff crosses the apron. In urban floods, water pressure frequently pops open heavy municipal stormwater manhole covers, creating invisible underwater suction vortexes.',
       contextHint: 'Murky floodwater conceals lethal open manholes and missing drain grates.',
@@ -211,6 +214,7 @@ export const floodStreetScenario: Scenario = {
     'fls-d5-shelter-hygiene': {
       id: 'fls-d5-shelter-hygiene',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'You enter the dry 2nd-floor community flood relief center. You are drenched in muddy storm runoff, and your legs have small cuts from road debris. A relief volunteer is distributing dry blankets, bottled water, and first-aid kits.',
       contextHint: 'Prevent water-borne bacterial infections and water contamination.',

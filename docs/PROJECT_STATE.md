@@ -8,11 +8,11 @@
 
 ## Current Phase
 
-**PHASE 10.5 — FINAL JUDGE POLISH & CLAIM SAFETY PASS** — Complete (Hack 2 Ignite Round 1 submission)
+**PHASE 3 (BATCH 1) — DEEP SIMULATION SYSTEMS: BUTTERFLY EFFECT & PANIC ENGINE** — Complete & Verified (Working tree prepared for user review; uncommitted per instructions)
 
-**NEXT PHASE — ROUND 2 PRODUCTION UPGRADE** — Starting 2026-09-26
+**NEXT BATCH — PHASE 3 BATCH 2: DYNAMIC HAZARD PROPAGATION & BRANCH CONVERGENCE**
 
-Round 2 venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`.
+Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`.
 
 > **Agent handoff note:** `AGENTS.md` is the authoritative handoff source for any AI coding agent (Antigravity, Codex, or other) continuing this project. Read `AGENTS.md` first, then this file, before every task.
 
@@ -276,24 +276,35 @@ Round 2 venue date: **3 October 2026**. Production upgrade in progress on `main`
 
 ## Current Task
 
-**PHASE 12 — PLAYER PROFILE DASHBOARD, OPERATIONAL HISTORY & DECISION REPLAY INSPECTOR (2026-09-27):**
-- Completed Phase 2 read-only persistence query services (`fetchUserRuns`, `fetchRunDetails`) with strict session verification.
-- Stabilized auth hydration across browser page refreshes; eliminated AuthGuard infinite clearance check by centralizing `isAuthLoading` in Zustand store.
-- Audited and resolved Operational History semantics: clearly distinguished lifetime initiated/completed stats from query archive counts, added filter tabs (`ALL RUNS`, `COMPLETED`, `INCOMPLETE / FAILED`), and made all status variants visible (`EVACUATED`, `NON-SURVIVAL`, `TIMEOUT`, `ABANDONED`, `IN PROGRESS`).
-- Implemented Black-Box Decision Replay Inspector (`RunInspectorModal.tsx`, `RunInspectorModal.module.css`): accessible modal displaying executive run summaries and chronological step-by-step telemetry (situation context, operator choice, consequence, and NDMA protocol insights with authority citations).
-- Standardized Operator Navigation (`OperatorBadge.tsx`, `OperatorBadge.module.css`): unified HUD indicator and quick dossier access across all safe non-game screens (`/`, `/how-to-play`, `/select`, `/disaster/:disasterId/scenarios`, `/disaster/:disasterId/report`). Strictly excluded from active simulation gameplay.
-- Audited and hardened session teardown in `ProfileScreen.tsx` with guaranteed memory/credential wipe on disconnect. Added quick `SIMULATION CONSOLE` navigation from dossier.
-- Resolved runtime `Maximum update depth exceeded` and Chrome navigation throttling bug by replacing uncontrolled `<Navigate>` in `AuthGuard` with single-flight guarded `useNavigate` latch, wrapping `ScreenTransition` inside `AuthGuard`, and adding state comparison guards to store actions (`setAuthUserId`, `setAuthLoading`).
-- Added user gesture activation latch (`hasUserInteracted`) to Web Audio API hover triggers (`audio.ts`), eliminating pre-interaction autoplay browser warnings.
-- Confirmed zero errors across build (`npm run build`), lint (`npm run lint`), and formatting (`git diff --check`).
+**PHASE 3 (BATCH 1) — DEEP SIMULATION SYSTEMS: BUTTERFLY EFFECT & PANIC ENGINE (2026-09-30):**
+- Architected the pure-function deterministic Simulation State Engine (`src/engine/simulationState.ts`): tracks multi-dimensional simulation variables (`panic` 0–100, `panicBand` 5 tiers, `hazardLevel` 0–100, `safetyIntegrity` 0–100, `visibility` 0–100, and `timerModifierSeconds` 0 to -5s).
+- Implemented pure evaluation function `calculateDecisionDelta` incorporating correctness, score impact, hesitation penalty (<3s remaining), streak momentum, and optional choice-specific overrides. Pure mathematical determinism with zero LLM generation and zero runtime randomness.
+- Enforced a hard minimum timer floor of 10 seconds under all conditions to ensure fair, playable, and NDMA-verifiable gameplay.
+- Integrated real-time Psychological Stress & Telemetry HUD bar in `ScenarioScreen.tsx` with animated progress track, dynamic color mapping, explicit timer penalty tags, and procedural audio alert pulse on entering severe stress bands (`playPanicSpike` in `audio.ts`).
+- Created **SITUATION SHIFT // BUTTERFLY EFFECT** card in `ConsequenceScreen.tsx` displaying exact delta pills (`▲ +22 Panic`, `▲ +25% Hazard`, `▼ -25% Safety`, `▼ -40% Visibility`), shift narrative, and dynamic panic band warnings (`{panicBand} STRESS PRESSURE:`).
+- Added **Stress Regulation & Panic Audit** section in `ReportScreen.tsx` calculating peak panic, final composure band, timer compression count, and authoritative crisis psychology evaluation. Enriched decision replay cards with per-step stress indicators and shift summaries.
+- Added targeted `stateDelta` definitions to key critical decisions across Earthquake, Fire, and Flood scenarios (`earthquake.ts`, `fire.ts`, `flood.ts`).
+- **Resolved Timer Lifecycle Regression & Scenario Graph Completion:**
+  - Resolved root cause where countdown timers disappeared on Decision 2+ by equipping all decision nodes across all 7 scenarios with `timeLimit: 15`.
+  - Hardened `useCountdown.ts` lifecycle by clearing intervals on duration/key change, stopping the timer immediately on choice commitment, and resetting state reliably across decision transitions via `${activeNodeId}_${retryCount}` reset keys.
+  - Implemented UI Correction A: Displayed HUD timer penalty badge as `⚡ {simulationState.timerModifierSeconds}s PANIC PRESSURE` (e.g. `-2s PANIC PRESSURE`).
+  - Implemented UI Correction B: Rendered dynamic consequence stress warning banner based on actual panic band (`{currentConsequence.simulationState.panicBand} STRESS PRESSURE:`).
+- **Resolved DecisionPanel Runtime Crash & Choice Shuffle Overflow:**
+  - Resolved `Uncaught TypeError: Cannot read properties of undefined (reading 'id')` in `DecisionPanel.tsx` caused by a signed integer 32-bit bitwise overflow in `ScenarioScreen.tsx`'s pseudo-random choice shuffle. The signed modulus `% 233280` yielded negative numbers, leading to negative swap index `j = -1` and introducing `undefined` elements into the `displayedChoices` array.
+  - Replaced signed calculation with an unsigned 32-bit Mulberry32 PRNG (`>>> 0`), guaranteeing strictly positive random floats in $[0, 1)$ and valid swap indices $j \in [0, i]$.
+  - Added a defensive boundary in `DecisionPanel.tsx` logging invalid choice objects to console diagnostics rather than crashing the component tree.
+  - Formally verified all 176 decision nodes and choices across all 7 disaster scenarios with an automated audit script, confirming 100% data integrity and zero undefined choices.
+  - Ran full headless Chrome DevTools Protocol test across all 7 scenarios, verifying flawless Decision 1 → Consequence → Decision 2 progression with zero console errors or render exceptions.
+- Passed all verification checks: `npm run lint` (0 errors), `npm run build` (0 errors, strict TypeScript verbatimModuleSyntax verified), `git diff --check` (clean).
+- Working tree remains dirty and uncommitted per user instructions for manual inspection.
 
 ---
 
 ## Next Task
 
-**ROUND 2 PRODUCTION UPGRADE — USER ACCEPTANCE REVIEW & VENUE HARDENING**
-1. Review live Supabase integration and Decision Replay Inspector on staging/production.
-2. Conduct final venue rehearsal and polish ahead of venue date (3 October 2026).
+**PHASE 3 (BATCH 2) — DYNAMIC HAZARD PROPAGATION & ADVANCED CONVERGENCE:**
+1. Awaiting user review and approval of Phase 3 Batch 1.
+2. Proceed to next batch upon user confirmation.
 
 ---
 

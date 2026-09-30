@@ -3,6 +3,48 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-30] PHASE 3 (Batch 1) — Deep Simulation Systems: Butterfly Effect, Panic Engine & Timer Lifecycle Polish
+- **Deterministic Butterfly Effect & Simulation State Engine (`src/engine/simulationState.ts`):**
+  - Architected a pure-function simulation state machine tracking multi-dimensional disaster variables: `panic` (clamped 0–100), `panicBand` (`CALM`, `CONTROLLED`, `ELEVATED`, `HIGH`, `CRITICAL`), `hazardLevel` (0–100), `safetyIntegrity` (0–100), `visibility` (0–100), and dynamic `timerModifierSeconds` (0 to -5s).
+  - Implemented pure evaluation function `calculateDecisionDelta(currentState, choice, node, remainingSeconds)`:
+    - Safe/optimal decisions reduce panic (with streak bonuses for consecutive optimal actions) and reinforce safety integrity.
+    - Suboptimal/high-risk actions escalate panic and hazard level while degrading safety integrity and visibility.
+    - Rapid hesitation (<3s remaining on timed nodes) induces a hesitation panic surcharge (+4 pts).
+    - Preserves pure mathematical determinism: zero `Math.random()`, zero runtime LLM generation, strictly safety-grounded in NDMA / SACHET principles.
+- **Panic Engine & Dynamic Decision Pressure (`src/screens/ScenarioScreen.tsx`, `ScenarioScreen.module.css`):**
+  - Dynamic Countdown Scaling: In-game 15s timers are modulated by player stress level: `CALM` (0s), `CONTROLLED` (0s), `ELEVATED` (-2s), `HIGH` (-3s), `CRITICAL` (-5s).
+  - Enforced a hard minimum timer floor of 10 seconds under all conditions to ensure fair, playable, and NDMA-verifiable gameplay without unfair instant timeouts.
+  - Implemented HUD Psychological Stress & Telemetry Bar:
+    - Real-time animated panic gauge with dynamic color mapping (green `#39d353` → calm green `#68d391` → amber `#ecc94b` → orange `#ed8936` → red `#f56565`).
+    - Explicit panic pressure indicator formatted to exact delta spec: `⚡ -2s PANIC PRESSURE` (dynamic `{modifier}s` display).
+    - Compact secondary metrics displaying `HAZARD`, `SAFETY`, and `VISIBILITY`.
+  - Added procedural auditory panic alert pulse (`playPanicSpike` in `src/utils/audio.ts`) on transitioning into `HIGH` or `CRITICAL` stress bands.
+- **Timer Lifecycle Stabilization & Scenario Graph Completion (`src/hooks/useCountdown.ts`, `ScenarioScreen.tsx`, `src/data/*.ts`):**
+  - **Comprehensive Scenario Timer Coverage:** Added `timeLimit: 15` across all decision nodes across all 7 scenarios (`earthquake.ts`, `fire.ts`, `flood.ts`, `earthquakeWorkplace.ts`, `fireCommercial.ts`, `floodStreet.ts`, `historicalBhuj.ts`), eliminating the regression where timers vanished after the initial decision due to missing node time limits.
+  - **Pruned Hook Interval Leaks:** Enhanced `useCountdown.ts` by ensuring interval teardown on `duration` / `resetKey` changes, wrapping interval clear operations in `useCallback`, and setting reset key to `${activeNodeId}_${retryCount}` for clean per-decision countdown instantiation.
+  - **Choice Commitment Latch:** Added immediate countdown freeze via `stop()` upon selecting a choice, preventing intervals from running during consequence transitions.
+  - **Timeout Screen Reliability:** Maintained robust dedicated timeout state with `RETRY DECISION` and `ABORT SIMULATION` without memory leaks or duplicate writes.
+- **Situation Shift (Butterfly Effect) Feedback (`src/screens/ConsequenceScreen.tsx`, `ConsequenceScreen.module.css`):**
+  - Integrated dedicated **SITUATION SHIFT // BUTTERFLY EFFECT** card between choice outcome and authoritative NDMA safety insight.
+  - Directional delta metrics pills displaying exact situational shifts: `▲ +22 Panic`, `▲ +25% Hazard`, `▼ -25% Safety`, `▼ -40% Visibility`.
+  - Consequence shift narrative explaining how the player's action fundamentally altered their immediate environment and psychological composure.
+  - Dynamic stress warning banner displaying exact stress tier context (`{currentConsequence.simulationState.panicBand} STRESS PRESSURE:`) instead of static labels.
+- **Stress Regulation & Panic Audit (`src/screens/ReportScreen.tsx`, `ReportScreen.module.css`):**
+  - Added dedicated **Stress Regulation & Panic Audit** section to the Preparedness Report.
+  - Computes peak panic reached, final panic level, and total countdown compression nodes experienced during the simulation.
+  - Renders authoritative stress management evaluation assessing tactical composure against official crisis psychology recommendations.
+  - Enriched Decision-by-Decision Replay cards with per-step stress indicators (`STRESS: HIGH (64/100)`) and situational shift records.
+- **DecisionPanel Runtime Crash & Pseudo-Random Shuffle Fix (`ScenarioScreen.tsx`, `DecisionPanel.tsx`):**
+  - Resolved `Uncaught TypeError: Cannot read properties of undefined (reading 'id')` in `DecisionPanel.tsx` caused by a signed integer 32-bit bitwise overflow in `ScenarioScreen.tsx`'s pseudo-random choice shuffle. The signed modulus `% 233280` yielded negative numbers, leading to negative swap index `j = -1` and introducing `undefined` elements into the `displayedChoices` array.
+  - Replaced signed calculation with an unsigned 32-bit Mulberry32 PRNG (`>>> 0`), guaranteeing strictly positive random floats in $[0, 1)$ and valid swap indices $j \in [0, i]$.
+  - Added a defensive boundary in `DecisionPanel.tsx` logging invalid choice objects to console diagnostics rather than crashing the component tree.
+  - Formally verified all 176 decision nodes and choices across all 7 disaster scenarios with an automated audit script, confirming 100% data integrity and zero undefined choices.
+- **Quality & Verification:**
+  - Passes `npm run lint` with 0 errors.
+  - Passes `npm run build` with 0 errors (strict TypeScript verbatimModuleSyntax verified).
+  - Passes `git diff --check` with 0 whitespace issues.
+  - 100% backward-compatible: preserves guest mode, Supabase auth/persistence, and audio playback.
+
 ## [2026-09-27] PHASE 12 (Step 4) — Consistent Operator Navigation & Session UX Audit
 - **Standardized Operator Navigation (`OperatorBadge.tsx`, `OperatorBadge.module.css`):**
   - Implemented a unified `OperatorBadge` component rendering clean dark terminal HUD status pills across safe non-game screens (`/`, `/how-to-play`, `/select`, `/disaster/:disasterId/scenarios`, and `/disaster/:disasterId/report`).

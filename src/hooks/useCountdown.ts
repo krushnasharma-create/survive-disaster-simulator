@@ -30,19 +30,22 @@ export function useCountdown({
   const [isRunning, setIsRunning] = useState(autoStart);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const onExpireRef = useRef(onExpire);
-  onExpireRef.current = onExpire;
-
   useEffect(() => {
-    setRemaining(duration);
-    setIsRunning(autoStart);
-  }, [duration, autoStart, resetKey]);
+    onExpireRef.current = onExpire;
+  });
 
-  const clear = () => {
+  const clear = useCallback(() => {
     if (intervalRef.current !== null) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    clear();
+    setRemaining(duration);
+    setIsRunning(autoStart);
+  }, [duration, autoStart, resetKey, clear]);
 
   const start = useCallback(() => {
     setIsRunning(true);
@@ -51,17 +54,21 @@ export function useCountdown({
   const stop = useCallback(() => {
     setIsRunning(false);
     clear();
-  }, []);
+  }, [clear]);
 
   const reset = useCallback(() => {
     clear();
     setIsRunning(false);
     setRemaining(duration);
-  }, [duration]);
+  }, [clear, duration]);
 
   useEffect(() => {
-    if (!isRunning) { clear(); return; }
+    if (!isRunning) {
+      clear();
+      return;
+    }
 
+    clear();
     intervalRef.current = setInterval(() => {
       setRemaining((prev) => {
         if (prev <= 1) {
@@ -74,13 +81,15 @@ export function useCountdown({
       });
     }, 1000);
 
-    return clear;
-  }, [isRunning]);
+    return () => {
+      clear();
+    };
+  }, [isRunning, resetKey, clear]);
 
   return {
     remaining,
     isRunning,
-    progress: remaining / duration,
+    progress: duration > 0 ? remaining / duration : 0,
     start,
     stop,
     reset,

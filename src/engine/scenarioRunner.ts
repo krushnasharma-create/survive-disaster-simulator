@@ -3,6 +3,15 @@
 
 import type { Scenario, ScenarioNode, DecisionNode, Choice } from '../data/types';
 import type { DecisionRecord } from '../store/gameStore';
+import type {
+  SimulationState,
+  SimulationStateDelta,
+} from './simulationState';
+import {
+  calculateDecisionDelta,
+  applySimulationState,
+  createInitialSimulationState,
+} from './simulationState';
 
 export interface EvaluationResult {
   choice: Choice;
@@ -14,6 +23,8 @@ export interface EvaluationResult {
   timeBonus: number;
   nextNodeId: string;
   record: DecisionRecord;
+  stateDelta: SimulationStateDelta;
+  nextSimulationState?: SimulationState;
 }
 
 /**
@@ -26,11 +37,13 @@ export function getNode(scenario: Scenario, nodeId: string): ScenarioNode | unde
 /**
  * Evaluates a player choice against a decision node.
  * Calculates time bonus if decision is timed and answered with remaining seconds.
+ * Calculates deterministic Butterfly Effect state changes and panic progression.
  */
 export function evaluateChoice(
   node: DecisionNode,
   choiceId: string,
-  remainingSeconds?: number
+  remainingSeconds?: number,
+  currentState?: SimulationState
 ): EvaluationResult {
   const choice = node.choices.find((c) => c.id === choiceId);
   if (!choice) {
@@ -44,6 +57,17 @@ export function evaluateChoice(
     timeBonus = Math.min(5, Math.ceil((remainingSeconds / node.timeLimit) * 5));
   }
 
+  // Deterministic simulation state delta (Butterfly Effect)
+  const baseState = currentState || createInitialSimulationState();
+  const stateDelta = calculateDecisionDelta(
+    baseState,
+    choice,
+    node,
+    remainingSeconds
+  );
+
+  const nextSimulationState = applySimulationState(baseState, stateDelta, choice.isCorrect);
+
   const record: DecisionRecord = {
     nodeId: node.id,
     situationText: node.situationText,
@@ -56,6 +80,10 @@ export function evaluateChoice(
     insight: choice.insight,
     insightSource: choice.insightSource,
     nextNodeId: choice.nextNodeId,
+    panicLevel: nextSimulationState?.panic,
+    panicBand: nextSimulationState?.panicBand,
+    stateShiftSummary: nextSimulationState?.lastShiftSummary || stateDelta.shiftSummary,
+    stateDelta,
   };
 
   return {
@@ -68,5 +96,7 @@ export function evaluateChoice(
     timeBonus,
     nextNodeId: choice.nextNodeId,
     record,
+    stateDelta,
+    nextSimulationState,
   };
 }

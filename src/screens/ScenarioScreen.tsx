@@ -13,7 +13,7 @@ import { DecisionPanel } from '../components/DecisionPanel';
 import { EnvironmentalOverlay } from '../components/EnvironmentalOverlay';
 import { useCountdown } from '../hooks/useCountdown';
 import { getLocalizedScenario, getUiStrings } from '../i18n';
-import { playTimerTick, playDisasterChoiceImpact } from '../utils/audio';
+import { playTimerTick, playDisasterChoiceImpact, playPanicSpike } from '../utils/audio';
 import { recordDecision as recordPersistenceDecision, startRun, failRun } from '../services/gamePersistenceService';
 import type { DisasterType, DecisionNode } from '../data/types';
 import styles from './ScenarioScreen.module.css';
@@ -53,6 +53,8 @@ export default function ScenarioScreen() {
     setConsequence,
     setOutcome,
     decisions,
+    simulationState,
+    updateSimulationState,
     language,
     setLanguage,
     authUserId,
@@ -74,6 +76,22 @@ export default function ScenarioScreen() {
   }, [rawScenario, language]);
 
   const ui = useMemo(() => getUiStrings(language), [language]);
+
+  // Dynamic Panic Band Color
+  const panicBandColor = useMemo(() => {
+    switch (simulationState.panicBand) {
+      case 'CALM':
+        return 'var(--color-safe, #39d353)';
+      case 'CONTROLLED':
+        return '#68d391';
+      case 'ELEVATED':
+        return 'var(--color-warning, #ecc94b)';
+      case 'HIGH':
+        return '#ed8936';
+      case 'CRITICAL':
+        return 'var(--color-danger, #f56565)';
+    }
+  }, [simulationState.panicBand]);
 
   // Ensure active disaster is synchronized in store
   useEffect(() => {
@@ -112,20 +130,55 @@ export default function ScenarioScreen() {
   const displayedChoices = useMemo(() => {
     if (!decisionNode) return [];
     const arr = [...decisionNode.choices];
-    // Fisher-Yates shuffle
+    // Deterministic pseudo-random shuffle based on node id (prevents option 1 bias)
+    let seed = 0;
+    for (let i = 0; i < decisionNode.id.length; i++) {
+      seed = (seed * 31 + decisionNode.id.charCodeAt(i)) >>> 0;
+    }
     for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+      seed = (seed + 0x6D2B79F5) >>> 0;
+      let t = seed;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      const rnd = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      const j = Math.floor(rnd * (i + 1));
+      const temp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = temp;
     }
     return arr;
-  }, [decisionNode?.id, language]);
+  }, [decisionNode]);
+
+  // Reset timeout state whenever activeNodeId changes
+  useEffect(() => {
+    setIsTimedOut(false);
+  }, [activeNodeId]);
+
+  // Time limit hook — 15 seconds limit with Panic Engine modifier and strict 10s floor
+  const rawTimeLimit = decisionNode?.timeLimit;
+  const timeLimit = rawTimeLimit
+    ? Math.max(10, rawTimeLimit + simulationState.timerModifierSeconds)
+    : undefined;
+
+  const onTimerExpire = useCallback(() => {
+    playTimerTick(0);
+    setIsTimedOut(true);
+  }, []);
+
+  const { remaining, stop } = useCountdown({
+    duration: timeLimit || 15,
+    autoStart: Boolean(timeLimit),
+    onExpire: onTimerExpire,
+    resetKey: `${activeNodeId}_${retryCount}`,
+  });
 
   // Handle choice selection with 150ms action commitment latch
   const handleSelectChoice = useCallback(
     (choiceId: string, remainingSeconds?: number) => {
       if (!decisionNode) return;
+      stop(); // Immediately stop the timer to freeze countdown and clear interval
 
-      const evalResult = evaluateChoice(decisionNode, choiceId, remainingSeconds);
+      const evalResult = evaluateChoice(decisionNode, choiceId, remainingSeconds, simulationState);
 
       // Find the safer/optimal choice from existing scenario data if current choice was incorrect
       const optimalChoice = decisionNode.choices.find((c) => c.isCorrect);
@@ -133,7 +186,20 @@ export default function ScenarioScreen() {
       // Play physical disaster commitment audio
       playDisasterChoiceImpact(targetDisaster);
 
+      // Auditory feedback: Alert chime on entering severe panic bands
+      if (
+        evalResult.nextSimulationState &&
+        (evalResult.nextSimulationState.panicBand === 'HIGH' ||
+          evalResult.nextSimulationState.panicBand === 'CRITICAL') &&
+        evalResult.stateDelta.panicChange > 0
+      ) {
+        playPanicSpike(evalResult.nextSimulationState.panicBand);
+      }
+
       recordDecision(evalResult.record);
+
+      // Advance deterministic simulation state
+      updateSimulationState(evalResult.stateDelta, evalResult.isCorrect);
 
       // Asynchronously queue decision persistence if authenticated (non-blocking)
       if (authUserId && activeRunId) {
@@ -154,6 +220,9 @@ export default function ScenarioScreen() {
         isCorrect: evalResult.isCorrect,
         choiceLabel: evalResult.choice.label,
         optimalChoiceLabel: !evalResult.isCorrect && optimalChoice ? optimalChoice.label : undefined,
+        simulationState: evalResult.nextSimulationState,
+        stateDelta: evalResult.stateDelta,
+        shiftSummary: evalResult.nextSimulationState?.lastShiftSummary,
       });
 
       // Brief 150ms commitment pulse gives tactile weight to the decision before transition
@@ -161,22 +230,20 @@ export default function ScenarioScreen() {
         navigate(`/disaster/${targetDisaster}/consequence`);
       }, 150);
     },
-    [decisionNode, navigate, recordDecision, setConsequence, targetDisaster, authUserId, activeRunId, decisions.length]
+    [
+      decisionNode,
+      navigate,
+      recordDecision,
+      setConsequence,
+      targetDisaster,
+      authUserId,
+      activeRunId,
+      decisions.length,
+      simulationState,
+      updateSimulationState,
+      stop,
+    ]
   );
-
-  // Time limit hook — 15 seconds limit
-  const timeLimit = decisionNode?.timeLimit;
-  const onTimerExpire = useCallback(() => {
-    playTimerTick(0);
-    setIsTimedOut(true);
-  }, []);
-
-  const { remaining } = useCountdown({
-    duration: timeLimit || 15,
-    autoStart: Boolean(timeLimit),
-    onExpire: onTimerExpire,
-    resetKey: retryCount,
-  });
 
   // Urgency audio pulse for timed decision countdown
   useEffect(() => {
@@ -314,6 +381,50 @@ export default function ScenarioScreen() {
           </span>
         </div>
       </header>
+
+      {/* Simulation Telemetry HUD Bar (Panic Engine + Environmental Integrity) */}
+      <div className={styles.telemetryBar}>
+        <div className={styles.telemetryGroup}>
+          <div className={styles.panicHeader}>
+            <span className={styles.telemetryLabel}>PSYCHOLOGICAL STRESS</span>
+            <span
+              className={styles.panicBadge}
+              style={{ color: panicBandColor, borderColor: panicBandColor }}
+            >
+              {simulationState.panicBand} ({simulationState.panic}/100)
+            </span>
+          </div>
+          <div className={styles.panicMeterTrack}>
+            <div
+              className={styles.panicMeterFill}
+              style={{
+                width: `${simulationState.panic}%`,
+                backgroundColor: panicBandColor,
+              }}
+            />
+          </div>
+        </div>
+
+        {simulationState.timerModifierSeconds < 0 && (
+          <div className={styles.timerPenaltyBadge}>
+            ⚡ {simulationState.timerModifierSeconds}s PANIC PRESSURE
+          </div>
+        )}
+
+        <div className={styles.telemetryStats}>
+          <span className={styles.statChip}>
+            HAZARD: <strong>{simulationState.hazardLevel}%</strong>
+          </span>
+          <span className={styles.statChip}>
+            SAFETY: <strong>{simulationState.safetyIntegrity}%</strong>
+          </span>
+          {simulationState.visibility < 100 && (
+            <span className={styles.statChip}>
+              VISIBILITY: <strong>{simulationState.visibility}%</strong>
+            </span>
+          )}
+        </div>
+      </div>
 
       {/* Main Situation & Decision Area */}
       <main className={styles.main}>

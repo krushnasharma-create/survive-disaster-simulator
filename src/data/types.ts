@@ -19,6 +19,14 @@ export interface IntroNode extends BaseNode {
   nextNodeId: string;
 }
 
+export interface StateDelta {
+  panicChange?: number;
+  hazardChange?: number;
+  safetyChange?: number;
+  visibilityChange?: number;
+  shiftSummary?: string;
+}
+
 export interface Choice {
   id: string;
   /** First-person, action-oriented label shown to the player */
@@ -31,6 +39,8 @@ export interface Choice {
   insight: string;
   insightSource: string;
   nextNodeId: string;
+  /** Optional deterministic state transitions (panic, hazard, visibility, safety) */
+  stateDelta?: StateDelta;
 }
 
 export interface EnvironmentEvent {

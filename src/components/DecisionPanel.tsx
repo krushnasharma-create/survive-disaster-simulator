@@ -27,6 +27,11 @@ export function DecisionPanel({ choices, onSelect, disabled = false }: Props) {
   return (
     <div className={styles.panel}>
       {choices.map((choice, i) => {
+        if (!choice || typeof choice.id !== 'string') {
+          console.error(`[DecisionPanel] Invalid or missing choice contract at index ${i}:`, choice);
+          return null;
+        }
+
         const isSelected = selectedId === choice.id;
         const isOther = selectedId !== null && !isSelected;
 

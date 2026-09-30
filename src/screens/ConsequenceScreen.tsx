@@ -150,6 +150,130 @@ export default function ConsequenceScreen() {
           </motion.div>
         )}
 
+        {/* Situation Shift (Butterfly Effect) Card */}
+        {currentConsequence.simulationState && (
+          <motion.div
+            className={styles.shiftCard}
+            variants={itemVariants}
+            transition={{ duration: 0.42, ease: 'easeOut' }}
+          >
+            <div className={styles.shiftHeader}>
+              <div className={styles.shiftTitle}>
+                <span aria-hidden="true">⚡</span>
+                <span>SITUATION SHIFT // BUTTERFLY EFFECT</span>
+              </div>
+              <span
+                className={styles.shiftBandTag}
+                style={{
+                  color:
+                    currentConsequence.simulationState.panicBand === 'CALM'
+                      ? '#39d353'
+                      : currentConsequence.simulationState.panicBand === 'CONTROLLED'
+                      ? '#68d391'
+                      : currentConsequence.simulationState.panicBand === 'ELEVATED'
+                      ? '#ecc94b'
+                      : currentConsequence.simulationState.panicBand === 'HIGH'
+                      ? '#ed8936'
+                      : '#f56565',
+                  borderColor:
+                    currentConsequence.simulationState.panicBand === 'CALM'
+                      ? '#39d353'
+                      : currentConsequence.simulationState.panicBand === 'CONTROLLED'
+                      ? '#68d391'
+                      : currentConsequence.simulationState.panicBand === 'ELEVATED'
+                      ? '#ecc94b'
+                      : currentConsequence.simulationState.panicBand === 'HIGH'
+                      ? '#ed8936'
+                      : '#f56565',
+                }}
+              >
+                STRESS: {currentConsequence.simulationState.panicBand} ({currentConsequence.simulationState.panic}/100)
+              </span>
+            </div>
+
+            <p className={styles.shiftSummary}>
+              {currentConsequence.shiftSummary || currentConsequence.simulationState.lastShiftSummary}
+            </p>
+
+            <div className={styles.shiftMetricsGrid}>
+              {currentConsequence.stateDelta && (
+                <>
+                  <span
+                    className={`${styles.metricBadge} ${
+                      currentConsequence.stateDelta.panicChange > 0
+                        ? styles.metricBadgeDanger
+                        : currentConsequence.stateDelta.panicChange < 0
+                        ? styles.metricBadgeSafe
+                        : styles.metricBadgeNeutral
+                    }`}
+                  >
+                    {currentConsequence.stateDelta.panicChange > 0
+                      ? `▲ +${currentConsequence.stateDelta.panicChange} Panic`
+                      : currentConsequence.stateDelta.panicChange < 0
+                      ? `▼ ${currentConsequence.stateDelta.panicChange} Panic`
+                      : `● Panic Stable`}
+                  </span>
+
+                  <span
+                    className={`${styles.metricBadge} ${
+                      currentConsequence.stateDelta.hazardChange > 0
+                        ? styles.metricBadgeWarning
+                        : currentConsequence.stateDelta.hazardChange < 0
+                        ? styles.metricBadgeSafe
+                        : styles.metricBadgeNeutral
+                    }`}
+                  >
+                    {currentConsequence.stateDelta.hazardChange > 0
+                      ? `▲ +${currentConsequence.stateDelta.hazardChange}% Hazard`
+                      : currentConsequence.stateDelta.hazardChange < 0
+                      ? `▼ ${currentConsequence.stateDelta.hazardChange}% Hazard`
+                      : `● Hazard Unchanged`}
+                  </span>
+
+                  <span
+                    className={`${styles.metricBadge} ${
+                      currentConsequence.stateDelta.safetyChange > 0
+                        ? styles.metricBadgeSafe
+                        : currentConsequence.stateDelta.safetyChange < 0
+                        ? styles.metricBadgeDanger
+                        : styles.metricBadgeNeutral
+                    }`}
+                  >
+                    {currentConsequence.stateDelta.safetyChange > 0
+                      ? `▲ +${currentConsequence.stateDelta.safetyChange}% Safety`
+                      : currentConsequence.stateDelta.safetyChange < 0
+                      ? `▼ ${currentConsequence.stateDelta.safetyChange}% Safety`
+                      : `● Safety Stable`}
+                  </span>
+
+                  {currentConsequence.stateDelta.visibilityChange !== 0 && (
+                    <span
+                      className={`${styles.metricBadge} ${
+                        currentConsequence.stateDelta.visibilityChange < 0
+                          ? styles.metricBadgeWarning
+                          : styles.metricBadgeSafe
+                      }`}
+                    >
+                      {currentConsequence.stateDelta.visibilityChange < 0
+                        ? `▼ ${currentConsequence.stateDelta.visibilityChange}% Visibility`
+                        : `▲ +${currentConsequence.stateDelta.visibilityChange}% Visibility`}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+
+            {currentConsequence.simulationState.timerModifierSeconds < 0 && (
+              <div className={styles.shiftWarningBanner}>
+                <span>⚠</span>
+                <span>
+                  {currentConsequence.simulationState.panicBand} STRESS PRESSURE: Heightened panic will compress your next decision window by {Math.abs(currentConsequence.simulationState.timerModifierSeconds)} seconds (min 10s floor).
+                </span>
+              </div>
+            )}
+          </motion.div>
+        )}
+
         {/* Authoritative Safety Insight */}
         <motion.div
           className={styles.insightCard}

@@ -368,6 +368,37 @@ export function playConsequenceReveal(isCorrect: boolean) {
 }
 
 /**
+ * Panic Spike Alert Audio:
+ * Triggered on transitions into ELEVATED, HIGH, or CRITICAL panic.
+ * Low, tense heartbeat / alert pulse.
+ */
+export function playPanicSpike(band: 'ELEVATED' | 'HIGH' | 'CRITICAL') {
+  if (!isAudioEnabled) return;
+  const ctx = getAudioContext();
+  if (!ctx || !masterGain || ctx.state !== 'running') return;
+
+  try {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'triangle';
+    const freq = band === 'CRITICAL' ? 120 : band === 'HIGH' ? 100 : 80;
+    osc.frequency.setValueAtTime(freq, now);
+    osc.frequency.exponentialRampToValueAtTime(40, now + 0.25);
+
+    const vol = band === 'CRITICAL' ? 0.14 : band === 'HIGH' ? 0.1 : 0.07;
+    gain.gain.setValueAtTime(vol, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+
+    osc.connect(gain);
+    gain.connect(masterGain);
+    osc.start(now);
+    osc.stop(now + 0.25);
+  } catch {}
+}
+
+/**
  * Clean up / silence any active nodes immediately.
  */
 export function stopAllAudio() {

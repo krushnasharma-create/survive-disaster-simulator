@@ -4,6 +4,14 @@
 import { create } from 'zustand';
 import type { DisasterType } from '../data/types';
 import { isSupabaseConfigured } from '../lib/supabase';
+import type {
+  SimulationState,
+  SimulationStateDelta,
+} from '../engine/simulationState';
+import {
+  createInitialSimulationState,
+  applySimulationState,
+} from '../engine/simulationState';
 
 export interface DecisionRecord {
   nodeId: string;
@@ -17,6 +25,11 @@ export interface DecisionRecord {
   insight: string;
   insightSource: string;
   nextNodeId: string;
+  /** Simulation State telemetry recorded at the moment of decision */
+  panicLevel?: number;
+  panicBand?: string;
+  stateShiftSummary?: string;
+  stateDelta?: SimulationStateDelta;
 }
 
 export interface ConsequenceState {
@@ -28,6 +41,10 @@ export interface ConsequenceState {
   choiceLabel: string;
   /** Label of the safest/correct choice — shown when player chose incorrectly (P0-3) */
   optimalChoiceLabel?: string;
+  /** Butterfly Effect & Panic state passed to consequence screen */
+  simulationState?: SimulationState;
+  stateDelta?: SimulationStateDelta;
+  shiftSummary?: string;
 }
 
 export interface OutcomeState {
@@ -58,6 +75,9 @@ interface GameState {
   // ── Computed score (finalised at report screen) ──────
   totalScore: number;
 
+  // ── Simulation Engine (Panic Engine + Butterfly Effect) ─
+  simulationState: SimulationState;
+
   // ── Language Mode ────────────────────────────────────
   language: 'en' | 'hinglish';
 
@@ -78,6 +98,8 @@ interface GameState {
   setConsequence: (consequence: ConsequenceState | null) => void;
   setOutcome: (outcome: OutcomeState | null) => void;
   recordDecision: (record: DecisionRecord) => void;
+  updateSimulationState: (delta: SimulationStateDelta, isCorrect: boolean) => void;
+  setSimulationState: (simulationState: SimulationState) => void;
   finaliseScore: (score: number) => void;
   resetSession: () => void;
 }
@@ -93,6 +115,7 @@ const initialState = {
   currentOutcome: null as OutcomeState | null,
   decisions: [] as DecisionRecord[],
   totalScore: 0,
+  simulationState: createInitialSimulationState(),
   authUserId: null as string | null,
   isAuthLoading: isSupabaseConfigured,
   activeRunId: null as string | null,
@@ -133,6 +156,7 @@ export const useGameStore = create<GameState>((set) => ({
       currentOutcome: null,
       decisions: [],
       totalScore: 0,
+      simulationState: createInitialSimulationState(),
       activeRunId: null,
     }),
 
@@ -146,6 +170,7 @@ export const useGameStore = create<GameState>((set) => ({
       currentOutcome: null,
       decisions: [],
       totalScore: 0,
+      simulationState: createInitialSimulationState(),
       activeRunId: null,
     }),
 
@@ -163,6 +188,13 @@ export const useGameStore = create<GameState>((set) => ({
     set((state) => ({
       decisions: [...state.decisions, record],
     })),
+
+  updateSimulationState: (delta, isCorrect) =>
+    set((state) => ({
+      simulationState: applySimulationState(state.simulationState, delta, isCorrect),
+    })),
+
+  setSimulationState: (simulationState) => set({ simulationState }),
 
   finaliseScore: (score) => set({ totalScore: score }),
 

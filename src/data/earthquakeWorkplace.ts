@@ -69,6 +69,7 @@ export const earthquakeWorkplaceScenario: Scenario = {
     'eqw-d2-corridor-debris': {
       id: 'eqw-d2-corridor-debris',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'The primary tremor stops. The floor is carpeted with plaster dust, sheared cables, and smashed monitors. Colleague voices echo through the haze. Emergency battery lighting flickers on. The main office exit door is partially jammed by a tilted bookcase.',
       contextHint: 'Clear the exit safely and check for active power lines before leading coworkers out.',
@@ -104,6 +105,7 @@ export const earthquakeWorkplaceScenario: Scenario = {
     'eqw-d2b-injured-escape': {
       id: 'eqw-d2b-injured-escape',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'Nursing your injured shoulder in the dusty haze, you find the office exit partially obstructed. Panic is spreading among coworkers, and someone is shouting that the elevators are dead. Smoke from shorted wiring begins drifting from the server room.',
       contextHint: 'Triage panic, locate a first-aid kit or grab emergency floor wardens.',
@@ -176,6 +178,7 @@ export const earthquakeWorkplaceScenario: Scenario = {
     'eqw-d4-lobby-hazard': {
       id: 'eqw-d4-lobby-hazard',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'You emerge into the ground-floor corporate atrium. The expansive glass skylight high above has partially fractured. Outside the glass revolving doors, decorative stone cladding from the 3rd-floor exterior facade is crashing onto the main driveway.',
       contextHint: 'Falling exterior cladding and revolving doors pose severe exit hazards.',
@@ -211,6 +214,7 @@ export const earthquakeWorkplaceScenario: Scenario = {
     'eqw-d5-assembly-communication': {
       id: 'eqw-d5-assembly-communication',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'You reach the designated open assembly ground in the office park center, 100 meters away from all tower facades. Hundreds of employees are gathering. Mobile networks are jammed as everyone attempts voice calls simultaneously.',
       contextHint: 'Communicate safety status without contributing to cellular voice network collapse.',

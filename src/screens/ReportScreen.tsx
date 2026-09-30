@@ -86,6 +86,65 @@ export default function ReportScreen() {
     return keyTakeaways;
   }, [language, activeDisaster, decisions, ui, keyTakeaways]);
 
+  const panicAudit = useMemo(() => {
+    if (decisions.length === 0) {
+      return {
+        peakPanic: 15,
+        peakBand: 'CALM',
+        finalPanic: 15,
+        finalBand: 'CALM',
+        timerCompressions: 0,
+        summary: 'No active decisions recorded.',
+      };
+    }
+
+    let peakPanic = 15;
+    let timerCompressions = 0;
+    decisions.forEach((d) => {
+      if (d.panicLevel !== undefined) {
+        if (d.panicLevel > peakPanic) {
+          peakPanic = d.panicLevel;
+        }
+        if (d.panicLevel >= 41) {
+          timerCompressions++;
+        }
+      }
+    });
+
+    const lastDecision = decisions[decisions.length - 1];
+    const finalPanic = lastDecision?.panicLevel ?? peakPanic;
+    const finalBand = lastDecision?.panicBand ?? (finalPanic <= 20 ? 'CALM' : finalPanic <= 40 ? 'CONTROLLED' : finalPanic <= 60 ? 'ELEVATED' : finalPanic <= 80 ? 'HIGH' : 'CRITICAL');
+    const peakBand = peakPanic <= 20 ? 'CALM' : peakPanic <= 40 ? 'CONTROLLED' : peakPanic <= 60 ? 'ELEVATED' : peakPanic <= 80 ? 'HIGH' : 'CRITICAL';
+
+    let summary = '';
+    if (language === 'hinglish') {
+      if (peakPanic <= 35) {
+        summary = 'Shaandar manasik santulan! Aapne disaster ke tanaav ko bilkul kabu mein rakha aur sthir soch ke sath NDMA nirdeshon ka palan kiya.';
+      } else if (peakPanic <= 65) {
+        summary = 'Madhyam tanaav sthiti. Beech mein khatre badhne par stress badha, par aapne samay par surakshit faisle lekar sthiti ko sambhal liya.';
+      } else {
+        summary = 'Uchha tanaav aur ghabrahat darj ki gayi. Jokhim bhare kadmon ne psychological pressure badhaya, jisse faisla lene ka samay kam ho gaya.';
+      }
+    } else {
+      if (peakPanic <= 35) {
+        summary = 'High situational composure. You controlled psychological stress effectively, avoiding critical timer compression and maintaining clear decision margins.';
+      } else if (peakPanic <= 65) {
+        summary = 'Controlled operational stress. Experienced elevated crisis pressure during critical junctures, but regained situational stability through protocol adherence.';
+      } else {
+        summary = 'Severe crisis stress overload. High-risk decisions escalated panic into critical thresholds, compressing subsequent decision windows and reducing margin of safety.';
+      }
+    }
+
+    return {
+      peakPanic,
+      peakBand,
+      finalPanic,
+      finalBand,
+      timerCompressions,
+      summary,
+    };
+  }, [decisions, language]);
+
   const scoreColor = useMemo(() => {
     if (scoreSummary.score >= 85) return 'var(--color-safe)';
     if (scoreSummary.score >= 65) return 'var(--color-warning)';
@@ -161,6 +220,74 @@ export default function ReportScreen() {
           </div>
         </div>
 
+        {/* Stress Regulation & Panic Audit */}
+        <div className={styles.panicAuditBlock}>
+          <div className={styles.panicAuditTop}>
+            <div className={styles.panicAuditTitle}>
+              <span aria-hidden="true">🧠</span>
+              <span>{language === 'hinglish' ? 'Tanaav Niyantran & Panic Audit' : 'Stress Regulation & Panic Audit'}</span>
+            </div>
+            <span
+              className={styles.panicAuditBadge}
+              style={{
+                color:
+                  panicAudit.peakBand === 'CALM'
+                    ? '#39d353'
+                    : panicAudit.peakBand === 'CONTROLLED'
+                    ? '#68d391'
+                    : panicAudit.peakBand === 'ELEVATED'
+                    ? '#ecc94b'
+                    : panicAudit.peakBand === 'HIGH'
+                    ? '#ed8936'
+                    : '#f56565',
+                borderColor:
+                  panicAudit.peakBand === 'CALM'
+                    ? '#39d353'
+                    : panicAudit.peakBand === 'CONTROLLED'
+                    ? '#68d391'
+                    : panicAudit.peakBand === 'ELEVATED'
+                    ? '#ecc94b'
+                    : panicAudit.peakBand === 'HIGH'
+                    ? '#ed8936'
+                    : '#f56565',
+              }}
+            >
+              PEAK: {panicAudit.peakBand} ({panicAudit.peakPanic}/100)
+            </span>
+          </div>
+
+          <div className={styles.panicMetricsRow}>
+            <div className={styles.panicMetricCard}>
+              <span className={styles.panicMetricVal} style={{ color: '#68d391' }}>
+                {panicAudit.finalPanic}/100
+              </span>
+              <span className={styles.panicMetricLabel}>
+                {language === 'hinglish' ? 'Antim Panic Level' : 'Final Panic Level'}
+              </span>
+            </div>
+
+            <div className={styles.panicMetricCard}>
+              <span className={styles.panicMetricVal} style={{ color: '#ecc94b' }}>
+                {panicAudit.peakPanic}/100
+              </span>
+              <span className={styles.panicMetricLabel}>
+                {language === 'hinglish' ? 'Peak Panic Spikes' : 'Peak Panic Reached'}
+              </span>
+            </div>
+
+            <div className={styles.panicMetricCard}>
+              <span className={styles.panicMetricVal} style={{ color: panicAudit.timerCompressions > 0 ? '#f56565' : '#39d353' }}>
+                {panicAudit.timerCompressions}
+              </span>
+              <span className={styles.panicMetricLabel}>
+                {language === 'hinglish' ? 'Time Pressure Nodes' : 'Panic Time Penalties'}
+              </span>
+            </div>
+          </div>
+
+          <p className={styles.panicAuditDesc}>{panicAudit.summary}</p>
+        </div>
+
         {/* Decision-by-Decision Replay */}
         {decisionReviews.length > 0 && (
           <div>
@@ -170,46 +297,62 @@ export default function ReportScreen() {
             </h2>
 
             <div className={styles.reviewList}>
-              {decisionReviews.map((item) => (
-                <div
-                  key={item.nodeId + item.step}
-                  className={`${styles.reviewCard} ${
-                    item.isCorrect
-                      ? styles.reviewCardOptimal
-                      : styles.reviewCardSuboptimal
-                  }`}
-                >
-                  <div className={styles.reviewHeader}>
-                    <span className={styles.reviewStep}>
-                      {ui.stepLabel} {String(item.step).padStart(2, '0')}
-                    </span>
-                    <span
-                      className={`${styles.reviewBadge} ${
-                        item.isCorrect ? styles.badgeOptimal : styles.badgeSuboptimal
-                      }`}
-                    >
-                      {item.isCorrect ? ui.optimalAction : ui.highRiskAction}
-                    </span>
-                  </div>
-
-                  <div className={styles.reviewChoice}>
-                    <strong>{ui.actionLabel}</strong> {item.choiceLabel}
-                  </div>
-
-                  <div className={styles.reviewConsequence}>
-                    <strong>{ui.consequenceLabel}</strong> {item.consequenceText}
-                  </div>
-
-                  <div className={styles.reviewInsight}>
-                    <div>
-                      <strong>{ui.protocolLabel}</strong> {item.insight}
+              {decisionReviews.map((item) => {
+                const dec = decisions[item.step - 1];
+                return (
+                  <div
+                    key={item.nodeId + item.step}
+                    className={`${styles.reviewCard} ${
+                      item.isCorrect
+                        ? styles.reviewCardOptimal
+                        : styles.reviewCardSuboptimal
+                    }`}
+                  >
+                    <div className={styles.reviewHeader}>
+                      <span className={styles.reviewStep}>
+                        {ui.stepLabel} {String(item.step).padStart(2, '0')}
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        {dec?.panicLevel !== undefined && (
+                          <span className={styles.reviewStressTag}>
+                            STRESS: {dec.panicBand || 'CONTROLLED'} ({dec.panicLevel}/100)
+                          </span>
+                        )}
+                        <span
+                          className={`${styles.reviewBadge} ${
+                            item.isCorrect ? styles.badgeOptimal : styles.badgeSuboptimal
+                          }`}
+                        >
+                          {item.isCorrect ? ui.optimalAction : ui.highRiskAction}
+                        </span>
+                      </div>
                     </div>
-                    <div className={styles.reviewSource}>
-                      {ui.sourceLabel} {item.insightSource}
+
+                    <div className={styles.reviewChoice}>
+                      <strong>{ui.actionLabel}</strong> {item.choiceLabel}
+                    </div>
+
+                    <div className={styles.reviewConsequence}>
+                      <strong>{ui.consequenceLabel}</strong> {item.consequenceText}
+                    </div>
+
+                    {dec?.stateShiftSummary && (
+                      <div className={styles.reviewShift}>
+                        <strong>⚡ Shift:</strong> {dec.stateShiftSummary}
+                      </div>
+                    )}
+
+                    <div className={styles.reviewInsight}>
+                      <div>
+                        <strong>{ui.protocolLabel}</strong> {item.insight}
+                      </div>
+                      <div className={styles.reviewSource}>
+                        {ui.sourceLabel} {item.insightSource}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

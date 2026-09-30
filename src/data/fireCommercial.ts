@@ -69,6 +69,7 @@ export const fireCommercialScenario: Scenario = {
     'frc-d2-corridor-visibility': {
       id: 'frc-d2-corridor-visibility',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'Inside the rear service passage leading to the fire stairwell, light smoke has seeped past an unlatched access door. Visibility is dropping at head height, but the air near the floor tiles is significantly clearer.',
       contextHint: 'Thermal layering: heat and lethal carbon monoxide collect near the ceiling.',
@@ -104,6 +105,7 @@ export const fireCommercialScenario: Scenario = {
     'frc-d2b-atrium-crowd-triage': {
       id: 'frc-d2b-atrium-crowd-triage',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'You are caught near the choked central atrium. Smoke is pouring across the 3rd-floor ceiling. A mother with a toddler is stumbling against the escalator railing as people push blindly toward the dead steps.',
       contextHint: 'Break the crowd funnel by diverting people to the side service exit.',
@@ -176,6 +178,7 @@ export const fireCommercialScenario: Scenario = {
     'frc-d4-ground-exit-triage': {
       id: 'frc-d4-ground-exit-triage',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'You descend the stairs and push open the final ground-level discharge exit door, spilling out onto the rear delivery alleyway of the complex. Fire engines are screaming into the main front courtyard. Overhead on the 3rd floor, restaurant facade windows are blowing out from heat.',
       contextHint: 'Glass shards and commercial grease flare-ups can shower the rear perimeter.',
@@ -211,6 +214,7 @@ export const fireCommercialScenario: Scenario = {
     'frc-d5-emergency-call-coordination': {
       id: 'frc-d5-emergency-call-coordination',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'In the safe open parking lot, you observe arriving fire brigade personnel connecting hoses to the municipal hydrants. A fire officer with a megaphone is asking if anyone knows the exact location of the fire origin.',
       contextHint: 'Provide precise tactical information to incident commanders.',

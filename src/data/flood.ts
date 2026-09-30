@@ -35,6 +35,12 @@ export const floodScenario: Scenario = {
             'Public emergency preparedness guidance recommends shutting off electrical mains and gas supplies before floodwater enters the premises to eliminate acute electrocution and fire hazards.',
           insightSource: 'NDMA Urban Flood Safety Advisory',
           nextNodeId: 'flood-d2-rising-water',
+          stateDelta: {
+            panicChange: -6,
+            hazardChange: -25,
+            safetyChange: 20,
+            shiftSummary: 'Shutting off main electrical MCB and LPG gas eliminated acute electrocution and explosion hazards.',
+          },
         },
         {
           id: 'flood-c1-wait-indoors',
@@ -47,6 +53,12 @@ export const floodScenario: Scenario = {
             'Never delay personal safety to block rapidly rising floodwater with towels or rugs. Rising urban runoff carries tremendous volume, and submerged electrical outlets create lethal shock zones.',
           insightSource: 'NDMA Flood Preparedness Guidelines',
           nextNodeId: 'flood-d2b-delayed-utility',
+          stateDelta: {
+            panicChange: 24,
+            hazardChange: 35,
+            safetyChange: -25,
+            shiftSummary: 'Submerging live floor outlets in calf-deep floodwater created severe electrocution hazard and heightened panic.',
+          },
         },
       ],
     },
@@ -55,6 +67,7 @@ export const floodScenario: Scenario = {
     'flood-d2-rising-water': {
       id: 'flood-d2-rising-water',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'The ground floor is covered in several inches of water. Outside, the street has transformed into a torrential muddy canal with swirling debris. Your two-storey house has an internal concrete staircase leading to upper rooms and a solid rooftop.',
       contextHint: 'The street outside has deep, moving water with obscured hazards.',
@@ -90,6 +103,7 @@ export const floodScenario: Scenario = {
     'flood-d2b-delayed-utility': {
       id: 'flood-d2b-delayed-utility',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'Water is knee-deep in your ground-floor hallway. You hear buzzing from a submerged wall socket, and the main electrical panel is located across the flooded room.',
       contextHint: 'Standing in floodwater near live electrical sources carries severe electrocution risk.',
@@ -125,6 +139,7 @@ export const floodScenario: Scenario = {
     'flood-d3-indoor-hazard': {
       id: 'flood-d3-indoor-hazard',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'You are safely on the first floor, but tap water suddenly runs brownish and muddy from the faucets. Power is completely out across the area. You need to secure drinking water and sanitation for an uncertain duration.',
       contextHint: 'Floodwaters routinely contaminate municipal water distribution pipelines and domestic storage sumps.',
@@ -197,6 +212,7 @@ export const floodScenario: Scenario = {
     'flood-d5-emergency-comm': {
       id: 'flood-d5-emergency-comm',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'Your phone battery is at 42%. Mobile network signals are intermittent. You need to alert emergency authorities of your location and find out the local flood forecast.',
       contextHint: 'Conserving phone battery and sending concise text data is critical during power outages.',
@@ -232,6 +248,7 @@ export const floodScenario: Scenario = {
     'flood-d6-stranded-rooftop': {
       id: 'flood-d6-stranded-rooftop',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'Having retreated from the violent street current, you are soaked, shivering, and trapped on the rooftop as rain continues to pour heavily. Night is approaching.',
       contextHint: 'Hypothermia and exposure are significant risks during extended monsoon rain.',
@@ -267,6 +284,7 @@ export const floodScenario: Scenario = {
     'flood-d7-rescue-signaling': {
       id: 'flood-d7-rescue-signaling',
       type: 'decision',
+      timeLimit: 15,
       situationText:
         'The sound of an outboard motor echoes through the colony. A National Disaster Response Force (NDRF) inflatable rescue boat navigates into your street, scanning the buildings with searchlights.',
       contextHint: 'Rescuers need clear, unmistakable visual signals and disciplined boarding compliance.',
