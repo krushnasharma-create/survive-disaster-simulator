@@ -10,6 +10,11 @@ import { buildReport } from '../engine/reportBuilder';
 import { getUiStrings, FIRE_HINGLISH_TAKEAWAYS, FLOOD_HINGLISH_TAKEAWAYS } from '../i18n';
 import { finalizeRun } from '../services/gamePersistenceService';
 import { OperatorBadge } from '../components/OperatorBadge';
+import {
+  getBehavioralBand,
+  getBehaviorProfile,
+  getProfileDescription,
+} from '../engine/simulationState';
 import { playSelect } from '../utils/audio';
 import styles from './ReportScreen.module.css';
 
@@ -221,6 +226,118 @@ export default function ReportScreen() {
       recoveries,
       containmentRating,
       finalBand,
+      summary,
+    };
+  }, [decisions, language]);
+
+  const behaviorAudit = useMemo(() => {
+    if (decisions.length === 0) {
+      return {
+        finalInstinct: 50,
+        finalTraining: 50,
+        instinctBand: 'DEVELOPING' as const,
+        trainingBand: 'DEVELOPING' as const,
+        profile: 'BALANCED_RESPONDER' as const,
+        initialDifficulty: 2,
+        peakDifficulty: 2,
+        finalDifficulty: 2,
+        adaptationTrajectory: 'STABILIZED',
+        strongestSignal: 'Standard Evaluation',
+        weakestSignal: 'None',
+        summary: 'No active decisions recorded.',
+      };
+    }
+
+    const lastDecision = decisions[decisions.length - 1];
+    const finalInstinct = lastDecision?.instinctScore ?? 50;
+    const finalTraining = lastDecision?.trainingScore ?? 50;
+    const instinctBand = lastDecision?.instinctBand ?? getBehavioralBand(finalInstinct);
+    const trainingBand = lastDecision?.trainingBand ?? getBehavioralBand(finalTraining);
+    const profile = lastDecision?.behaviorProfile ?? getBehaviorProfile(finalInstinct, finalTraining);
+
+    let peakDifficulty = 2;
+    const finalDifficulty = lastDecision?.difficultyLevel ?? 2;
+    const signalCounts: Record<string, number> = {};
+
+    decisions.forEach((d) => {
+      const lvl = d.difficultyLevel ?? 2;
+      if (lvl > peakDifficulty) peakDifficulty = lvl;
+      if (d.behaviorSignal) {
+        signalCounts[d.behaviorSignal] = (signalCounts[d.behaviorSignal] || 0) + 1;
+      }
+    });
+
+    const positiveSignals = [
+      'RAPID_DECISIVE_SAFE',
+      'HIGH_STRESS_COMPOSURE',
+      'POST_ERROR_RECOVERY',
+      'MEASURED_PROTOCOL_ADHERENCE',
+      'HESITANT_SAFE_RECOVERY',
+    ];
+    const negativeSignals = [
+      'IMPULSIVE_RISK_REFLEX',
+      'HESITANT_PARALYSIS',
+      'PANIC_COMPROMISE',
+      'COMPOUNDING_ERROR',
+      'SUBOPTIMAL_ACTION',
+    ];
+
+    let strongestSignal = 'Measured Protocol Adherence';
+    let maxPosCount = 0;
+    for (const sig of positiveSignals) {
+      if ((signalCounts[sig] || 0) > maxPosCount) {
+        maxPosCount = signalCounts[sig];
+        strongestSignal = sig.replace(/_/g, ' ');
+      }
+    }
+
+    let weakestSignal = 'None';
+    let maxNegCount = 0;
+    for (const sig of negativeSignals) {
+      if ((signalCounts[sig] || 0) > maxNegCount) {
+        maxNegCount = signalCounts[sig];
+        weakestSignal = sig.replace(/_/g, ' ');
+      }
+    }
+
+    let adaptationTrajectory: 'IMPROVED' | 'STABILIZED' | 'COMPROMISED' = 'STABILIZED';
+    if (finalTraining >= 65) {
+      adaptationTrajectory = 'IMPROVED';
+    } else if (finalTraining < 45) {
+      adaptationTrajectory = 'COMPROMISED';
+    }
+
+    let summary = '';
+    if (language === 'hinglish') {
+      if (adaptationTrajectory === 'IMPROVED') {
+        summary = `Shandar protocol execution! Aapka training score ${finalTraining}/100 tak pahuncha aur aapne Level ${peakDifficulty} difficulty tak disciplined faisle liye. Sahaj reflex aur NDMA training ka behtareen talmel.`;
+      } else if (adaptationTrajectory === 'STABILIZED') {
+        summary = `Sthir pratikriya. Aapne crisis ke dauran buniyadi safety niyam apnaye rakhe. Tezi se badhte tanaav mein jhijhak kam karke reflex ko aur disciplined banaya ja sakta hai.`;
+      } else {
+        summary = `Training mein badha darj hui. Bar-bar high-risk ya impulsive chayan se training score ${finalTraining}/100 par gir gaya. Emergency guidelines ke niyamit abhyas ki sifarish ki jaati hai.`;
+      }
+    } else {
+      if (adaptationTrajectory === 'IMPROVED') {
+        summary = `Exemplary protocol execution. Training score reached ${finalTraining}/100 with disciplined response across peak Level ${peakDifficulty} difficulty. Instinct and NDMA guidelines operated in complete alignment.`;
+      } else if (adaptationTrajectory === 'STABILIZED') {
+        summary = `Steady operational response. Maintained foundational safety principles under moderate crisis pressure. Eliminating late hesitation will further convert reactive impulse into conditioned discipline.`;
+      } else {
+        summary = `Protocol adherence degraded under compounded stress. Impulsive or hesitant choices reduced training score to ${finalTraining}/100. Focused review of official NDMA protocols recommended.`;
+      }
+    }
+
+    return {
+      finalInstinct,
+      finalTraining,
+      instinctBand,
+      trainingBand,
+      profile,
+      initialDifficulty: 2,
+      peakDifficulty,
+      finalDifficulty,
+      adaptationTrajectory,
+      strongestSignal,
+      weakestSignal,
       summary,
     };
   }, [decisions, language]);
@@ -454,6 +571,105 @@ export default function ReportScreen() {
           <p className={styles.envAuditDesc}>{envAudit.summary}</p>
         </div>
 
+        {/* Behavior & Adaptation Audit Block */}
+        <div className={styles.behaviorAuditBlock}>
+          <div className={styles.behaviorAuditTop}>
+            <div className={styles.behaviorAuditTitle}>
+              <span aria-hidden="true">🧠</span>
+              <span>
+                {language === 'hinglish'
+                  ? 'Vyavahar aur Anukulan Audit // Instinct vs Training'
+                  : 'Behavior & Adaptation Audit // Instinct vs Training'}
+              </span>
+            </div>
+            <span
+              className={styles.behaviorAuditBadge}
+              style={{
+                color:
+                  behaviorAudit.adaptationTrajectory === 'IMPROVED'
+                    ? '#a855f7'
+                    : behaviorAudit.adaptationTrajectory === 'STABILIZED'
+                    ? '#38bdf8'
+                    : '#f56565',
+                borderColor:
+                  behaviorAudit.adaptationTrajectory === 'IMPROVED'
+                    ? '#a855f7'
+                    : behaviorAudit.adaptationTrajectory === 'STABILIZED'
+                    ? '#38bdf8'
+                    : '#f56565',
+              }}
+            >
+              TRAJECTORY: {behaviorAudit.adaptationTrajectory}
+            </span>
+          </div>
+
+          <div className={styles.behaviorMetricsRow}>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#c084fc' }}>
+                {behaviorAudit.trainingBand}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                {language === 'hinglish' ? 'Training Score' : 'Protocol Training'} ({behaviorAudit.finalTraining}/100)
+              </span>
+            </div>
+
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#38bdf8' }}>
+                {behaviorAudit.instinctBand}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                {language === 'hinglish' ? 'Instinctive Reflex' : 'Instinctive Reflex'} ({behaviorAudit.finalInstinct}/100)
+              </span>
+            </div>
+
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#f6ad55' }}>
+                LVL {behaviorAudit.peakDifficulty}/5
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                {language === 'hinglish' ? 'Peak Difficulty' : 'Peak Difficulty Reached'}
+              </span>
+            </div>
+
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#48bb78' }}>
+                {behaviorAudit.strongestSignal}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                {language === 'hinglish' ? 'Sabse Majboot Signal' : 'Primary Behavioral Asset'}
+              </span>
+            </div>
+
+            <div className={styles.behaviorMetricCard}>
+              <span
+                className={styles.behaviorMetricVal}
+                style={{ color: behaviorAudit.weakestSignal !== 'None' ? '#f87171' : '#a0aec0' }}
+              >
+                {behaviorAudit.weakestSignal}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                {language === 'hinglish' ? 'Dhyan Dene Yogya Signal' : 'Observed Vulnerability'}
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.profileBox}>
+            <div className={styles.profileHeader}>
+              <span className={styles.profileLabel}>
+                {language === 'hinglish' ? 'OPERATOR PROFILE' : 'OPERATOR SURVIVAL PROFILE'}:
+              </span>
+              <span className={styles.profileName}>
+                {behaviorAudit.profile.replace(/_/g, ' ')}
+              </span>
+            </div>
+            <p className={styles.profileDesc}>
+              {getProfileDescription(behaviorAudit.profile, language)}
+            </p>
+          </div>
+
+          <p className={styles.behaviorAuditDesc}>{behaviorAudit.summary}</p>
+        </div>
+
         {/* Decision-by-Decision Replay */}
         {decisionReviews.length > 0 && (
           <div>
@@ -479,6 +695,16 @@ export default function ReportScreen() {
                         {ui.stepLabel} {String(item.step).padStart(2, '0')}
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {dec?.difficultyLevel !== undefined && (
+                          <span className={styles.reviewDiffTag}>
+                            DIFF: L{dec.difficultyLevel}
+                          </span>
+                        )}
+                        {dec?.trainingBand && (
+                          <span className={styles.reviewTrainTag}>
+                            TRAIN: {dec.trainingBand}
+                          </span>
+                        )}
                         {dec?.panicLevel !== undefined && (
                           <span className={styles.reviewStressTag}>
                             STRESS: {dec.panicBand || 'CONTROLLED'} ({dec.panicLevel}/100)
@@ -521,6 +747,12 @@ export default function ReportScreen() {
                     {dec?.propagationSummary && (
                       <div className={styles.reviewPropText}>
                         <strong>🌐 Propagation:</strong> {dec.propagationSummary}
+                      </div>
+                    )}
+
+                    {dec?.behaviorSummary && (
+                      <div className={styles.reviewBehaviorText}>
+                        <strong>🧠 Behavior:</strong> {dec.behaviorSummary}
                       </div>
                     )}
 

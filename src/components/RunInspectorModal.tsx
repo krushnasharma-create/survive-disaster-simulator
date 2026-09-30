@@ -85,6 +85,10 @@ function reconstructRunTelemetry(
       visibility: number;
       convergenceBand: string;
       environmentStatus: string;
+      difficultyLevel: number;
+      trainingBand: string;
+      instinctScore: number;
+      trainingScore: number;
     }
   > = {};
 
@@ -111,6 +115,13 @@ function reconstructRunTelemetry(
         shiftSummary: step.isCorrect
           ? 'Controlled response mitigated immediate risk and maintained situational composure.'
           : 'Compromised action escalated stress levels and degraded personal safety integrity.',
+        instinctChange: step.isCorrect ? 3 : -3,
+        trainingChange: step.isCorrect ? 5 : -6,
+        difficultyChange: 0,
+        behaviorSummary: step.isCorrect
+          ? 'Measured application of emergency safety guidance.'
+          : 'Suboptimal protocol adherence under crisis pressure.',
+        behaviorSignal: step.isCorrect ? 'MEASURED_PROTOCOL_ADHERENCE' : 'SUBOPTIMAL_ACTION',
       };
       nextState = applySimulationState(currentState, delta, step.isCorrect, disasterType);
     }
@@ -121,6 +132,10 @@ function reconstructRunTelemetry(
       visibility: nextState.visibility,
       convergenceBand: nextState.convergenceBand,
       environmentStatus: nextState.environmentStatus,
+      difficultyLevel: nextState.difficultyLevel,
+      trainingBand: nextState.trainingBand,
+      instinctScore: nextState.instinctScore,
+      trainingScore: nextState.trainingScore,
     };
 
     currentState = nextState;
@@ -418,6 +433,18 @@ export function RunInspectorModal({ runId, userId, onClose }: RunInspectorModalP
                                 }}
                               >
                                 RISK: {stepTelemetry[step.id].convergenceBand.replace('_', ' ')}
+                              </span>
+                              <span
+                                className={styles.telemetryChip}
+                                style={{ color: '#e9d5ff', borderColor: 'rgba(168, 85, 247, 0.4)' }}
+                              >
+                                DIFF: <strong>L{stepTelemetry[step.id].difficultyLevel}</strong>
+                              </span>
+                              <span
+                                className={styles.telemetryChip}
+                                style={{ color: '#38bdf8', borderColor: 'rgba(56, 189, 248, 0.4)' }}
+                              >
+                                TRAIN: <strong>{stepTelemetry[step.id].trainingBand}</strong>
                               </span>
                               <span className={styles.telemetryChip}>
                                 HAZARD: <strong>{stepTelemetry[step.id].hazardLevel}%</strong>

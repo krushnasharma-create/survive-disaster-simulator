@@ -91,6 +91,14 @@ export function evaluateChoice(
     propagationSummary: nextSimulationState?.propagationSummary,
     stateShiftSummary: nextSimulationState?.lastShiftSummary || stateDelta.shiftSummary,
     stateDelta,
+    instinctScore: nextSimulationState?.instinctScore,
+    trainingScore: nextSimulationState?.trainingScore,
+    instinctBand: nextSimulationState?.instinctBand,
+    trainingBand: nextSimulationState?.trainingBand,
+    behaviorProfile: nextSimulationState?.behaviorProfile,
+    difficultyLevel: nextSimulationState?.difficultyLevel,
+    behaviorSignal: stateDelta.behaviorSignal,
+    behaviorSummary: stateDelta.behaviorSummary,
   };
 
   return {

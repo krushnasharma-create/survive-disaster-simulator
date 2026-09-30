@@ -362,6 +362,18 @@
   animation: pulse 2s infinite ease-in-out;
 }
 
+.timerGraceBadge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: #48bb78;
+  background: rgba(72, 187, 120, 0.12);
+  border: 1px solid rgba(72, 187, 120, 0.35);
+  padding: 0.25rem 0.6rem;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 0.85; }
   50% { opacity: 1; }

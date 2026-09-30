@@ -376,3 +376,96 @@
   border-color: rgba(72, 187, 120, 0.5);
   color: #48bb78;
 }
+
+/* ── Behavioral Response (Instinct vs Training & Adaptive Difficulty) ── */
+.behaviorCard {
+  background: rgba(14, 18, 24, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid #a855f7;
+  padding: 1.35rem 1.6rem;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.behaviorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.behaviorTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #c084fc;
+  font-weight: 600;
+}
+
+.difficultyTag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  border-radius: 2px;
+  background: rgba(168, 85, 247, 0.12);
+  color: #e9d5ff;
+}
+
+.behaviorMetricsRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.75rem 1rem;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.behaviorMetric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.behaviorMetricLabel {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-fog, #999);
+}
+
+.behaviorMetricValue {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-white, #fff);
+  letter-spacing: 0.04em;
+}
+
+.behaviorProfileValue {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #c084fc;
+  letter-spacing: 0.06em;
+}
+
+.behaviorSummaryText {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.55;
+  margin: 0;
+}

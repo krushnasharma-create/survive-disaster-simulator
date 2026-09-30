@@ -9,6 +9,13 @@ import type { DisasterType, Choice, DecisionNode } from '../data/types';
 export type PanicBand = 'CALM' | 'CONTROLLED' | 'ELEVATED' | 'HIGH' | 'CRITICAL';
 export type ConvergenceRiskBand = 'LOW_RISK' | 'MODERATE_RISK' | 'HIGH_RISK' | 'CRITICAL_RISK';
 export type EnvironmentStatus = 'STABLE' | 'ELEVATED' | 'ESCALATING' | 'CRITICAL';
+export type BehavioralBand = 'INSTINCTIVE' | 'DEVELOPING' | 'TRAINED' | 'DISCIPLINED';
+export type BehaviorProfile =
+  | 'DISCIPLINED_SURVIVOR'
+  | 'METHODICAL_OPERATOR'
+  | 'IMPULSIVE_RESPONDER'
+  | 'VULNERABLE_HESITANT'
+  | 'BALANCED_RESPONDER';
 
 export interface ConvergenceContext {
   band: ConvergenceRiskBand;
@@ -51,6 +58,30 @@ export interface SimulationState {
   hazardEscalationCount: number;
   /** Total number of environmental recovery/stabilization events */
   recoveryEventCount: number;
+
+  // ── Batch 3 & 4 Extensions: Instinct vs Training & Adaptive Difficulty ──
+  /** Intuitive reflex score bounded 0–100 */
+  instinctScore: number;
+  /** NDMA protocol adherence and crisis training score bounded 0–100 */
+  trainingScore: number;
+  /** Categorical qualitative band for instinct */
+  instinctBand: BehavioralBand;
+  /** Categorical qualitative band for training */
+  trainingBand: BehavioralBand;
+  /** Composite behavioral archetype profile */
+  behaviorProfile: BehaviorProfile;
+  /** Deterministic adaptive difficulty level bounded 1–5 */
+  difficultyLevel: number;
+  /** Seconds modified by adaptive difficulty (e.g. +1, 0, -1, -2, -3) */
+  difficultyModifierSeconds: number;
+  /** Peak difficulty level reached during simulation */
+  peakDifficulty: number;
+  /** Lowest difficulty level reached during simulation */
+  lowestDifficulty: number;
+  /** Most recent behavioral evaluation note */
+  lastBehaviorSummary?: string;
+  /** Primary behavioral signal triggered on last decision */
+  lastBehaviorSignal?: string;
 }
 
 export interface SimulationStateDelta {
@@ -60,6 +91,12 @@ export interface SimulationStateDelta {
   visibilityChange: number;
   shiftSummary: string;
   propagationSummary?: string;
+  // Batch 3 & 4 extensions
+  instinctChange: number;
+  trainingChange: number;
+  difficultyChange: number;
+  behaviorSummary: string;
+  behaviorSignal: string;
 }
 
 /**
@@ -124,6 +161,117 @@ export function getTimerModifier(panicBand: PanicBand): number {
  */
 function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, val));
+}
+
+/**
+ * Maps a numeric behavior score (0–100) to its qualitative category.
+ * Used for both Instinctive Reflex and Protocol Training bands.
+ */
+export function getBehavioralBand(score: number): BehavioralBand {
+  if (score <= 35) return 'INSTINCTIVE';
+  if (score <= 60) return 'DEVELOPING';
+  if (score <= 80) return 'TRAINED';
+  return 'DISCIPLINED';
+}
+
+/**
+ * Derives a holistic behavioral archetype from instinct and training balance.
+ */
+export function getBehaviorProfile(instinctScore: number, trainingScore: number): BehaviorProfile {
+  if (trainingScore >= 70 && instinctScore >= 65) return 'DISCIPLINED_SURVIVOR';
+  if (trainingScore >= 65 && instinctScore < 50) return 'METHODICAL_OPERATOR';
+  if (instinctScore >= 65 && trainingScore < 50) return 'IMPULSIVE_RESPONDER';
+  if (trainingScore < 45 && instinctScore < 45) return 'VULNERABLE_HESITANT';
+  return 'BALANCED_RESPONDER';
+}
+
+/**
+ * Returns bilingual human-readable explanation for a behavioral profile.
+ */
+export function getProfileDescription(profile: BehaviorProfile, language?: string): string {
+  if (language === 'hinglish') {
+    switch (profile) {
+      case 'DISCIPLINED_SURVIVOR':
+        return 'Anushasit Survivor // Sahaj pratikriya aur NDMA training poori tarah santulit; aapatkal mein tez aur surakshit faisle.';
+      case 'METHODICAL_OPERATOR':
+        return 'Methodical Operator // High protocol niyam paalan; vishwasneey aur savdhan, par tezi se ghat rahe samay mein thodi jhijhak.';
+      case 'IMPULSIVE_RESPONDER':
+        return 'Impulsive Responder // Tez reflex aur quick action, par NDMA suraksha protocols se behakne ke kaaran high-risk traps ka khatra.';
+      case 'VULNERABLE_HESITANT':
+        return 'Vulnerable & Hesitant // Stress aur faisle mein deri se survival margins kam ho gaye; protocol abhyas ki zarurat.';
+      case 'BALANCED_RESPONDER':
+        return 'Balanced Responder // Santulit buniyaadi jagrukta; pratikriya aur seekh ke beech accha talmel.';
+    }
+  }
+
+  switch (profile) {
+    case 'DISCIPLINED_SURVIVOR':
+      return 'Disciplined Survivor // Instinct and NDMA training are unified; swift, composed, and structurally sound under crisis pressure.';
+    case 'METHODICAL_OPERATOR':
+      return 'Methodical Operator // High protocol adherence and deliberate evaluation; highly reliable though cautious under rapid time constraints.';
+    case 'IMPULSIVE_RESPONDER':
+      return 'Impulsive Responder // High speed and reflex energy, but frequently ungrounded by NDMA protocols; vulnerable to cascading hazard traps.';
+    case 'VULNERABLE_HESITANT':
+      return 'Vulnerable & Hesitant // Compounding stress and delayed commitment degrade survival margins; needs structured protocol drilling.';
+    case 'BALANCED_RESPONDER':
+      return 'Balanced Responder // Steady foundational awareness; balancing reactive instinct with active situational learning.';
+  }
+}
+
+/**
+ * Returns the timer modifier in seconds based on adaptive difficulty level (1–5).
+ * Level 1 grants +1s grace; higher levels apply calibrated pressure (-1s to -3s).
+ */
+export function getDifficultyTimerModifier(level: number): number {
+  switch (level) {
+    case 1:
+      return 1; // +1s grace
+    case 2:
+      return 0; // standard baseline
+    case 3:
+      return -1; // -1s tightened
+    case 4:
+      return -2; // -2s demanding
+    case 5:
+      return -3; // -3s extreme
+    default:
+      return 0;
+  }
+}
+
+/**
+ * Deterministically evaluates adaptive difficulty changes (1–5) based on player performance,
+ * panic stress, decision streaks, and training scores. Employs hysteresis to prevent rapid oscillation.
+ */
+export function calculateAdaptiveDifficultyChange(
+  currentLevel: number,
+  panic: number,
+  _isCorrect: boolean,
+  consecutiveOptimal: number,
+  consecutiveSuboptimal: number,
+  trainingScore: number,
+  _instinctScore: number
+): number {
+  // 1. Anti-Death-Spiral & High Panic Stabilization
+  // If panic is critical (>= 70), immediately grant relief to prevent unfair compound failure
+  if (panic >= 70 && currentLevel > 1) {
+    return -1;
+  }
+
+  // 2. Struggling Recovery Window
+  // Consecutive errors drop difficulty by 1 (down to min 1) to offer stabilization
+  if (consecutiveSuboptimal >= 2 && currentLevel > 1) {
+    return -1;
+  }
+
+  // 3. Earned Difficulty Escalation
+  // Steady, calm, well-trained performance gradually scales difficulty by +1 (up to max 5)
+  if (consecutiveOptimal >= 2 && panic <= 45 && trainingScore >= 55 && currentLevel < 5) {
+    return 1;
+  }
+
+  // 4. Hysteresis Hold: maintain current difficulty without oscillation
+  return 0;
 }
 
 /**
@@ -280,6 +428,14 @@ export function createInitialSimulationState(disasterType?: DisasterType | null)
   const environmentStatus = getEnvironmentStatus(convergenceBand);
   const timerModifierSeconds = getTimerModifier(panicBand);
 
+  const instinctScore = 50;
+  const trainingScore = 50;
+  const instinctBand = getBehavioralBand(instinctScore);
+  const trainingBand = getBehavioralBand(trainingScore);
+  const behaviorProfile = getBehaviorProfile(instinctScore, trainingScore);
+  const difficultyLevel = 2; // Standard operational baseline
+  const difficultyModifierSeconds = getDifficultyTimerModifier(difficultyLevel);
+
   return {
     panic,
     panicBand,
@@ -294,12 +450,25 @@ export function createInitialSimulationState(disasterType?: DisasterType | null)
     disasterType,
     hazardEscalationCount: 0,
     recoveryEventCount: 0,
+    // Batch 3 & 4 baselines
+    instinctScore,
+    trainingScore,
+    instinctBand,
+    trainingBand,
+    behaviorProfile,
+    difficultyLevel,
+    difficultyModifierSeconds,
+    peakDifficulty: difficultyLevel,
+    lowestDifficulty: difficultyLevel,
+    lastBehaviorSummary: 'Baseline crisis readiness initialized.',
+    lastBehaviorSignal: 'STANDARD_INITIALIZATION',
   };
 }
 
 /**
  * Evaluates the deterministic delta produced by a player choice.
- * Factoring in correctness, score impact, remaining seconds, and previous decision streaks.
+ * Factoring in correctness, score impact, remaining seconds, decision streaks,
+ * instinct vs training dynamics, and adaptive difficulty.
  */
 export function calculateDecisionDelta(
   currentState: SimulationState,
@@ -309,6 +478,31 @@ export function calculateDecisionDelta(
 ): SimulationStateDelta {
   // If choice explicitly defines custom state deltas, use them as baseline
   const custom = choice.stateDelta;
+
+  const timeLimit = node.timeLimit;
+  const isTimed = Boolean(timeLimit && timeLimit > 0);
+  const remainingRatio = isTimed && remainingSeconds !== undefined ? remainingSeconds / (timeLimit || 15) : 0.5;
+  const isFast = isTimed && remainingRatio >= 0.6;
+  const isHesitant = isTimed && remainingSeconds !== undefined && remainingSeconds <= 3;
+  const inSeverePanic = currentState.panic >= 60;
+  const wasRecovering = currentState.consecutiveSuboptimal >= 1 && choice.isCorrect;
+
+  // Adaptive difficulty scaling:
+  // Demanding difficulty (>= 4) slightly intensifies hazard on errors (+3)
+  // Low difficulty (1) mitigates hazard on errors (-3) to allow learning
+  const difficultyHazardBias =
+    !choice.isCorrect
+      ? (currentState.difficultyLevel ?? 2) >= 4
+        ? 3
+        : (currentState.difficultyLevel ?? 2) === 1
+        ? -3
+        : 0
+      : 0;
+
+  let instinctChange = 0;
+  let trainingChange = 0;
+  let behaviorSignal = '';
+  let behaviorSummary = '';
 
   if (choice.isCorrect) {
     // ── Optimal / Protective Decision ──
@@ -332,12 +526,54 @@ export function calculateDecisionDelta(
       }
     }
 
+    // Behavioral Signals & Instinct vs Training Dynamics
+    if (isFast) {
+      instinctChange = 6;
+      trainingChange = 6;
+      behaviorSignal = 'RAPID_DECISIVE_SAFE';
+      behaviorSummary = 'Swift, confident protocol execution under immediate time constraints.';
+    } else if (isHesitant) {
+      instinctChange = -3;
+      trainingChange = 4;
+      behaviorSignal = 'HESITANT_SAFE_RECOVERY';
+      behaviorSummary = 'Hesitation observed near time limit, but safe protocol was successfully maintained.';
+    } else {
+      instinctChange = 3;
+      trainingChange = 5;
+      behaviorSignal = 'MEASURED_PROTOCOL_ADHERENCE';
+      behaviorSummary = 'Measured and steady application of safety guidelines.';
+    }
+
+    if (inSeverePanic) {
+      trainingChange += 5;
+      instinctChange += 3;
+      behaviorSignal = 'HIGH_STRESS_COMPOSURE';
+      behaviorSummary = 'Superb psychological composure; adhered to protocol despite severe crisis panic.';
+    }
+
+    if (wasRecovering) {
+      trainingChange += 6;
+      instinctChange += 3;
+      behaviorSignal = 'POST_ERROR_RECOVERY';
+      behaviorSummary = 'Effective post-error recovery; adapted cleanly to prevent compounding hazard.';
+    }
+
+    if (currentState.consecutiveOptimal >= 2) {
+      trainingChange += 3;
+      instinctChange += 2;
+    }
+
     return {
       panicChange,
       hazardChange,
       safetyChange,
       visibilityChange,
       shiftSummary,
+      instinctChange,
+      trainingChange,
+      difficultyChange: 0,
+      behaviorSummary,
+      behaviorSignal,
     };
   } else {
     // ── Suboptimal / High-Risk Decision ──
@@ -347,7 +583,7 @@ export function calculateDecisionDelta(
       node.timeLimit && remainingSeconds !== undefined && remainingSeconds <= 3 ? 5 : 0;
 
     const panicChange = custom?.panicChange ?? (18 + streakPenalty + severePenalty + hesitationPenalty);
-    const hazardChange = custom?.hazardChange ?? (20 + severePenalty);
+    const hazardChange = custom?.hazardChange ?? (20 + severePenalty + difficultyHazardBias);
     const safetyChange = custom?.safetyChange ?? (-20 - severePenalty);
     const visibilityChange = custom?.visibilityChange ?? (-15);
 
@@ -360,12 +596,49 @@ export function calculateDecisionDelta(
       }
     }
 
+    // Behavioral Signals & Instinct vs Training Dynamics
+    if (isFast) {
+      instinctChange = 4; // reflex was swift
+      trainingChange = -8; // but ungrounded in safety protocol
+      behaviorSignal = 'IMPULSIVE_RISK_REFLEX';
+      behaviorSummary = 'Impulsive reflex action bypassed safety protocols, introducing immediate exposure.';
+    } else if (isHesitant) {
+      instinctChange = -7;
+      trainingChange = -6;
+      behaviorSignal = 'HESITANT_PARALYSIS';
+      behaviorSummary = 'Prolonged hesitation degraded decision window, leading to a compromised reaction.';
+    } else {
+      instinctChange = -3;
+      trainingChange = -6;
+      behaviorSignal = 'SUBOPTIMAL_ACTION';
+      behaviorSummary = 'Action diverged from NDMA emergency protocols, elevating operational vulnerability.';
+    }
+
+    if (inSeverePanic) {
+      trainingChange -= 3;
+      instinctChange -= 4;
+      behaviorSignal = 'PANIC_COMPROMISE';
+      behaviorSummary = 'Severe psychological stress triggered judgment degradation under crisis pressure.';
+    }
+
+    if (currentState.consecutiveSuboptimal >= 1) {
+      trainingChange -= 5;
+      instinctChange -= 3;
+      behaviorSignal = 'COMPOUNDING_ERROR';
+      behaviorSummary = 'Consecutive high-risk decisions compromised safety margins and escalated systemic threat.';
+    }
+
     return {
       panicChange,
       hazardChange,
       safetyChange,
       visibilityChange,
       shiftSummary,
+      instinctChange,
+      trainingChange,
+      difficultyChange: 0,
+      behaviorSummary,
+      behaviorSignal,
     };
   }
 }
@@ -373,7 +646,8 @@ export function calculateDecisionDelta(
 /**
  * Pure function that applies a state delta to current simulation state,
  * enforcing hard bounds (0–100) and updating streaks, panic band, convergence risk,
- * environmental status, and forward propagation narrative.
+ * environmental status, forward propagation narrative, instinct vs training scores,
+ * and adaptive difficulty with hysteresis.
  */
 export function applySimulationState(
   currentState: SimulationState,
@@ -390,6 +664,40 @@ export function applySimulationState(
   const convergenceBand = getConvergenceBand(hazardLevel, safetyIntegrity);
   const environmentStatus = getEnvironmentStatus(convergenceBand);
   const timerModifierSeconds = getTimerModifier(panicBand);
+
+  // Behavioral updates: Bounded [0, 100]
+  const instinctScore = clamp(
+    (currentState.instinctScore ?? 50) + (delta.instinctChange || 0),
+    0,
+    100
+  );
+  const trainingScore = clamp(
+    (currentState.trainingScore ?? 50) + (delta.trainingChange || 0),
+    0,
+    100
+  );
+  const instinctBand = getBehavioralBand(instinctScore);
+  const trainingBand = getBehavioralBand(trainingScore);
+  const behaviorProfile = getBehaviorProfile(instinctScore, trainingScore);
+
+  const consecutiveOptimal = isCorrect ? currentState.consecutiveOptimal + 1 : 0;
+  const consecutiveSuboptimal = !isCorrect ? currentState.consecutiveSuboptimal + 1 : 0;
+
+  // Adaptive difficulty with hysteresis
+  const currentDiff = currentState.difficultyLevel ?? 2;
+  const difficultyDelta = calculateAdaptiveDifficultyChange(
+    currentDiff,
+    panic,
+    isCorrect,
+    consecutiveOptimal,
+    consecutiveSuboptimal,
+    trainingScore,
+    instinctScore
+  );
+  const difficultyLevel = clamp(currentDiff + difficultyDelta, 1, 5);
+  const difficultyModifierSeconds = getDifficultyTimerModifier(difficultyLevel);
+  const peakDifficulty = Math.max(currentState.peakDifficulty ?? currentDiff, difficultyLevel);
+  const lowestDifficulty = Math.min(currentState.lowestDifficulty ?? currentDiff, difficultyLevel);
 
   const resolvedDisasterType = disasterType ?? currentState.disasterType;
   const propagationSummary =
@@ -413,8 +721,8 @@ export function applySimulationState(
     safetyIntegrity,
     visibility,
     timerModifierSeconds,
-    consecutiveOptimal: isCorrect ? currentState.consecutiveOptimal + 1 : 0,
-    consecutiveSuboptimal: !isCorrect ? currentState.consecutiveSuboptimal + 1 : 0,
+    consecutiveOptimal,
+    consecutiveSuboptimal,
     lastShiftSummary: delta.shiftSummary,
     convergenceBand,
     environmentStatus,
@@ -422,5 +730,17 @@ export function applySimulationState(
     disasterType: resolvedDisasterType,
     hazardEscalationCount: currentState.hazardEscalationCount + (isEscalation ? 1 : 0),
     recoveryEventCount: currentState.recoveryEventCount + (isRecovery ? 1 : 0),
+    // Batch 3 & 4
+    instinctScore,
+    trainingScore,
+    instinctBand,
+    trainingBand,
+    behaviorProfile,
+    difficultyLevel,
+    difficultyModifierSeconds,
+    peakDifficulty,
+    lowestDifficulty,
+    lastBehaviorSummary: delta.behaviorSummary,
+    lastBehaviorSignal: delta.behaviorSignal,
   };
 }

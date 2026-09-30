@@ -3,6 +3,38 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-30] PHASE 3 (Batch 3 & 4) — Deep Simulation Systems: Instinct vs Training & Adaptive Difficulty
+- **Deterministic Instinct vs Training Behavioral Model (`src/engine/simulationState.ts`):**
+  - Architected dual-axis behavioral scoring: `instinctScore` (0–100, initial 50) tracking intuitive crisis reflexes and `trainingScore` (0–100, initial 50) tracking NDMA protocol compliance and structured response.
+  - Defined bounded behavioral bands: `INSTINCTIVE` (0–35), `DEVELOPING` (36–60), `TRAINED` (61–80), `DISCIPLINED` (81–100).
+  - Derived 5 holistic behavioral archetypes: `DISCIPLINED_SURVIVOR` (High training + High instinct), `METHODICAL_OPERATOR` (High training + Low instinct), `IMPULSIVE_RESPONDER` (High instinct + Low training), `VULNERABLE_HESITANT` (Low training + Low instinct), and `BALANCED_RESPONDER` (Balanced growth).
+  - Captured dynamic behavioral signals: `RAPID_DECISIVE_SAFE`, `HESITANT_SAFE_RECOVERY`, `MEASURED_PROTOCOL_ADHERENCE`, `HIGH_STRESS_COMPOSURE`, `POST_ERROR_RECOVERY`, `IMPULSIVE_RISK_REFLEX`, `HESITANT_PARALYSIS`, `PANIC_COMPROMISE`, and `COMPOUNDING_ERROR`.
+  - Safety grounding: Behavioral scores are purely evaluative; they never override deterministic NDMA safety outcomes.
+- **Deterministic Adaptive Difficulty System (`src/engine/simulationState.ts`):**
+  - Implemented bounded `difficultyLevel` (1–5, initial 2: Standard baseline) that adapts to demonstrated operator competence.
+  - Anti-Death-Spiral & Relief Protection: Critical panic (>= 70) or consecutive errors immediately downscale difficulty to prevent impossible spirals and grant a stabilized recovery window.
+  - Hysteresis Hold: Difficulty requires sustained performance (>= 2 consecutive optimal decisions, panic <= 45, training >= 55) to escalate, preventing rapid oscillation between decisions.
+  - Environmental Hazard Scaling: Level 4–5 slightly intensifies hazard impact on errors (+3%), while Level 1 mitigates hazard impact (-3%) to foster learning.
+  - Timer Pressure Modifiers: Level 1 (+1s grace), Level 2 (0s baseline), Level 3 (-1s), Level 4 (-2s), Level 5 (-3s).
+  - **Strict Safety Floor:** Composed timer modifier `Math.max(10, baseTimer + panicModifier + difficultyModifier)` strictly guarantees that decision windows NEVER fall below 10 seconds under any condition.
+- **Scenario HUD & Telemetry Extensions (`src/screens/ScenarioScreen.tsx`, `ScenarioScreen.module.css`):**
+  - Added live `TRAIN: {band}` and `DIFF: L{lvl}/5` chips to the telemetry HUD bar.
+  - Added dynamic combined pressure indicator (`⚡ Xs PRESSURE (PANIC + DIFF Lx)`) and Level 1 assisted grace badge (`⏱ +1s GRACE (DIFF L1)`).
+- **Consequence Screen Behavioral Response Card (`src/screens/ConsequenceScreen.tsx`, `ConsequenceScreen.module.css`):**
+  - Added dedicated **BEHAVIORAL RESPONSE // INSTINCT VS TRAINING** card displaying active Instinctive Reflex, Protocol Training scores and bands, Operator Profile, and Difficulty Level with deterministic narrative feedback.
+- **Report Screen Behavior & Adaptation Audit (`src/screens/ReportScreen.tsx`, `ReportScreen.module.css`):**
+  - Integrated dedicated **Behavior & Adaptation Audit** section featuring final Instinct & Training metrics, Peak Difficulty reached, Primary Behavioral Asset, Observed Vulnerability, Operator Survival Profile with bilingual NDMA explanation, and overall adaptation trajectory (`IMPROVED`, `STABILIZED`, `COMPROMISED`).
+  - Enriched Decision Breakdown replay cards with `DIFF: Lx`, `TRAIN: {band}`, and `🧠 Behavior` evaluation notes.
+- **Run Inspector Modal Replay Telemetry (`src/components/RunInspectorModal.tsx`):**
+  - Extended client-side deterministic telemetry reconstruction (`reconstructRunTelemetry`) with difficulty, training band, instinct score, and training score.
+  - Added `DIFF: Lx` and `TRAIN: {band}` chips to historical flight recorder cards without any Supabase schema changes.
+- **Verification & QA:**
+  - Automated simulation test (`scratch/test_batch3_batch4_simulation.ts`) verified 100% pass across all 7 scenarios with 789 individual assert validations (bounded scores, timer floor >= 10s, determinism, anti-spiral relief).
+  - Regression test (`scratch/test_batch2_simulation.ts`) confirmed 100% pass on all 7 scenarios.
+  - `npm run lint`: 0 errors.
+  - `npm run build`: 0 errors.
+  - `git diff --check`: 0 whitespace warnings.
+
 ## [2026-09-30] PHASE 3 (Batch 2) — Deep Simulation Systems: Dynamic Hazard Propagation & Advanced Convergence
 - **Hazard Convergence Risk Engine & Pure Evaluation (`src/engine/simulationState.ts`):**
   - Designed multi-tiered Hazard Convergence Risk Bands: `LOW_RISK`, `MODERATE_RISK`, `HIGH_RISK`, `CRITICAL_RISK`.

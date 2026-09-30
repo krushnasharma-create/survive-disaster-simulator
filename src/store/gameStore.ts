@@ -9,6 +9,8 @@ import type {
   SimulationStateDelta,
   ConvergenceRiskBand,
   EnvironmentStatus,
+  BehavioralBand,
+  BehaviorProfile,
 } from '../engine/simulationState';
 import {
   createInitialSimulationState,
@@ -38,6 +40,15 @@ export interface DecisionRecord {
   propagationSummary?: string;
   stateShiftSummary?: string;
   stateDelta?: SimulationStateDelta;
+  /** Batch 3 & 4 Extensions: Instinct vs Training & Adaptive Difficulty Telemetry */
+  instinctScore?: number;
+  trainingScore?: number;
+  instinctBand?: BehavioralBand;
+  trainingBand?: BehavioralBand;
+  behaviorProfile?: BehaviorProfile;
+  difficultyLevel?: number;
+  behaviorSignal?: string;
+  behaviorSummary?: string;
 }
 
 export interface ConsequenceState {
@@ -54,6 +65,9 @@ export interface ConsequenceState {
   stateDelta?: SimulationStateDelta;
   shiftSummary?: string;
   propagationSummary?: string;
+  /** Batch 3 & 4 Extensions: Behavioral and adaptation feedback */
+  behaviorSummary?: string;
+  behaviorSignal?: string;
 }
 
 export interface OutcomeState {

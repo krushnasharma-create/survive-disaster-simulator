@@ -177,10 +177,15 @@ export default function ScenarioScreen() {
     setIsTimedOut(false);
   }, [activeNodeId]);
 
-  // Time limit hook — 15 seconds limit with Panic Engine modifier and strict 10s floor
+  // Time limit hook — 15 seconds limit with Panic Engine & Adaptive Difficulty modifiers, clamped to strict 10s floor
   const rawTimeLimit = decisionNode?.timeLimit;
   const timeLimit = rawTimeLimit
-    ? Math.max(10, rawTimeLimit + simulationState.timerModifierSeconds)
+    ? Math.max(
+        10,
+        rawTimeLimit +
+          simulationState.timerModifierSeconds +
+          (simulationState.difficultyModifierSeconds || 0)
+      )
     : undefined;
 
   const onTimerExpire = useCallback(() => {
@@ -247,6 +252,8 @@ export default function ScenarioScreen() {
         stateDelta: evalResult.stateDelta,
         shiftSummary: evalResult.nextSimulationState?.lastShiftSummary,
         propagationSummary: evalResult.nextSimulationState?.propagationSummary,
+        behaviorSummary: evalResult.stateDelta.behaviorSummary,
+        behaviorSignal: evalResult.stateDelta.behaviorSignal,
       });
 
       // Brief 150ms commitment pulse gives tactile weight to the decision before transition
@@ -429,9 +436,17 @@ export default function ScenarioScreen() {
           </div>
         </div>
 
-        {simulationState.timerModifierSeconds < 0 && (
+        {(simulationState.timerModifierSeconds < 0 || (simulationState.difficultyModifierSeconds || 0) < 0) && (
           <div className={styles.timerPenaltyBadge}>
-            ⚡ {simulationState.timerModifierSeconds}s PANIC PRESSURE
+            ⚡ {Math.abs(simulationState.timerModifierSeconds + (simulationState.difficultyModifierSeconds || 0))}s PRESSURE
+            {(simulationState.difficultyModifierSeconds || 0) < 0
+              ? ` (PANIC + DIFF L${simulationState.difficultyLevel || 2})`
+              : ' (PANIC)'}
+          </div>
+        )}
+        {simulationState.timerModifierSeconds === 0 && (simulationState.difficultyModifierSeconds || 0) > 0 && (
+          <div className={styles.timerGraceBadge}>
+            ⏱ +{simulationState.difficultyModifierSeconds}s GRACE (DIFF L1)
           </div>
         )}
 
@@ -443,6 +458,12 @@ export default function ScenarioScreen() {
             ENV: <strong style={{ color: envStatusColor }}>{simulationState.environmentStatus || 'STABLE'}</strong>
           </span>
           <span className={styles.statChip}>
+            TRAIN: <strong>{simulationState.trainingBand || 'DEVELOPING'}</strong>
+          </span>
+          <span className={styles.statChip}>
+            DIFF: <strong>L{simulationState.difficultyLevel || 2}/5</strong>
+          </span>
+          <span className={styles.statChip}>
             HAZARD: <strong>{simulationState.hazardLevel}%</strong>
           </span>
           <span className={styles.statChip}>
@@ -450,7 +471,7 @@ export default function ScenarioScreen() {
           </span>
           {simulationState.visibility < 100 && (
             <span className={styles.statChip}>
-              VISIBILITY: <strong>{simulationState.visibility}%</strong>
+              VIS: <strong>{simulationState.visibility}%</strong>
             </span>
           )}
         </div>

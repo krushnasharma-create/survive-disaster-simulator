@@ -293,14 +293,68 @@ export default function ConsequenceScreen() {
               </div>
             )}
 
-            {currentConsequence.simulationState.timerModifierSeconds < 0 && (
+            {(currentConsequence.simulationState.timerModifierSeconds < 0 ||
+              (currentConsequence.simulationState.difficultyModifierSeconds || 0) < 0) && (
               <div className={styles.shiftWarningBanner}>
                 <span>⚠</span>
                 <span>
-                  {currentConsequence.simulationState.panicBand} STRESS PRESSURE: Heightened panic will compress your next decision window by {Math.abs(currentConsequence.simulationState.timerModifierSeconds)} seconds (min 10s floor).
+                  {currentConsequence.simulationState.panicBand} STRESS PRESSURE: Combined decision window compressed by{' '}
+                  {Math.abs(
+                    currentConsequence.simulationState.timerModifierSeconds +
+                      (currentConsequence.simulationState.difficultyModifierSeconds || 0)
+                  )}
+                  s (strict 10s safety floor enforced).
                 </span>
               </div>
             )}
+          </motion.div>
+        )}
+
+        {/* Behavioral Response (Instinct vs Training & Adaptive Difficulty) */}
+        {currentConsequence.simulationState && (
+          <motion.div
+            className={styles.behaviorCard}
+            variants={itemVariants}
+            transition={{ duration: 0.44, ease: 'easeOut' }}
+          >
+            <div className={styles.behaviorHeader}>
+              <div className={styles.behaviorTitle}>
+                <span aria-hidden="true">🧠</span>
+                <span>BEHAVIORAL RESPONSE // INSTINCT VS TRAINING</span>
+              </div>
+              <span className={styles.difficultyTag}>
+                DIFFICULTY: LVL {currentConsequence.simulationState.difficultyLevel || 2}/5
+              </span>
+            </div>
+
+            <div className={styles.behaviorMetricsRow}>
+              <div className={styles.behaviorMetric}>
+                <span className={styles.behaviorMetricLabel}>INSTINCTIVE REFLEX</span>
+                <span className={styles.behaviorMetricValue}>
+                  {currentConsequence.simulationState.instinctBand || 'DEVELOPING'} (
+                  {currentConsequence.simulationState.instinctScore ?? 50}/100)
+                </span>
+              </div>
+              <div className={styles.behaviorMetric}>
+                <span className={styles.behaviorMetricLabel}>PROTOCOL TRAINING</span>
+                <span className={styles.behaviorMetricValue}>
+                  {currentConsequence.simulationState.trainingBand || 'DEVELOPING'} (
+                  {currentConsequence.simulationState.trainingScore ?? 50}/100)
+                </span>
+              </div>
+              <div className={styles.behaviorMetric}>
+                <span className={styles.behaviorMetricLabel}>OPERATOR PROFILE</span>
+                <span className={styles.behaviorProfileValue}>
+                  {(currentConsequence.simulationState.behaviorProfile || 'BALANCED_RESPONDER').replace('_', ' ')}
+                </span>
+              </div>
+            </div>
+
+            <p className={styles.behaviorSummaryText}>
+              {currentConsequence.behaviorSummary ||
+                currentConsequence.simulationState.lastBehaviorSummary ||
+                'Decision processed under deterministic behavioral evaluation.'}
+            </p>
           </motion.div>
         )}
 
