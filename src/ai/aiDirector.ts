@@ -92,10 +92,17 @@ class AiDirectorCoordinator {
     try {
       const envelope = await this.creativeBrain.narrate(request);
       this.state.lastNarrative = envelope.payload.text;
+      this.state.geminiAvailable = !envelope.deterministicFallbackUsed;
+      if (envelope.deterministicFallbackUsed) {
+        this.state.fallbackCount++;
+      }
       return envelope;
     } catch {
       this.state.fallbackCount++;
-      return new GeminiCreativeAdapter().narrate(request);
+      this.state.geminiAvailable = false;
+      const fallbackEnvelope = await new GeminiCreativeAdapter().narrate(request);
+      this.state.lastNarrative = fallbackEnvelope.payload.text;
+      return fallbackEnvelope;
     }
   }
 

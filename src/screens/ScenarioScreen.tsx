@@ -2,7 +2,7 @@
 // Core Scenario Decision Gameplay Screen.
 // Supports 15s timed decisions, timeout game-over state, randomized choice presentation, and EN/Hinglish localization.
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
@@ -16,7 +16,7 @@ import { useCountdown } from '../hooks/useCountdown';
 import { getLocalizedScenario, getUiStrings } from '../i18n';
 import { playTimerTick, playDisasterChoiceImpact, playPanicSpike } from '../utils/audio';
 import { recordDecision as recordPersistenceDecision, startRun, failRun } from '../services/gamePersistenceService';
-import { aiDirector, buildAiContext, adaptiveDirector, buildDirectorContext, getDirectorEvent } from '../ai';
+import { aiDirector, buildAiContext, adaptiveDirector, buildDirectorContext, getDirectorEvent, generateDeterministicGeminiFallback } from '../ai';
 import type { DisasterType, DecisionNode } from '../data/types';
 import styles from './ScenarioScreen.module.css';
 
@@ -227,9 +227,28 @@ export default function ScenarioScreen() {
     resetKey: `${activeNodeId}_${retryCount}`,
   });
 
+  // Track node-specific narrative to guarantee per-request attribution and prevent leak across nodes
+  const nodeNarrativeRef = useRef<{
+    nodeId: string;
+    narrativeText: string | null;
+    source: 'gemini' | 'deterministic-fallback';
+  }>({
+    nodeId: '',
+    narrativeText: null,
+    source: 'deterministic-fallback',
+  });
+
   // Batch 7: Asynchronous, non-blocking AI Director recommendation request
   useEffect(() => {
     if (!decisionNode) return;
+
+    // Reset current node narrative tracking so previous node cannot leak
+    nodeNarrativeRef.current = {
+      nodeId: decisionNode.id,
+      narrativeText: null,
+      source: 'deterministic-fallback',
+    };
+
     const aiCtx = buildAiContext(
       simulationState,
       decisionNode,
@@ -258,6 +277,12 @@ export default function ScenarioScreen() {
       language,
     }).then((envelope) => {
       if (isCancelled) return;
+      if (nodeNarrativeRef.current.nodeId === decisionNode.id) {
+        nodeNarrativeRef.current.narrativeText = envelope.payload.text;
+        nodeNarrativeRef.current.source = envelope.deterministicFallbackUsed
+          ? 'deterministic-fallback'
+          : 'gemini';
+      }
       updateAiDirectorState({
         lastNarrative: envelope.payload.text,
         geminiAvailable: !envelope.deterministicFallbackUsed,
@@ -300,6 +325,33 @@ export default function ScenarioScreen() {
       const directorEvent = currentDirector.activePressure !== 'NONE' ? currentDirector.activePressure : undefined;
       const directorAdvisory = currentDirector.lastRecommendation?.tacticalAdvisory;
 
+      // Batch 7 & 11: Robust per-request narrative resolution
+      // If player commits choice before the in-flight Gemini request finishes,
+      // use deterministic fallback for this node (no wait, no leak from previous nodes).
+      const currentNodeNarrative = nodeNarrativeRef.current;
+      let effectiveNarrative: string;
+      let effectiveSource: 'gemini' | 'deterministic-fallback';
+
+      if (currentNodeNarrative.nodeId === decisionNode.id && currentNodeNarrative.narrativeText) {
+        effectiveNarrative = currentNodeNarrative.narrativeText;
+        effectiveSource = currentNodeNarrative.source;
+      } else {
+        const aiCtx = buildAiContext(
+          simulationState,
+          decisionNode,
+          effectiveScenarioKey,
+          targetDisaster,
+          decisions
+        );
+        const fallbackEnvelope = generateDeterministicGeminiFallback({
+          type: 'ENVIRONMENTAL_ATMOSPHERE',
+          context: aiCtx,
+          language,
+        });
+        effectiveNarrative = fallbackEnvelope.payload.text;
+        effectiveSource = 'deterministic-fallback';
+      }
+
       // Batch 9: Live Adaptive Disaster Director — Pre-Venue Framework Evaluation
       const currentStep = decisions.length + 1;
       const directorCtx = buildDirectorContext(
@@ -324,8 +376,8 @@ export default function ScenarioScreen() {
         ...evalResult.record,
         aiDirectorEvent: directorEvent,
         aiTacticalAdvisory: directorAdvisory,
-        aiNarrativeContext: currentDirector.lastNarrative || undefined,
-        aiFallbackUsed: currentDirector.fallbackCount > 0,
+        aiNarrativeContext: effectiveNarrative,
+        aiFallbackUsed: effectiveSource === 'deterministic-fallback' || currentDirector.fallbackCount > 0,
         directorEventId: directorExecResult.eventId,
         directorEventCategory: directorEventDef?.category,
         directorSource: directorExecResult.source,
@@ -372,8 +424,8 @@ export default function ScenarioScreen() {
         alternativeBranch: evalResult.stateDelta.alternativeBranch ?? evalResult.nextSimulationState?.alternativeBranch,
         aiDirectorEvent: directorEvent,
         aiTacticalAdvisory: directorAdvisory,
-        aiNarrativeContext: currentDirector.lastNarrative || undefined,
-        aiDirectorSource: currentDirector.geminiAvailable ? 'gemini' : 'deterministic-fallback',
+        aiNarrativeContext: effectiveNarrative,
+        aiDirectorSource: effectiveSource,
         directorEventId: directorExecResult.eventId,
         directorEventLabel: directorEventDef?.label,
         directorEventCategory: directorEventDef?.category,
@@ -398,10 +450,11 @@ export default function ScenarioScreen() {
       effectiveScenarioKey,
       authUserId,
       activeRunId,
-      decisions.length,
+      decisions,
       simulationState,
       updateSimulationState,
       stop,
+      language,
     ]
   );
 
