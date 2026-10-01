@@ -65,6 +65,7 @@ class AiDirectorCoordinator {
       const envelope = await this.decisionBrain.recommend(context);
       this.state.lastRecommendation = envelope.payload;
       this.state.activePressure = envelope.payload.boundedEvent;
+      this.state.jevAvailable = !envelope.deterministicFallbackUsed;
 
       if (envelope.deterministicFallbackUsed) {
         this.state.fallbackCount++;
@@ -77,6 +78,7 @@ class AiDirectorCoordinator {
       // Emergency catch in case adapter implementation throws
       this.state.fallbackCount++;
       this.state.rejectedCount++;
+      this.state.jevAvailable = false;
       const fallbackEnvelope = await new JevDecisionAdapter().recommend(context);
       this.state.lastRecommendation = fallbackEnvelope.payload;
       this.state.activePressure = fallbackEnvelope.payload.boundedEvent;

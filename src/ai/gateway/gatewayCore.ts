@@ -83,7 +83,7 @@ export async function handleGatewayRequest(
           jev: {
             configured: jevProvider.isConfigured(),
             mode: jevProvider.isConfigured() ? 'LIVE' : 'FALLBACK',
-            providerName: 'Jev Decision Brain',
+            providerName: `Jev Decision Brain (${jevProvider.getModel()})`,
           },
           gemini: {
             configured: geminiProvider.isConfigured(),

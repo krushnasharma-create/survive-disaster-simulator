@@ -265,6 +265,7 @@ export default function ScenarioScreen() {
         recommendationCount: aiDirector.getTelemetry().recommendationCount,
         acceptedCount: aiDirector.getTelemetry().acceptedCount,
         fallbackCount: aiDirector.getTelemetry().fallbackCount,
+        jevAvailable: !envelope.deterministicFallbackUsed,
       });
     }).catch(() => {
       // Complete safety boundary: zero unhandled errors

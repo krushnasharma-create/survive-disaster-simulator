@@ -79,6 +79,8 @@ export interface GatewayValidationResult {
 export interface GatewayServerEnv {
   GEMINI_API_KEY?: string;
   GEMINI_MODEL?: string;
+  AI_GATEWAY_API_KEY?: string;
+  AI_GATEWAY_URL?: string;
   JEV_API_URL?: string;
   JEV_API_KEY?: string;
 }
