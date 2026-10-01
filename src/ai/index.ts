@@ -11,3 +11,6 @@ export * from './jev/jevAdapter';
 export * from './gemini/geminiTypes';
 export * from './gemini/geminiPolicy';
 export * from './gemini/geminiAdapter';
+export * from './gateway/gatewayTypes';
+export * from './gateway/gatewayClient';
+export * from './gateway/gatewayCore';

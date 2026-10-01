@@ -8,11 +8,11 @@
 
 ## Current Phase
 
-**PHASE 3 (BATCH 7) — JEV + GEMINI TWO-BRAIN ARCHITECTURE & SAFETY FIREWALL** — Complete, Verified, & Finalized for Checkpoint Commit
+**PHASE 3 (BATCH 8) — SECURE LIVE AI GATEWAY FOUNDATION** — Complete, Verified, & Finalized for Checkpoint Commit
 
-**BASELINE COMMIT BEFORE PHASE 3 BATCH 7:** `54ae1f4` (feat: add npc city brain and alternative timelines)
+**BASELINE COMMIT BEFORE PHASE 3 BATCH 8:** `4b22f3e` (feat: add Jev Gemini two-brain safety architecture)
 
-Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`. Baseline commit before Phase 3 Batch 3 & 4: `c74a095`. Baseline commit before Phase 3 Batch 5 & 6: `1be0097`. Baseline commit before Phase 3 Batch 7: `54ae1f4`.
+Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`. Baseline commit before Phase 3 Batch 3 & 4: `c74a095`. Baseline commit before Phase 3 Batch 5 & 6: `1be0097`. Baseline commit before Phase 3 Batch 7: `54ae1f4`. Baseline commit before Phase 3 Batch 8: `4b22f3e`.
 
 > **Agent handoff note:** `AGENTS.md` is the authoritative handoff source for any AI coding agent (Antigravity, Codex, or other) continuing this project. Read `AGENTS.md` first, then this file, before every task.
 
@@ -276,47 +276,43 @@ Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseli
 
 ## Current Task
 
-**PHASE 3 (BATCH 7) — JEV + GEMINI TWO-BRAIN ARCHITECTURE & SAFETY FIREWALL (2026-09-30 / 2026-10-01):**
-- **Strict Three-Layer Separation of Concerns:**
-  - **Layer 1 — Gemini Creative Brain (`src/ai/gemini/`):** Dedicated non-authoritative creative provider delivering atmospheric scene narration, NPC dialogue barks, and educational context. Strictly bounded (max 2 sentences, max 280 chars). Gemini NEVER decides safety-critical state, scores, or routing.
-  - **Layer 2 — Jev Decision Brain (`src/ai/jev/`):** Non-authoritative tactical simulation director. Returns structured, bounded recommendation envelopes (`JevRecommendation`) containing allowlisted event selection (`ROUTE_CONGESTION`, `AFTERSHOCK_PRESSURE`, etc.), companion intent (`WARN`, `GUIDE`, etc.), and difficulty recommendations (`HOLD`, `INCREASE`, etc.). Jev NEVER directly mutates game state or store data.
-  - **Layer 3 — Authoritative Deterministic Engine (`src/engine/simulationState.ts`):** Sole source of safety truth. Resolves all state deltas, panic, hazard, safety, visibility, convergence, squad, city, chain, scores, and survival outcomes. AI recommendations are treated as inputs/advisories only.
-- **Strict Safety Firewall (`src/ai/safetyFirewall.ts`):**
-  - Hard boundary enforcing allowlists: `ALLOWED_BOUNDED_EVENTS`, `ALLOWED_NPC_INTENTS`, `ALLOWED_DIFFICULTY_PRESSURES`.
-  - Rejection filters for low confidence (< 60), schema mismatches, string overflows, code injection patterns (`eval`, `<script`), and state mutation attempts (`safety=`, `score=`, `survived=`).
-- **Sanitized Minimal Context Builder (`src/ai/contextBuilder.ts`):**
-  - Extracts only necessary simulation telemetry. Zero secrets, zero auth tokens, zero private user records.
-- **Provider Abstractions & Deterministic Fallback (`src/ai/jev/jevAdapter.ts`, `src/ai/gemini/geminiAdapter.ts`):**
-  - Production-grade interfaces: `DecisionBrain` and `CreativeBrain`.
-  - Seamless fallback engines (`generateDeterministicJevFallback`, `generateDeterministicGeminiFallback`) that run 100% offline with zero dependencies and zero latency.
-  - **Live API Status & Security Boundaries:**
-    - Live API keys and external endpoints are intentionally **NOT** configured in the client repository.
-    - Zero provider secrets exist in code or client configuration.
-    - Future production live AI integration requires a secure server-side AI gateway / provider boundary rather than client-exposed secrets.
-    - The client UI explicitly reflects `DETERMINISTIC FALLBACK` mode and does not falsely claim live connectivity.
-- **AI Director Session Coordinator (`src/ai/aiDirector.ts`):**
-  - Manages asynchronous, non-blocking director queries throughout gameplay with zero unhandled exceptions.
-  - Maintains `aiDirectorState`: tracking recommendation counts, accepted/rejected counts, fallback usage, and active environmental pressure.
-- **UI & Telemetry Integration:**
-  - **ScenarioScreen (`src/screens/ScenarioScreen.tsx`, `.module.css`):** Live `DIRECTOR: {event}` telemetry chip and subtle tactical advisory banner (`.directorAdvisoryBanner`) without interrupting player control.
-  - **ConsequenceScreen (`src/screens/ConsequenceScreen.tsx`, `.module.css`):** Context card (`AI DIRECTOR // CONTEXT`) displaying non-authoritative atmospheric narration with explicit source attribution and NDMA precedence disclaimer.
-  - **ReportScreen (`src/screens/ReportScreen.tsx`, `.module.css`):** Dedicated **AI DIRECTOR & TWO-BRAIN ARCHITECTURE AUDIT** section with provider availability badges, events evaluated, fallback telemetry, and prominent **Safety Architecture Firewall** disclaimer.
-  - **Run Inspector Modal (`src/components/RunInspectorModal.tsx`):** Historical run flight recorder displaying `DIRECTOR: {event}` chips deterministically reconstructed without Supabase schema migrations.
+**PHASE 3 (BATCH 8) — SECURE LIVE AI GATEWAY FOUNDATION (2026-10-01):**
+- **Server-Side AI Gateway Boundary (`api/ai.ts`, `src/ai/gateway/`):**
+  - Architected a secure serverless boundary using Vercel Serverless Function entry point (`api/ai.ts`) supporting both Web Standard (`POST`, `GET`) and traditional Node handler signatures.
+  - Core modular gateway orchestration (`src/ai/gateway/gatewayCore.ts`) coordinating validation, dispatch, timeout controls, and safety firewall execution.
+- **Strict Credential Isolation & Secret Safety:**
+  - Environment variables are strictly server-side: `GEMINI_API_KEY`, `JEV_API_URL`, `JEV_API_KEY`.
+  - Zero `VITE_` secret prefixes; client bundles contain zero provider credentials or private endpoints.
+  - Template `.env.example` documents variable names only with zero hardcoded values.
+  - Neither live provider keys nor fake endpoints exist in source code or client assets.
+- **Inbound Context Allowlist & Payload Protection (`src/ai/gateway/contextValidator.ts`):**
+  - Enforces strict 16 KB payload size ceiling (`MAX_GATEWAY_PAYLOAD_BYTES = 16384`).
+  - Scans for and rejects unauthorized sensitive fields (`apiKey`, `password`, `service_role`, `token`, `auth`, `email`).
+  - Rejects script injection (`<script>`, `eval(`) and simulated state mutation attempts (`safety=`, `score=`, `survived=`).
+  - Enforces numerical bounds and allowlisted disaster types on `AiContext`.
+- **Server-Side Provider Abstractions (`src/ai/gateway/serverProviders.ts`):**
+  - `ServerJevProvider`: Checks server environment, executes bounded timeout queries with `AbortController`, enforces `validateJevEnvelope`, and returns deterministic fallback when unconfigured or failing.
+  - `ServerGeminiProvider`: Checks server environment, executes bounded timeout queries with `AbortController`, enforces `validateGeminiEnvelope`, and returns deterministic fallback when unconfigured or failing.
+  - Neither provider invents undocumented schemas or attempts arbitrary network proxying.
+- **Client Boundary Integration (`src/ai/gateway/gatewayClient.ts`, `src/ai/jev/jevAdapter.ts`, `src/ai/gemini/geminiAdapter.ts`):**
+  - Client adapters communicate through `gatewayClient` to `/api/ai`.
+  - Non-blocking client timeouts (2800ms) guarantee zero gameplay stalls; immediate fallback engages if gateway is unreachable (e.g. offline, local dev server without backend).
+  - Explicit and honest UI status: remains in `DETERMINISTIC FALLBACK` mode with zero false "LIVE" claims.
 - **Verification & QA (100% Passed):**
-  - Verified Tests A through J in `test_batch7_simulation.ts`: 944/944 assertions passed across all 7 scenarios.
-  - Confirmed state invariance: **AI ON === AI OFF** (scores, hazards, safety integrity, panic, and outcomes remain 100% identical).
-  - Regressions verified: Batch 5/6 (964/964 passed), Batch 3/4 (789/789 passed), Batch 2 (100% passed).
-  - `npm run lint`: 0 errors.
-  - `npm run build`: 0 errors (552 modules compiled).
+  - Dedicated Batch 8 simulation suite (`test_batch8_simulation.ts`): **979/979 assertions passed** across all 7 scenarios.
+  - Confirmed state invariance: **AI ON === AI OFF** (scores, hazards, safety integrity, panic, NPC status, city state, disaster chain, and outcomes remain 100% identical).
+  - Regressions verified: Batch 7 (944/944 passed), Batch 5/6 (964/964 passed), Batch 3/4 (789/789 passed), Batch 2 (100% passed).
+  - `npm run lint`: 0 errors (6 pre-existing non-blocking warnings).
+  - `npm run build`: 0 errors (557 modules compiled).
   - `git diff --check`: 0 whitespace warnings.
 
 ---
 
 ## Next Task
 
-**POST-BATCH 7 ROADMAP:**
-1. Commit and push Batch 7 milestone commit: `feat: add Jev Gemini two-brain safety architecture`.
-2. Proceed to next hackathon phase / deployment readiness.
+**PHASE 4 / POST-BATCH 8 ROADMAP:**
+1. Commit and push Batch 8 milestone commit: `feat: add secure live ai gateway foundation`.
+2. Prepare for next hackathon phase / deployment readiness.
 
 ---
 

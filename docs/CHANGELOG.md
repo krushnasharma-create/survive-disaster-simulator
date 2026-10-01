@@ -3,6 +3,35 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-10-01] PHASE 3 (Batch 8) — AI Architecture: Secure Live AI Gateway Foundation
+- **Server-Side AI Gateway Boundary (`api/ai.ts`, `src/ai/gateway/`):**
+  - Architected a secure serverless boundary using Vercel Serverless Function entry point (`api/ai.ts`) supporting both Web Standard (`POST`, `GET`) and Node.js handler signatures.
+  - Core modular gateway orchestration (`src/ai/gateway/gatewayCore.ts`) coordinating validation, dispatch, timeout controls, and safety firewall execution.
+- **Strict Credential Isolation & Secret Safety:**
+  - Environment variables isolated to server side only: `GEMINI_API_KEY`, `JEV_API_URL`, `JEV_API_KEY`.
+  - Zero `VITE_` secret prefixes in client code; client bundles contain zero provider credentials or private endpoints.
+  - Template `.env.example` documents variable names only with zero hardcoded values.
+  - Neither live provider keys nor fake endpoints exist in source code or client assets.
+- **Inbound Context Allowlist & Payload Protection (`src/ai/gateway/contextValidator.ts`):**
+  - Enforces strict 16 KB payload ceiling (`MAX_GATEWAY_PAYLOAD_BYTES`).
+  - Scans for and rejects unauthorized sensitive fields (`apiKey`, `password`, `service_role`, `token`, `auth`, `email`).
+  - Rejects script injection (`<script>`, `eval(`) and simulated state mutation attempts (`safety=`, `score=`, `survived=`).
+  - Enforces numerical bounds and allowlisted disaster types on `AiContext`.
+- **Server-Side Provider Abstractions (`src/ai/gateway/serverProviders.ts`):**
+  - `ServerJevProvider`: Checks server environment, executes bounded timeout queries with `AbortController`, enforces `validateJevEnvelope`, and returns deterministic fallback when unconfigured or failing.
+  - `ServerGeminiProvider`: Checks server environment, executes bounded timeout queries with `AbortController`, enforces `validateGeminiEnvelope`, and returns deterministic fallback when unconfigured or failing.
+- **Client Boundary Integration (`src/ai/gateway/gatewayClient.ts`, `src/ai/jev/jevAdapter.ts`, `src/ai/gemini/geminiAdapter.ts`):**
+  - Client adapters communicate through `gatewayClient` to `/api/ai`.
+  - Non-blocking client timeouts (2800ms) guarantee zero gameplay stalls; immediate fallback engages if gateway is unreachable (e.g. offline, local dev server without backend).
+  - Explicit and honest UI status: remains in `DETERMINISTIC FALLBACK` mode with zero false "LIVE" claims.
+- **Verification & QA:**
+  - Dedicated Batch 8 simulation suite (`test_batch8_simulation.ts`): **979/979 assertions passed** across all 7 scenarios.
+  - Confirmed state invariance: **AI ON === AI OFF** (scores, hazards, safety integrity, panic, NPC status, city state, disaster chain, and outcomes remain 100% identical).
+  - Regressions verified: Batch 7 (944/944 passed), Batch 5/6 (964/964 passed), Batch 3/4 (789/789 passed), Batch 2 (100% passed).
+  - `npm run lint`: 0 errors.
+  - `npm run build`: 0 errors (557 modules compiled).
+  - `git diff --check`: 0 whitespace warnings.
+
 ## [2026-09-30] PHASE 3 (Batch 7) — AI Architecture: JEV + GEMINI Two-Brain System & Safety Firewall
 - **Three-Layer AI Architecture (`src/ai/types.ts`, `src/ai/aiDirector.ts`):**
   - Architected a clear, safety-critical separation of concerns:

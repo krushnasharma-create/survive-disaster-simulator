@@ -1,6 +1,6 @@
 // src/ai/jev/jevAdapter.ts
 // Jev Decision Brain Adapter implementing the DecisionBrain interface.
-// Communicates with optional external Jev endpoint if configured,
+// Connects via the Secure Live AI Gateway (/api/ai) with server-side credential isolation,
 // with immediate, non-blocking fallback to the Deterministic Decision Engine.
 
 import type {
@@ -15,7 +15,6 @@ import type {
 import {
   JEV_PROVIDER_NAME,
   JEV_CONFIDENCE_THRESHOLD,
-  JEV_TIMEOUT_MS,
   JEV_EXPIRATION_MS,
 } from './jevPolicy';
 import { validateJevEnvelope } from '../safetyFirewall';
@@ -92,83 +91,47 @@ export function generateDeterministicJevFallback(
   };
 }
 
+import { gatewayClient } from '../gateway/gatewayClient';
+
 /**
  * Jev Decision Brain Adapter
+ * Communicates with the Secure Live AI Gateway (/api/ai),
+ * with immediate, zero-latency fallback to the Deterministic Decision Engine.
  */
 export class JevDecisionAdapter implements DecisionBrain {
   public readonly providerName = JEV_PROVIDER_NAME;
-  private readonly apiUrl: string | undefined;
-
-  constructor() {
-    // Optional environment variable configuration
-    this.apiUrl = typeof import.meta !== 'undefined' && import.meta.env
-      ? (import.meta.env.VITE_JEV_API_URL as string | undefined)
-      : undefined;
-  }
+  private isLiveConnected = false;
 
   public isAvailable(): boolean {
-    return Boolean(this.apiUrl && this.apiUrl.trim().length > 0);
+    return this.isLiveConnected;
+  }
+
+  public setLiveConnected(connected: boolean): void {
+    this.isLiveConnected = connected;
   }
 
   public async recommend(context: AiContext): Promise<AiEnvelope<JevRecommendation>> {
-    // If not configured, immediately return deterministic fallback without network overhead
-    if (!this.isAvailable()) {
-      return generateDeterministicJevFallback(context, 'Jev API endpoint unconfigured. Using deterministic director.');
-    }
-
+    // 1. Try requesting recommendation through the server-side gateway boundary
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), JEV_TIMEOUT_MS);
-
-      const response = await fetch(this.apiUrl!, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          version: '1.0',
-          requestId: `jev-req-${Date.now()}`,
-          context,
-        }),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        return generateDeterministicJevFallback(
-          context,
-          `Jev endpoint returned HTTP ${response.status}. Fallback activated.`
-        );
+      const gatewayEnvelope = await gatewayClient.recommend(context);
+      if (gatewayEnvelope) {
+        // Enforce safety firewall on gateway output
+        const validation = validateJevEnvelope(gatewayEnvelope);
+        if (validation.valid && validation.envelope && validation.envelope.confidence >= JEV_CONFIDENCE_THRESHOLD) {
+          if (!validation.envelope.deterministicFallbackUsed) {
+            this.isLiveConnected = true;
+          }
+          return validation.envelope;
+        }
       }
-
-      const rawJson = await response.json();
-
-      // Enforce strict safety firewall
-      const validation = validateJevEnvelope(rawJson);
-      if (!validation.valid || !validation.envelope) {
-        return generateDeterministicJevFallback(
-          context,
-          `Jev output rejected by Safety Firewall: ${validation.error || 'Unknown error'}`
-        );
-      }
-
-      if (validation.envelope.confidence < JEV_CONFIDENCE_THRESHOLD) {
-        return generateDeterministicJevFallback(
-          context,
-          `Jev confidence ${validation.envelope.confidence}% below threshold (${JEV_CONFIDENCE_THRESHOLD}%).`
-        );
-      }
-
-      return validation.envelope;
-    } catch (err: unknown) {
-      const isTimeout = err instanceof Error && err.name === 'AbortError';
-      const reason = isTimeout
-        ? `Jev request timed out after ${JEV_TIMEOUT_MS}ms.`
-        : `Jev network error: ${err instanceof Error ? err.message : 'Unknown'}`;
-
-      return generateDeterministicJevFallback(context, `${reason} Deterministic fallback activated.`);
+    } catch {
+      // Fall through to deterministic fallback
     }
+
+    // 2. Unbreakable deterministic fallback
+    return generateDeterministicJevFallback(
+      context,
+      'Live Jev gateway unconfigured or in fallback mode. Using deterministic director.'
+    );
   }
 }

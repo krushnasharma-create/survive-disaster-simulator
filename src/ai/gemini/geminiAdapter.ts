@@ -1,6 +1,6 @@
 // src/ai/gemini/geminiAdapter.ts
 // Gemini Creative Brain Adapter implementing the CreativeBrain interface.
-// Connects to optional Google Gemini API endpoint if configured with VITE_GEMINI_API_KEY,
+// Connects via the Secure Live AI Gateway (/api/ai) with server-side credential isolation,
 // with immediate, non-blocking fallback to the Deterministic Creative Narrative Engine.
 
 import type {
@@ -11,9 +11,8 @@ import type {
 } from '../types';
 import {
   GEMINI_PROVIDER_NAME,
-  GEMINI_TIMEOUT_MS,
   GEMINI_MAX_CHARS,
-  GEMINI_DEFAULT_MODEL,
+  GEMINI_CONFIDENCE_THRESHOLD,
 } from './geminiPolicy';
 import { validateGeminiEnvelope } from '../safetyFirewall';
 
@@ -80,115 +79,47 @@ export function generateDeterministicGeminiFallback(
   };
 }
 
+import { gatewayClient } from '../gateway/gatewayClient';
+
 /**
  * Gemini Creative Brain Adapter
+ * Communicates with the Secure Live AI Gateway (/api/ai),
+ * with immediate, zero-latency fallback to the Deterministic Creative Narrator.
  */
 export class GeminiCreativeAdapter implements CreativeBrain {
   public readonly providerName = GEMINI_PROVIDER_NAME;
-  private readonly apiKey: string | undefined;
-
-  constructor() {
-    this.apiKey = typeof import.meta !== 'undefined' && import.meta.env
-      ? (import.meta.env.VITE_GEMINI_API_KEY as string | undefined)
-      : undefined;
-  }
+  private isLiveConnected = false;
 
   public isAvailable(): boolean {
-    return Boolean(this.apiKey && this.apiKey.trim().length > 0);
+    return this.isLiveConnected;
+  }
+
+  public setLiveConnected(connected: boolean): void {
+    this.isLiveConnected = connected;
   }
 
   public async narrate(request: GeminiNarrativeRequest): Promise<AiEnvelope<GeminiNarrativeResponse>> {
-    if (!this.isAvailable()) {
-      return generateDeterministicGeminiFallback(
-        request,
-        'Gemini API key unconfigured. Using deterministic creative narrator.'
-      );
-    }
-
+    // 1. Try requesting narrative through the server-side gateway boundary
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
-
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_DEFAULT_MODEL}:generateContent?key=${this.apiKey}`;
-
-      const promptText = `Disaster: ${request.context.disasterType}. Node: ${request.context.situationTitle}. Hazard: ${request.context.hazardBand}. Request Type: ${request.type}. Speaker: ${request.speakerName || 'Narrator'}. Write max 1-2 serious sentences describing environmental tension or dialogue. Return strictly valid JSON: {"text": "...", "tone": "URGENT"|"CAUTIOUS"|"STABILIZING"|"INFORMATIVE"}`;
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: promptText }] }],
-          systemInstruction: {
-            parts: [{ text: 'You are an atmospheric simulation narrator. Output strictly JSON matching the required schema. Never generate emergency advice, numerical rules, or state commands.' }],
-          },
-          generationConfig: {
-            temperature: 0.4,
-            maxOutputTokens: 120,
-            responseMimeType: 'application/json',
-          },
-        }),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        return generateDeterministicGeminiFallback(
-          request,
-          `Gemini API returned HTTP ${response.status}. Fallback activated.`
-        );
+      const gatewayEnvelope = await gatewayClient.narrate(request);
+      if (gatewayEnvelope) {
+        // Enforce safety firewall on gateway output
+        const validation = validateGeminiEnvelope(gatewayEnvelope);
+        if (validation.valid && validation.envelope && validation.envelope.confidence >= GEMINI_CONFIDENCE_THRESHOLD) {
+          if (!validation.envelope.deterministicFallbackUsed) {
+            this.isLiveConnected = true;
+          }
+          return validation.envelope;
+        }
       }
-
-      const data = await response.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawText) {
-        return generateDeterministicGeminiFallback(request, 'Empty candidate text from Gemini. Fallback activated.');
-      }
-
-      let parsed: any;
-      try {
-        parsed = JSON.parse(rawText);
-      } catch {
-        // If not pure JSON, use text directly
-        parsed = { text: rawText.replace(/```json|```/g, '').trim(), tone: 'INFORMATIVE' };
-      }
-
-      const envelope: AiEnvelope<GeminiNarrativeResponse> = {
-        requestId: `gemini-live-${Date.now()}`,
-        contextVersion: '1.0',
-        source: 'gemini',
-        confidence: 85,
-        timestamp: Date.now(),
-        allowedActions: [],
-        expirationMs: 30000,
-        reasoningSummary: 'Gemini 2.5 Flash live creative response.',
-        deterministicFallbackUsed: false,
-        payload: {
-          type: request.type,
-          text: String(parsed.text || ''),
-          speaker: request.speakerName,
-          tone: parsed.tone || 'INFORMATIVE',
-        },
-      };
-
-      const validation = validateGeminiEnvelope(envelope);
-      if (!validation.valid || !validation.envelope) {
-        return generateDeterministicGeminiFallback(
-          request,
-          `Gemini narrative rejected by Safety Firewall: ${validation.error}`
-        );
-      }
-
-      return validation.envelope;
-    } catch (err: unknown) {
-      const isTimeout = err instanceof Error && err.name === 'AbortError';
-      const reason = isTimeout
-        ? `Gemini request timed out after ${GEMINI_TIMEOUT_MS}ms.`
-        : `Gemini network error: ${err instanceof Error ? err.message : 'Unknown'}`;
-
-      return generateDeterministicGeminiFallback(request, `${reason} Deterministic fallback activated.`);
+    } catch {
+      // Fall through to deterministic fallback
     }
+
+    // 2. Unbreakable deterministic fallback
+    return generateDeterministicGeminiFallback(
+      request,
+      'Live Gemini gateway unconfigured or in fallback mode. Using deterministic narrator.'
+    );
   }
 }
