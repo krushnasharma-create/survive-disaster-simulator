@@ -79,3 +79,20 @@
   50% { transform: translateX(7px) scale(1.01); }
   100% { transform: translateX(6px) scale(1); }
 }
+
+@media (max-width: 640px) {
+  .choice {
+    padding: 0.95rem 1.1rem;
+    font-size: 0.9rem;
+  }
+
+  .choiceSelected {
+    padding-right: 7rem;
+  }
+
+  .lockedBadge {
+    right: 0.75rem;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.4rem;
+  }
+}

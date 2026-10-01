@@ -677,6 +677,29 @@
 }
 
 @media (max-width: 640px) {
+  .screen {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .navActions {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .profileCard {
+    padding: 1.25rem 1rem;
+  }
+
+  .identityArea {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
   .historyHeader {
     flex-direction: column;
     align-items: flex-start;

@@ -1240,3 +1240,60 @@
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   animation: fadeIn 0.3s ease-out;
 }
+
+@media (max-width: 640px) {
+  .screen {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .topBar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .quickActions {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .scoreValue {
+    font-size: clamp(3.5rem, 15vw, 5rem);
+  }
+
+  .statsRow {
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 0.5rem;
+    padding-top: 1rem;
+  }
+
+  .statNumber {
+    font-size: 1.4rem;
+  }
+
+  .reviewCard {
+    padding: 1.25rem 1rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+    padding: 0.9rem 1.5rem;
+  }
+
+  .deepAuditsSection {
+    padding: 1rem 0.85rem;
+  }
+
+  .aiDirectorAuditBox,
+  .adaptiveDirectorAuditBox {
+    padding: 1.25rem 1rem;
+  }
+}

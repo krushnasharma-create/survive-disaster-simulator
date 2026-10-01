@@ -96,9 +96,27 @@
 }
 
 @media (max-width: 768px) {
+  .screen {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .topHud {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: var(--space-md);
+  }
+
+  .header {
+    margin-bottom: var(--space-md);
+  }
+
   .grid {
     grid-template-columns: 1fr;
     max-width: 480px;
+  }
+
+  .card {
+    padding: 1.5rem 1.25rem;
   }
 }
 

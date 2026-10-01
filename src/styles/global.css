@@ -119,6 +119,11 @@ img, video {
   display: block;
 }
 
+:focus-visible {
+  outline: 2px solid var(--theme-primary, #ff8c00);
+  outline-offset: 3px;
+}
+
 /* ---------- Utility Classes ---------- */
 .screen {
   min-height: 100vh;

@@ -1180,3 +1180,43 @@
   gap: var(--space-md);
   animation: fadeIn 0.3s ease-out;
 }
+
+@media (max-width: 640px) {
+  .screen {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .consequenceBox {
+    padding: 1.25rem 1rem;
+  }
+
+  .consequenceHeading {
+    font-size: 0.72rem;
+  }
+
+  .consequenceText {
+    font-size: 1.05rem;
+  }
+
+  .saferResponseCard,
+  .shiftCard {
+    padding: 1rem 1.15rem;
+  }
+
+  .continueBtn {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.9rem 1.5rem;
+    text-align: center;
+  }
+
+  .advancedToggleBtn {
+    font-size: 0.7rem;
+    padding: 0.55rem 0.75rem;
+  }
+}

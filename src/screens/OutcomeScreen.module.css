@@ -86,3 +86,16 @@
   opacity: 0.9;
   transform: translateY(-2px);
 }
+
+@media (max-width: 640px) {
+  .screen {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .reportBtn {
+    width: 100%;
+    max-width: 360px;
+    padding: 0.9rem 1.5rem;
+    text-align: center;
+  }
+}

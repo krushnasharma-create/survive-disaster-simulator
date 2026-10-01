@@ -670,3 +670,71 @@
   color: rgba(255, 255, 255, 0.9);
   margin: 0;
 }
+
+@media (max-width: 640px) {
+  .screen {
+    padding: var(--space-md) var(--space-sm);
+    overflow-x: hidden;
+  }
+
+  .hud {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .hudLeft,
+  .hudRight {
+    gap: 0.5rem;
+  }
+
+  .main {
+    gap: var(--space-md);
+  }
+
+  .situationCard {
+    padding: 1.25rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .situation {
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  .telemetryBar {
+    padding: 0.4rem 0.6rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .compactTelemetryStrip {
+    gap: 0.4rem;
+  }
+
+  .compactBadgesGroup {
+    gap: 0.35rem;
+  }
+
+  .compactStressBadge,
+  .compactHazardBadge {
+    font-size: 0.65rem;
+    padding: 0.12rem 0.4rem;
+  }
+
+  .statusToggleBtn {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .timeoutContainer {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .timeoutPrimaryBtn,
+  .timeoutSecondaryBtn {
+    width: 100%;
+    max-width: 320px;
+    padding: 0.85rem 1.5rem;
+    text-align: center;
+  }
+}

@@ -214,3 +214,13 @@
 .guestLink:hover {
   color: var(--color-light);
 }
+
+@media (max-width: 640px) {
+  .screen {
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .card {
+    padding: 1.5rem 1rem;
+  }
+}
