@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
@@ -28,6 +28,8 @@ export default function ConsequenceScreen() {
     setOutcome,
     language,
   } = useGameStore();
+
+  const [showAdvancedAnalysis, setShowAdvancedAnalysis] = useState(false);
 
   const targetDisaster = (disasterId as DisasterType) || activeDisaster || 'earthquake';
   const effectiveScenarioKey = activeScenarioId || targetDisaster;
@@ -150,18 +152,64 @@ export default function ConsequenceScreen() {
           </motion.div>
         )}
 
-        {/* Situation Shift (Butterfly Effect) Card */}
-        {currentConsequence.simulationState && (
-          <motion.div
-            className={styles.shiftCard}
-            variants={itemVariants}
-            transition={{ duration: 0.42, ease: 'easeOut' }}
+        {/* Primary Narrative Flow: Authoritative Safety Insight */}
+        <motion.div
+          className={styles.insightCard}
+          variants={itemVariants}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+        >
+          <div className={styles.insightHeader}>
+            <span aria-hidden="true">🛡️</span>
+            <span>{ui.protocolGrounding}</span>
+          </div>
+          <p className={styles.insightText}>{currentConsequence.insight}</p>
+          <div className={styles.insightSource}>
+            {ui.officialSource}: {currentConsequence.insightSource}
+          </div>
+        </motion.div>
+
+        {/* Primary Continue Action */}
+        <motion.div
+          className={styles.footerActions}
+          variants={itemVariants}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+        >
+          <motion.button
+            className={styles.continueBtn}
+            onClick={handleContinue}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            <div className={styles.shiftHeader}>
-              <div className={styles.shiftTitle}>
-                <span aria-hidden="true">⚡</span>
-                <span>SITUATION SHIFT // BUTTERFLY EFFECT</span>
-              </div>
+            {ui.continueSimulation}
+          </motion.button>
+        </motion.div>
+
+        {/* Layer 3: Collapsible Advanced Incident Analysis */}
+        <div className={styles.advancedSection}>
+          <button
+            type="button"
+            className={`${styles.advancedToggleBtn} ${showAdvancedAnalysis ? styles.advancedToggleBtnActive : ''}`}
+            onClick={() => setShowAdvancedAnalysis((prev) => !prev)}
+            aria-expanded={showAdvancedAnalysis}
+          >
+            <span>⚡ {ui.advancedAnalysis}</span>
+            <span>{showAdvancedAnalysis ? '▲ ' + ui.hideAdvanced : '▼ ' + ui.showAdvanced}</span>
+          </button>
+
+          {showAdvancedAnalysis && (
+            <div className={styles.advancedDrawer}>
+              {/* Situation Shift (Butterfly Effect) Card */}
+              {currentConsequence.simulationState && (
+                <motion.div
+                  className={styles.shiftCard}
+                  variants={itemVariants}
+                  transition={{ duration: 0.42, ease: 'easeOut' }}
+                >
+                  <div className={styles.shiftHeader}>
+                    <div className={styles.shiftTitle}>
+                      <span aria-hidden="true">⚡</span>
+                      <span>{ui.situationShiftTitle}</span>
+                    </div>
               <span
                 className={styles.shiftBandTag}
                 style={{
@@ -208,10 +256,10 @@ export default function ConsequenceScreen() {
                     }`}
                   >
                     {currentConsequence.stateDelta.panicChange > 0
-                      ? `▲ +${currentConsequence.stateDelta.panicChange} Panic`
+                      ? `▲ +${currentConsequence.stateDelta.panicChange} ${language === 'hinglish' ? 'Tanaav' : 'Panic'}`
                       : currentConsequence.stateDelta.panicChange < 0
-                      ? `▼ ${currentConsequence.stateDelta.panicChange} Panic`
-                      : `● Panic Stable`}
+                      ? `▼ ${currentConsequence.stateDelta.panicChange} ${language === 'hinglish' ? 'Tanaav' : 'Panic'}`
+                      : `● ${language === 'hinglish' ? 'Tanaav Sthir' : 'Panic Stable'}`}
                   </span>
 
                   <span
@@ -224,10 +272,10 @@ export default function ConsequenceScreen() {
                     }`}
                   >
                     {currentConsequence.stateDelta.hazardChange > 0
-                      ? `▲ +${currentConsequence.stateDelta.hazardChange}% Hazard`
+                      ? `▲ +${currentConsequence.stateDelta.hazardChange}% ${language === 'hinglish' ? 'Khatra' : 'Hazard'}`
                       : currentConsequence.stateDelta.hazardChange < 0
-                      ? `▼ ${currentConsequence.stateDelta.hazardChange}% Hazard`
-                      : `● Hazard Unchanged`}
+                      ? `▼ ${currentConsequence.stateDelta.hazardChange}% ${language === 'hinglish' ? 'Khatra' : 'Hazard'}`
+                      : `● ${language === 'hinglish' ? 'Khatra Sthir' : 'Hazard Unchanged'}`}
                   </span>
 
                   <span
@@ -240,10 +288,10 @@ export default function ConsequenceScreen() {
                     }`}
                   >
                     {currentConsequence.stateDelta.safetyChange > 0
-                      ? `▲ +${currentConsequence.stateDelta.safetyChange}% Safety`
+                      ? `▲ +${currentConsequence.stateDelta.safetyChange}% ${language === 'hinglish' ? 'Suraksha' : 'Safety'}`
                       : currentConsequence.stateDelta.safetyChange < 0
-                      ? `▼ ${currentConsequence.stateDelta.safetyChange}% Safety`
-                      : `● Safety Stable`}
+                      ? `▼ ${currentConsequence.stateDelta.safetyChange}% ${language === 'hinglish' ? 'Suraksha' : 'Safety'}`
+                      : `● ${language === 'hinglish' ? 'Suraksha Sthir' : 'Safety Stable'}`}
                   </span>
 
                   {currentConsequence.stateDelta.visibilityChange !== 0 && (
@@ -255,8 +303,8 @@ export default function ConsequenceScreen() {
                       }`}
                     >
                       {currentConsequence.stateDelta.visibilityChange < 0
-                        ? `▼ ${currentConsequence.stateDelta.visibilityChange}% Visibility`
-                        : `▲ +${currentConsequence.stateDelta.visibilityChange}% Visibility`}
+                        ? `▼ ${currentConsequence.stateDelta.visibilityChange}% ${language === 'hinglish' ? 'Drishtita' : 'Visibility'}`
+                        : `▲ +${currentConsequence.stateDelta.visibilityChange}% ${language === 'hinglish' ? 'Drishtita' : 'Visibility'}`}
                     </span>
                   )}
                 </>
@@ -269,7 +317,7 @@ export default function ConsequenceScreen() {
                 <div className={styles.propagationHeader}>
                   <div className={styles.propagationTitle}>
                     <span aria-hidden="true">🌐</span>
-                    <span>FORWARD PROPAGATION // ENVIRONMENTAL TRAJECTORY</span>
+                    <span>{ui.forwardPropagationTitle}</span>
                   </div>
                   {currentConsequence.simulationState.convergenceBand && (
                     <span
@@ -298,12 +346,13 @@ export default function ConsequenceScreen() {
               <div className={styles.shiftWarningBanner}>
                 <span>⚠</span>
                 <span>
-                  {currentConsequence.simulationState.panicBand} STRESS PRESSURE: Combined decision window compressed by{' '}
+                  {currentConsequence.simulationState.panicBand}{' '}
+                  {language === 'hinglish' ? 'TANAAV DABAV: Agla faisla waqt kam kiya gaya' : 'STRESS PRESSURE: Combined decision window compressed by'}{' '}
                   {Math.abs(
                     currentConsequence.simulationState.timerModifierSeconds +
                       (currentConsequence.simulationState.difficultyModifierSeconds || 0)
                   )}
-                  s (strict 10s safety floor enforced).
+                  s ({language === 'hinglish' ? '10s minimum suraksha floor laagu' : 'strict 10s safety floor enforced'}).
                 </span>
               </div>
             )}
@@ -320,30 +369,30 @@ export default function ConsequenceScreen() {
             <div className={styles.behaviorHeader}>
               <div className={styles.behaviorTitle}>
                 <span aria-hidden="true">🧠</span>
-                <span>BEHAVIORAL RESPONSE // INSTINCT VS TRAINING</span>
+                <span>{ui.behavioralResponseTitle}</span>
               </div>
               <span className={styles.difficultyTag}>
-                DIFFICULTY: LVL {currentConsequence.simulationState.difficultyLevel || 2}/5
+                {ui.difficultyLevel}: LVL {currentConsequence.simulationState.difficultyLevel || 2}/5
               </span>
             </div>
 
             <div className={styles.behaviorMetricsRow}>
               <div className={styles.behaviorMetric}>
-                <span className={styles.behaviorMetricLabel}>INSTINCTIVE REFLEX</span>
+                <span className={styles.behaviorMetricLabel}>{ui.instinctiveReflex}</span>
                 <span className={styles.behaviorMetricValue}>
                   {currentConsequence.simulationState.instinctBand || 'DEVELOPING'} (
                   {currentConsequence.simulationState.instinctScore ?? 50}/100)
                 </span>
               </div>
               <div className={styles.behaviorMetric}>
-                <span className={styles.behaviorMetricLabel}>PROTOCOL TRAINING</span>
+                <span className={styles.behaviorMetricLabel}>{ui.protocolTraining}</span>
                 <span className={styles.behaviorMetricValue}>
                   {currentConsequence.simulationState.trainingBand || 'DEVELOPING'} (
                   {currentConsequence.simulationState.trainingScore ?? 50}/100)
                 </span>
               </div>
               <div className={styles.behaviorMetric}>
-                <span className={styles.behaviorMetricLabel}>OPERATOR PROFILE</span>
+                <span className={styles.behaviorMetricLabel}>{ui.operatorProfile}</span>
                 <span className={styles.behaviorProfileValue}>
                   {(currentConsequence.simulationState.behaviorProfile || 'BALANCED_RESPONDER').replace('_', ' ')}
                 </span>
@@ -353,7 +402,9 @@ export default function ConsequenceScreen() {
             <p className={styles.behaviorSummaryText}>
               {currentConsequence.behaviorSummary ||
                 currentConsequence.simulationState.lastBehaviorSummary ||
-                'Decision processed under deterministic behavioral evaluation.'}
+                (language === 'hinglish'
+                  ? 'Faisle ka nirdharit deterministic vyavahar mulyankan kiya gaya.'
+                  : 'Decision processed under deterministic behavioral evaluation.')}
             </p>
           </motion.div>
         )}
@@ -368,10 +419,10 @@ export default function ConsequenceScreen() {
             <div className={styles.squadHeader}>
               <div className={styles.squadTitle}>
                 <span aria-hidden="true">👥</span>
-                <span>NPC SURVIVAL SQUAD // COMPANION STATUS</span>
+                <span>{ui.squadStatusTitle}</span>
               </div>
               <span className={styles.squadCohesionBadge}>
-                COHESION: {currentConsequence.simulationState.squadCohesion ?? 75}%
+                {ui.squadCohesion}: {currentConsequence.simulationState.squadCohesion ?? 75}%
               </span>
             </div>
 
@@ -400,9 +451,9 @@ export default function ConsequenceScreen() {
                     </span>
                   </div>
                   <div className={styles.squadMemberStats}>
-                    <span>Trust: {member.trust}%</span>
-                    <span>Stress: {member.stress}%</span>
-                    <span>Safety: {member.safety}%</span>
+                    <span>{language === 'hinglish' ? 'Vishwas' : 'Trust'}: {member.trust}%</span>
+                    <span>{language === 'hinglish' ? 'Tanaav' : 'Stress'}: {member.stress}%</span>
+                    <span>{language === 'hinglish' ? 'Suraksha' : 'Safety'}: {member.safety}%</span>
                   </div>
                   {member.dialogue && (
                     <div className={styles.squadMemberBark}>
@@ -425,7 +476,7 @@ export default function ConsequenceScreen() {
             <div className={styles.cityHeader}>
               <div className={styles.cityTitle}>
                 <span aria-hidden="true">🏙️</span>
-                <span>CITY BRAIN // MUNICIPAL CRISIS IMPACT</span>
+                <span>{ui.cityBrainTitle}</span>
               </div>
               <span
                 className={`${styles.cityMacroTag} ${
@@ -436,7 +487,7 @@ export default function ConsequenceScreen() {
                     : styles.cityMacroCritical
                 }`}
               >
-                STATUS: {currentConsequence.simulationState.cityBrain.macroStatus}
+                {ui.cityStatus}: {currentConsequence.simulationState.cityBrain.macroStatus}
               </span>
             </div>
 
@@ -448,19 +499,19 @@ export default function ConsequenceScreen() {
                 </span>
               </div>
               <div className={styles.cityMetric}>
-                <span className={styles.cityMetricLabel}>EMERGENCY ACCESS</span>
+                <span className={styles.cityMetricLabel}>{ui.emergency112Access}</span>
                 <span className={styles.cityMetricValue}>
                   {currentConsequence.simulationState.cityBrain.emergencyAccess}%
                 </span>
               </div>
               <div className={styles.cityMetric}>
-                <span className={styles.cityMetricLabel}>UTILITY STABILITY</span>
+                <span className={styles.cityMetricLabel}>{ui.municipalUtilityStability}</span>
                 <span className={styles.cityMetricValue}>
                   {currentConsequence.simulationState.cityBrain.utilityStability}%
                 </span>
               </div>
               <div className={styles.cityMetric}>
-                <span className={styles.cityMetricLabel}>PUBLIC ORDER</span>
+                <span className={styles.cityMetricLabel}>{language === 'hinglish' ? 'AAM VYAVASTHA' : 'PUBLIC ORDER'}</span>
                 <span className={styles.cityMetricValue}>
                   {currentConsequence.simulationState.cityBrain.publicOrder}%
                 </span>
@@ -484,7 +535,7 @@ export default function ConsequenceScreen() {
               <div className={styles.chainHeader}>
                 <div className={styles.chainTitle}>
                   <span aria-hidden="true">⛓️</span>
-                  <span>MULTI-DISASTER CHAIN // {currentConsequence.simulationState.disasterChain.chainTitle}</span>
+                  <span>{ui.multiDisasterChainTitle} // {currentConsequence.simulationState.disasterChain.chainTitle}</span>
                 </div>
                 <span
                   className={`${styles.chainSeverityBadge} ${
@@ -515,7 +566,7 @@ export default function ConsequenceScreen() {
             <div className={styles.altHeader}>
               <div className={styles.altTitle}>
                 <span aria-hidden="true">🔀</span>
-                <span>ALTERNATIVE TIMELINE // WHAT IF?</span>
+                <span>{ui.altTimelineTitle}</span>
               </div>
               <span
                 className={`${styles.altRegretTag} ${
@@ -533,30 +584,30 @@ export default function ConsequenceScreen() {
             </div>
 
             <div className={styles.altChoiceBox}>
-              <strong>Alternative Choice Evaluated:</strong> "{currentConsequence.alternativeBranch.choiceLabel}"
+              <strong>{language === 'hinglish' ? 'Vaikalpik Kadam Ka Mulyankan:' : 'Alternative Choice Evaluated:'}</strong> "{currentConsequence.alternativeBranch.choiceLabel}"
             </div>
 
             <div className={styles.altMetricsGrid}>
               <div className={styles.altMetricItem}>
-                <span className={styles.altMetricLabel}>PROJECTED PANIC</span>
+                <span className={styles.altMetricLabel}>{language === 'hinglish' ? 'ANUMANIT TANAAV' : 'PROJECTED PANIC'}</span>
                 <span className={styles.altMetricValue}>
                   {currentConsequence.alternativeBranch.projectedPanic}/100
                 </span>
               </div>
               <div className={styles.altMetricItem}>
-                <span className={styles.altMetricLabel}>PROJECTED HAZARD</span>
+                <span className={styles.altMetricLabel}>{language === 'hinglish' ? 'ANUMANIT KHATRA' : 'PROJECTED HAZARD'}</span>
                 <span className={styles.altMetricValue}>
                   {currentConsequence.alternativeBranch.projectedHazard}%
                 </span>
               </div>
               <div className={styles.altMetricItem}>
-                <span className={styles.altMetricLabel}>PROJECTED SAFETY</span>
+                <span className={styles.altMetricLabel}>{language === 'hinglish' ? 'ANUMANIT SURAKSHA' : 'PROJECTED SAFETY'}</span>
                 <span className={styles.altMetricValue}>
                   {currentConsequence.alternativeBranch.projectedSafety}%
                 </span>
               </div>
               <div className={styles.altMetricItem}>
-                <span className={styles.altMetricLabel}>SQUAD COHESION</span>
+                <span className={styles.altMetricLabel}>{language === 'hinglish' ? 'SQUAD EKTA' : 'SQUAD COHESION'}</span>
                 <span className={styles.altMetricValue}>
                   {currentConsequence.alternativeBranch.projectedSquadCohesion}%
                 </span>
@@ -577,7 +628,7 @@ export default function ConsequenceScreen() {
             transition={{ duration: 0.44, ease: 'easeOut' }}
           >
             <div className={styles.aiDirectorHeader}>
-              <span className={styles.aiDirectorBadge}>AI DIRECTOR // CONTEXT</span>
+              <span className={styles.aiDirectorBadge}>{ui.aiDirectorContextTitle}</span>
               <span className={styles.aiDirectorSourceBadge}>
                 {currentConsequence.aiDirectorSource === 'gemini'
                   ? 'GEMINI CREATIVE BRAIN'
@@ -588,7 +639,7 @@ export default function ConsequenceScreen() {
               "{currentConsequence.aiTacticalAdvisory || 'Environmental corridor pressure detected. Maintain tactical focus on marked exit pathways.'}"
             </p>
             <div className={styles.aiDirectorDisclaimer}>
-              * Non-authoritative atmospheric context. Safety truth is strictly governed by NDMA protocols below.
+              * {ui.safetyArchitectureFirewall}
             </div>
           </motion.div>
         )}
@@ -603,7 +654,7 @@ export default function ConsequenceScreen() {
             <div className={styles.directorFrameworkHeader}>
               <div className={styles.directorFrameworkTitle}>
                 <span className={styles.directorFrameworkIcon} aria-hidden="true">🎬</span>
-                <span>DISASTER DIRECTOR // PRE-VENUE FRAMEWORK</span>
+                <span>{ui.disasterDirectorTitle}</span>
               </div>
               <div className={styles.directorFrameworkBadges}>
                 <span
@@ -616,33 +667,37 @@ export default function ConsequenceScreen() {
                   }`}
                 >
                   {currentConsequence.directorExecutionStatus === 'STANDBY_FRAMEWORK'
-                    ? 'STANDBY (PRE-VENUE)'
+                    ? (language === 'hinglish' ? 'STANDBY (PRE-VENUE)' : 'STANDBY (PRE-VENUE)')
                     : currentConsequence.directorExecutionStatus}
                 </span>
                 <span className={styles.directorSourceBadge}>
-                  SOURCE: {currentConsequence.directorSource || 'DETERMINISTIC'}
+                  {language === 'hinglish' ? 'SROT:' : 'SOURCE:'} {currentConsequence.directorSource || 'DETERMINISTIC'}
                 </span>
               </div>
             </div>
 
             <div className={styles.directorEventBanner}>
               <div className={styles.directorEventLabel}>
-                <strong>EVENT:</strong> {currentConsequence.directorEventLabel || currentConsequence.directorEventId}
+                <strong>{language === 'hinglish' ? 'EVENT:' : 'EVENT:'}</strong> {currentConsequence.directorEventLabel || currentConsequence.directorEventId}
               </div>
               <span className={styles.directorCategoryTag}>
-                CATEGORY: {currentConsequence.directorEventCategory?.toUpperCase() || 'ENVIRONMENTAL'}
+                {language === 'hinglish' ? 'SHRENI:' : 'CATEGORY:'} {currentConsequence.directorEventCategory?.toUpperCase() || 'ENVIRONMENTAL'}
               </span>
             </div>
 
             <div className={styles.directorFrameworkGrid}>
               <div className={styles.directorFrameworkItem}>
-                <span className={styles.directorFrameworkItemLabel}>TRIGGER REASON</span>
+                <span className={styles.directorFrameworkItemLabel}>
+                  {language === 'hinglish' ? 'TRIGGER KA KAARAN' : 'TRIGGER REASON'}
+                </span>
                 <span className={styles.directorFrameworkItemVal}>
                   {currentConsequence.directorTriggerReason || 'Simulation telemetry threshold satisfied.'}
                 </span>
               </div>
               <div className={styles.directorFrameworkItem}>
-                <span className={styles.directorFrameworkItemLabel}>VALIDATION STATE</span>
+                <span className={styles.directorFrameworkItemLabel}>
+                  {language === 'hinglish' ? 'VALIDATION STHITI' : 'VALIDATION STATE'}
+                </span>
                 <span
                   className={`${styles.directorFrameworkItemVal} ${
                     currentConsequence.directorValidation === 'VALID'
@@ -662,42 +717,25 @@ export default function ConsequenceScreen() {
             )}
 
             <div className={styles.directorFrameworkNotice}>
-              🛡️ PRE-VENUE COMPLIANCE NOTICE: Full runtime adaptive branching is scheduled for the Round 2 offline final (3 Oct 2026). In this framework build, the Director is advisory and standing by. Safety truth remains 100% deterministic.
+              🛡️ {ui.preVenueComplianceNotice}
             </div>
           </motion.div>
         )}
 
-        {/* Authoritative Safety Insight */}
-        <motion.div
-          className={styles.insightCard}
-          variants={itemVariants}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
-        >
-          <div className={styles.insightHeader}>
-            <span aria-hidden="true">🛡️</span>
-            <span>{ui.protocolGrounding}</span>
-          </div>
-          <p className={styles.insightText}>{currentConsequence.insight}</p>
-          <div className={styles.insightSource}>
-            Official Source: {currentConsequence.insightSource}
-          </div>
-        </motion.div>
-
-        {/* Continue Action */}
-        <motion.div
-          className={styles.footerActions}
-          variants={itemVariants}
-          transition={{ duration: 0.4, ease: 'easeOut' }}
-        >
-          <motion.button
-            className={styles.continueBtn}
-            onClick={handleContinue}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {ui.continueSimulation}
-          </motion.button>
-        </motion.div>
+              {/* In-drawer secondary Continue Action */}
+              <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'center' }}>
+                <button
+                  type="button"
+                  className={styles.continueBtn}
+                  onClick={handleContinue}
+                  style={{ maxWidth: '400px', width: '100%' }}
+                >
+                  {ui.continueSimulation}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </motion.div>
     </div>
   );

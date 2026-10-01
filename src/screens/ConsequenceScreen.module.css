@@ -1133,3 +1133,50 @@
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding-top: 0.5rem;
 }
+
+/* ── Progressive Disclosure: Layer 3 Advanced Analysis Toggle & Drawer ── */
+.advancedSection {
+  margin-top: var(--space-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.advancedToggleBtn {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--color-fog);
+  padding: 0.65rem 1rem;
+  border-radius: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.advancedToggleBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--color-white);
+}
+
+.advancedToggleBtnActive {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--theme-primary, #63b3ed);
+  color: var(--theme-primary, #90cdf4);
+}
+
+.advancedDrawer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  animation: fadeIn 0.3s ease-out;
+}

@@ -2,7 +2,7 @@
 // Comprehensive Emergency Preparedness Report.
 // Displays calculated score, decision-by-decision review, and official NDMA takeaways.
 
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
@@ -33,6 +33,8 @@ export default function ReportScreen() {
     currentOutcome,
     aiDirectorState,
   } = useGameStore();
+
+  const [showDeepAudits, setShowDeepAudits] = useState(false);
 
   const report = useMemo(() => buildReport(decisions, activeDisaster || undefined), [decisions, activeDisaster]);
   const { scoreSummary, decisionReviews, keyTakeaways, officialHelplines } = report;
@@ -698,84 +700,251 @@ export default function ReportScreen() {
           </div>
         </div>
 
-        {/* Stress Regulation & Panic Audit */}
-        <div className={styles.panicAuditBlock}>
-          <div className={styles.panicAuditTop}>
-            <div className={styles.panicAuditTitle}>
-              <span aria-hidden="true">🧠</span>
-              <span>{language === 'hinglish' ? 'Tanaav Niyantran & Panic Audit' : 'Stress Regulation & Panic Audit'}</span>
+        {/* Decision-by-Decision Replay */}
+        {decisionReviews.length > 0 && (
+          <div>
+            <h2 className={styles.sectionHeading}>
+              <span aria-hidden="true">📋</span>
+              <span>{ui.decisionBreakdown}</span>
+            </h2>
+
+            <div className={styles.reviewList}>
+              {decisionReviews.map((item) => {
+                const dec = decisions[item.step - 1];
+                return (
+                  <div
+                    key={item.nodeId + item.step}
+                    className={`${styles.reviewCard} ${
+                      item.isCorrect
+                        ? styles.reviewCardOptimal
+                        : styles.reviewCardSuboptimal
+                    }`}
+                  >
+                    <div className={styles.reviewHeader}>
+                      <span className={styles.reviewStep}>
+                        {ui.stepLabel} {String(item.step).padStart(2, '0')}
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {dec?.difficultyLevel !== undefined && (
+                          <span className={styles.reviewDiffTag}>
+                            {ui.difficultyLevel}: L{dec.difficultyLevel}
+                          </span>
+                        )}
+                        {dec?.squadCohesion !== undefined && (
+                          <span className={styles.reviewSquadTag}>
+                            {ui.squadCohesion}: {dec.squadCohesion}%
+                          </span>
+                        )}
+                        {dec?.cityMacroStatus && (
+                          <span className={styles.reviewCityTag}>
+                            {ui.cityStatus}: {dec.cityMacroStatus}
+                          </span>
+                        )}
+                        {dec?.chainSeverity && dec.chainSeverity !== 'NONE' && (
+                          <span className={styles.reviewChainTag}>
+                            CHAIN: {dec.chainSeverity}
+                          </span>
+                        )}
+                        {dec?.aiDirectorEvent && dec.aiDirectorEvent !== 'NONE' && (
+                          <span className={styles.reviewDirectorTag}>
+                            DIRECTOR: {dec.aiDirectorEvent.replace(/_/g, ' ')}
+                          </span>
+                        )}
+                        {dec?.directorEventId && dec.directorEventId !== 'NONE' && (
+                          <span className={styles.reviewDirectorTag}>
+                            DIRECTOR [{ui.directorStandby}]: {dec.directorEventId.replace(/_/g, ' ')}
+                          </span>
+                        )}
+                        {dec?.trainingBand && (
+                          <span className={styles.reviewTrainTag}>
+                            {ui.trainingPace}: {dec.trainingBand}
+                          </span>
+                        )}
+                        {dec?.panicLevel !== undefined && (
+                          <span className={styles.reviewStressTag}>
+                            {ui.stressLevel}: {dec.panicBand || 'CONTROLLED'} ({dec.panicLevel}/100)
+                          </span>
+                        )}
+                        {dec?.convergenceBand && (
+                          <span className={styles.reviewEnvTag}>
+                            RISK: {dec.convergenceBand.replace('_', ' ')}
+                          </span>
+                        )}
+                        {dec?.hazardLevel !== undefined && (
+                          <span className={styles.reviewEnvTag}>
+                            {ui.hazardLevel}: {dec.hazardLevel}%
+                          </span>
+                        )}
+                        <span
+                          className={`${styles.reviewBadge} ${
+                            item.isCorrect ? styles.badgeOptimal : styles.badgeSuboptimal
+                          }`}
+                        >
+                          {item.isCorrect ? ui.optimalAction : ui.highRiskAction}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={styles.reviewChoice}>
+                      <strong>{ui.actionLabel}</strong> {item.choiceLabel}
+                    </div>
+
+                    <div className={styles.reviewConsequence}>
+                      <strong>{ui.consequenceLabel}</strong> {item.consequenceText}
+                    </div>
+
+                    {dec?.stateShiftSummary && (
+                      <div className={styles.reviewShift}>
+                        <strong>⚡ {language === 'hinglish' ? 'Badlaav:' : 'Shift:'}</strong> {dec.stateShiftSummary}
+                      </div>
+                    )}
+
+                    {dec?.propagationSummary && (
+                      <div className={styles.reviewPropText}>
+                        <strong>🌐 {language === 'hinglish' ? 'Aage Ka Asar:' : 'Propagation:'}</strong> {dec.propagationSummary}
+                      </div>
+                    )}
+
+                    {dec?.behaviorSummary && (
+                      <div className={styles.reviewBehaviorText}>
+                        <strong>🧠 {language === 'hinglish' ? 'Vyavahar:' : 'Behavior:'}</strong> {dec.behaviorSummary}
+                      </div>
+                    )}
+
+                    {dec?.alternativeBranch && (
+                      <div className={styles.reviewAltText}>
+                        <strong>🔀 {language === 'hinglish' ? 'Agar Aisa Karte:' : 'What If:'}</strong> If chosen "{dec.alternativeBranch.choiceLabel}" →{' '}
+                        {dec.alternativeBranch.divergenceSummary}
+                      </div>
+                    )}
+
+                    <div className={styles.reviewInsight}>
+                      <div>
+                        <strong>{ui.protocolLabel}</strong> {item.insight}
+                      </div>
+                      <div className={styles.reviewSource}>
+                        {ui.sourceLabel} {item.insightSource}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <span
-              className={styles.panicAuditBadge}
-              style={{
-                color:
-                  panicAudit.peakBand === 'CALM'
-                    ? '#39d353'
-                    : panicAudit.peakBand === 'CONTROLLED'
-                    ? '#68d391'
-                    : panicAudit.peakBand === 'ELEVATED'
-                    ? '#ecc94b'
-                    : panicAudit.peakBand === 'HIGH'
-                    ? '#ed8936'
-                    : '#f56565',
-                borderColor:
-                  panicAudit.peakBand === 'CALM'
-                    ? '#39d353'
-                    : panicAudit.peakBand === 'CONTROLLED'
-                    ? '#68d391'
-                    : panicAudit.peakBand === 'ELEVATED'
-                    ? '#ecc94b'
-                    : panicAudit.peakBand === 'HIGH'
-                    ? '#ed8936'
-                    : '#f56565',
-              }}
-            >
-              PEAK: {panicAudit.peakBand} ({panicAudit.peakPanic}/100)
-            </span>
           </div>
+        )}
 
-          <div className={styles.panicMetricsRow}>
-            <div className={styles.panicMetricCard}>
-              <span className={styles.panicMetricVal} style={{ color: '#68d391' }}>
-                {panicAudit.finalPanic}/100
-              </span>
-              <span className={styles.panicMetricLabel}>
-                {language === 'hinglish' ? 'Antim Panic Level' : 'Final Panic Level'}
-              </span>
-            </div>
-
-            <div className={styles.panicMetricCard}>
-              <span className={styles.panicMetricVal} style={{ color: '#ecc94b' }}>
-                {panicAudit.peakPanic}/100
-              </span>
-              <span className={styles.panicMetricLabel}>
-                {language === 'hinglish' ? 'Peak Panic Spikes' : 'Peak Panic Reached'}
-              </span>
-            </div>
-
-            <div className={styles.panicMetricCard}>
-              <span className={styles.panicMetricVal} style={{ color: panicAudit.timerCompressions > 0 ? '#f56565' : '#39d353' }}>
-                {panicAudit.timerCompressions}
-              </span>
-              <span className={styles.panicMetricLabel}>
-                {language === 'hinglish' ? 'Time Pressure Nodes' : 'Panic Time Penalties'}
-              </span>
-            </div>
+        {/* Key Preparedness Takeaways */}
+        <div>
+          <h2 className={styles.sectionHeading}>
+            <span aria-hidden="true">💡</span>
+            <span>{ui.keyTakeaways}</span>
+          </h2>
+          <div className={styles.takeawayList}>
+            {takeawaysToDisplay.map((takeaway, idx) => (
+              <div key={idx} className={styles.takeawayItem}>
+                <span className={styles.takeawayBullet}>[{idx + 1}]</span>
+                <span>{takeaway}</span>
+              </div>
+            ))}
           </div>
-
-          <p className={styles.panicAuditDesc}>{panicAudit.summary}</p>
         </div>
+
+        {/* Layer 3: Progressive Disclosure — Deep Incident Analysis & Simulation Audits */}
+        <div className={styles.deepAuditsSection}>
+          <div className={styles.deepAuditsHeader}>
+            <div className={styles.deepAuditsTitleGroup}>
+              <h2 className={styles.deepAuditsTitle}>
+                <span aria-hidden="true">🔬</span>
+                <span>{ui.deepIncidentAnalysis}</span>
+              </h2>
+              <p className={styles.deepAuditsSubtitle}>{ui.deepAnalysisSubtitle}</p>
+            </div>
+            <button
+              type="button"
+              className={`${styles.auditToggleBtn} ${showDeepAudits ? styles.auditToggleBtnActive : ''}`}
+              onClick={() => setShowDeepAudits((prev) => !prev)}
+              aria-expanded={showDeepAudits}
+            >
+              <span>{showDeepAudits ? '▲ ' + ui.hideAdvanced : '▼ ' + ui.showAdvanced}</span>
+            </button>
+          </div>
+
+          {showDeepAudits && (
+            <div className={styles.deepAuditsDrawer}>
+              {/* Stress Regulation & Panic Audit */}
+              <div className={styles.panicAuditBlock}>
+                <div className={styles.panicAuditTop}>
+                  <div className={styles.panicAuditTitle}>
+                    <span aria-hidden="true">🧠</span>
+                    <span>{ui.stressRegulationAudit}</span>
+                  </div>
+                  <span
+                    className={styles.panicAuditBadge}
+                    style={{
+                      color:
+                        panicAudit.peakBand === 'CALM'
+                          ? '#39d353'
+                          : panicAudit.peakBand === 'CONTROLLED'
+                          ? '#68d391'
+                          : panicAudit.peakBand === 'ELEVATED'
+                          ? '#ecc94b'
+                          : panicAudit.peakBand === 'HIGH'
+                          ? '#ed8936'
+                          : '#f56565',
+                      borderColor:
+                        panicAudit.peakBand === 'CALM'
+                          ? '#39d353'
+                          : panicAudit.peakBand === 'CONTROLLED'
+                          ? '#68d391'
+                          : panicAudit.peakBand === 'ELEVATED'
+                          ? '#ecc94b'
+                          : panicAudit.peakBand === 'HIGH'
+                          ? '#ed8936'
+                          : '#f56565',
+                    }}
+                  >
+                    PEAK: {panicAudit.peakBand} ({panicAudit.peakPanic}/100)
+                  </span>
+                </div>
+
+                <div className={styles.panicMetricsRow}>
+                  <div className={styles.panicMetricCard}>
+                    <span className={styles.panicMetricVal} style={{ color: '#68d391' }}>
+                      {panicAudit.finalPanic}/100
+                    </span>
+                    <span className={styles.panicMetricLabel}>
+                      {ui.finalPanicLevel}
+                    </span>
+                  </div>
+
+                  <div className={styles.panicMetricCard}>
+                    <span className={styles.panicMetricVal} style={{ color: '#ecc94b' }}>
+                      {panicAudit.peakPanic}/100
+                    </span>
+                    <span className={styles.panicMetricLabel}>
+                      {ui.peakPanicReached}
+                    </span>
+                  </div>
+
+                  <div className={styles.panicMetricCard}>
+                    <span className={styles.panicMetricVal} style={{ color: panicAudit.timerCompressions > 0 ? '#f56565' : '#39d353' }}>
+                      {panicAudit.timerCompressions}
+                    </span>
+                    <span className={styles.panicMetricLabel}>
+                      {ui.panicTimePenalties}
+                    </span>
+                  </div>
+                </div>
+
+                <p className={styles.panicAuditDesc}>{panicAudit.summary}</p>
+              </div>
 
         {/* Environmental Response Audit */}
         <div className={styles.envAuditBlock}>
           <div className={styles.envAuditTop}>
             <div className={styles.envAuditTitle}>
               <span aria-hidden="true">🌐</span>
-              <span>
-                {language === 'hinglish'
-                  ? 'Paryavaran Niyantran & Hazard Audit'
-                  : 'Environmental Containment & Hazard Audit'}
-              </span>
+              <span>{ui.envContainmentAudit}</span>
             </div>
             <span
               className={styles.envAuditBadge}
@@ -808,7 +977,7 @@ export default function ReportScreen() {
                 {envAudit.peakHazard}%
               </span>
               <span className={styles.envMetricLabel}>
-                {language === 'hinglish' ? 'Peak Hazard Level' : 'Peak Hazard Reached'}
+                {ui.peakHazardReached}
               </span>
             </div>
 
@@ -817,7 +986,7 @@ export default function ReportScreen() {
                 {envAudit.minSafety}%
               </span>
               <span className={styles.envMetricLabel}>
-                {language === 'hinglish' ? 'Min Safety Integrity' : 'Lowest Safety Integrity'}
+                {ui.lowestSafetyIntegrity}
               </span>
             </div>
 
@@ -826,7 +995,7 @@ export default function ReportScreen() {
                 {envAudit.minVisibility}%
               </span>
               <span className={styles.envMetricLabel}>
-                {language === 'hinglish' ? 'Min Visibility' : 'Lowest Visibility'}
+                {ui.lowestVisibility}
               </span>
             </div>
 
@@ -835,7 +1004,7 @@ export default function ReportScreen() {
                 {envAudit.escalations}
               </span>
               <span className={styles.envMetricLabel}>
-                {language === 'hinglish' ? 'Hazard Escalations' : 'Hazard Escalations'}
+                {ui.hazardEscalations}
               </span>
             </div>
 
@@ -844,7 +1013,7 @@ export default function ReportScreen() {
                 {envAudit.recoveries}
               </span>
               <span className={styles.envMetricLabel}>
-                {language === 'hinglish' ? 'Containment Actions' : 'Containment Recoveries'}
+                {ui.containmentRecoveries}
               </span>
             </div>
           </div>
@@ -857,11 +1026,7 @@ export default function ReportScreen() {
           <div className={styles.behaviorAuditTop}>
             <div className={styles.behaviorAuditTitle}>
               <span aria-hidden="true">🧠</span>
-              <span>
-                {language === 'hinglish'
-                  ? 'Vyavahar aur Anukulan Audit // Instinct vs Training'
-                  : 'Behavior & Adaptation Audit // Instinct vs Training'}
-              </span>
+              <span>{ui.behaviorAdaptationAudit}</span>
             </div>
             <span
               className={styles.behaviorAuditBadge}
@@ -890,7 +1055,7 @@ export default function ReportScreen() {
                 {behaviorAudit.trainingBand}
               </span>
               <span className={styles.behaviorMetricLabel}>
-                {language === 'hinglish' ? 'Training Score' : 'Protocol Training'} ({behaviorAudit.finalTraining}/100)
+                {ui.protocolTraining} ({behaviorAudit.finalTraining}/100)
               </span>
             </div>
 
@@ -899,7 +1064,7 @@ export default function ReportScreen() {
                 {behaviorAudit.instinctBand}
               </span>
               <span className={styles.behaviorMetricLabel}>
-                {language === 'hinglish' ? 'Instinctive Reflex' : 'Instinctive Reflex'} ({behaviorAudit.finalInstinct}/100)
+                {ui.instinctiveReflex} ({behaviorAudit.finalInstinct}/100)
               </span>
             </div>
 
@@ -908,7 +1073,7 @@ export default function ReportScreen() {
                 LVL {behaviorAudit.peakDifficulty}/5
               </span>
               <span className={styles.behaviorMetricLabel}>
-                {language === 'hinglish' ? 'Peak Difficulty' : 'Peak Difficulty Reached'}
+                {ui.peakDifficultyReached}
               </span>
             </div>
 
@@ -917,7 +1082,7 @@ export default function ReportScreen() {
                 {behaviorAudit.strongestSignal}
               </span>
               <span className={styles.behaviorMetricLabel}>
-                {language === 'hinglish' ? 'Sabse Majboot Signal' : 'Primary Behavioral Asset'}
+                {ui.primaryBehavioralAsset}
               </span>
             </div>
 
@@ -929,7 +1094,7 @@ export default function ReportScreen() {
                 {behaviorAudit.weakestSignal}
               </span>
               <span className={styles.behaviorMetricLabel}>
-                {language === 'hinglish' ? 'Dhyan Dene Yogya Signal' : 'Observed Vulnerability'}
+                {ui.observedVulnerability}
               </span>
             </div>
           </div>
@@ -937,7 +1102,7 @@ export default function ReportScreen() {
           <div className={styles.profileBox}>
             <div className={styles.profileHeader}>
               <span className={styles.profileLabel}>
-                {language === 'hinglish' ? 'OPERATOR PROFILE' : 'OPERATOR SURVIVAL PROFILE'}:
+                {ui.operatorProfile}:
               </span>
               <span className={styles.profileName}>
                 {behaviorAudit.profile.replace(/_/g, ' ')}
@@ -956,7 +1121,7 @@ export default function ReportScreen() {
           <div className={styles.squadAuditHeader}>
             <div className={styles.squadAuditTitle}>
               <span aria-hidden="true">👥</span>
-              <span>NPC SURVIVAL SQUAD & COMPANION AUDIT</span>
+              <span>{ui.npcSquadAudit}</span>
             </div>
             <span className={styles.squadCohesionTag}>
               RATING: {squadAudit.rating.replace(/_/g, ' ')}
@@ -969,7 +1134,7 @@ export default function ReportScreen() {
                 {squadAudit.finalCohesion}%
               </span>
               <span className={styles.behaviorMetricLabel}>
-                {language === 'hinglish' ? 'Final Cohesion' : 'Final Squad Cohesion'}
+                {ui.finalSquadCohesion}
               </span>
             </div>
             <div className={styles.behaviorMetricCard}>
@@ -977,7 +1142,7 @@ export default function ReportScreen() {
                 {squadAudit.membersSurvived}/3
               </span>
               <span className={styles.behaviorMetricLabel}>
-                {language === 'hinglish' ? 'Survivors' : 'Squad Members Survived'}
+                {ui.squadMembersSurvived}
               </span>
             </div>
             <div className={styles.behaviorMetricCard}>
@@ -985,7 +1150,7 @@ export default function ReportScreen() {
                 {squadAudit.membersInjured}
               </span>
               <span className={styles.behaviorMetricLabel}>
-                {language === 'hinglish' ? 'Injured' : 'Injured Companions'}
+                {ui.injuredCompanions}
               </span>
             </div>
             <div className={styles.behaviorMetricCard}>
@@ -993,7 +1158,7 @@ export default function ReportScreen() {
                 {squadAudit.synergyEvents}
               </span>
               <span className={styles.behaviorMetricLabel}>
-                {language === 'hinglish' ? 'Synergy Bonus' : 'Specialist Synergies'}
+                {ui.specialistSynergies}
               </span>
             </div>
           </div>
@@ -1006,7 +1171,7 @@ export default function ReportScreen() {
           <div className={styles.cityAuditHeader}>
             <div className={styles.cityAuditTitle}>
               <span aria-hidden="true">🏙️</span>
-              <span>CITY BRAIN & MUNICIPAL INFRASTRUCTURE AUDIT</span>
+              <span>{ui.cityBrainAudit}</span>
             </div>
             <span
               className={styles.cityMacroAuditTag}
@@ -1041,7 +1206,7 @@ export default function ReportScreen() {
                 {cityAudit.finalAccess}%
               </span>
               <span className={styles.behaviorMetricLabel}>
-                {language === 'hinglish' ? '112 Emergency Access' : '112 Emergency Access'}
+                {ui.emergency112Access}
               </span>
             </div>
             <div className={styles.behaviorMetricCard}>
@@ -1049,7 +1214,7 @@ export default function ReportScreen() {
                 {cityAudit.finalUtility}%
               </span>
               <span className={styles.behaviorMetricLabel}>
-                {language === 'hinglish' ? 'Utility Stability' : 'Municipal Utility Stability'}
+                {ui.municipalUtilityStability}
               </span>
             </div>
           </div>
@@ -1062,7 +1227,7 @@ export default function ReportScreen() {
           <div className={styles.chainAuditHeader}>
             <div className={styles.chainAuditTitle}>
               <span aria-hidden="true">⛓️</span>
-              <span>MULTI-DISASTER CHAIN & SECONDARY HAZARDS</span>
+              <span>{ui.multiDisasterAudit}</span>
             </div>
             <span
               className={styles.chainAuditBadge}
@@ -1092,7 +1257,7 @@ export default function ReportScreen() {
           <div className={styles.altAuditHeader}>
             <div className={styles.altAuditTitle}>
               <span aria-hidden="true">🔀</span>
-              <span>ALTERNATIVE TIMELINES & WHAT-IF ANALYSIS</span>
+              <span>{ui.altTimelineAudit}</span>
             </div>
             <span className={styles.altAuditBadge}>
               BRANCHES: {altAudit.totalEvaluated} ANALYZED
@@ -1126,7 +1291,7 @@ export default function ReportScreen() {
           <div className={styles.aiDirectorAuditHeader}>
             <div className={styles.aiDirectorAuditTitle}>
               <span aria-hidden="true">🤖</span>
-              <span>AI DIRECTOR & TWO-BRAIN ARCHITECTURE AUDIT</span>
+              <span>{ui.aiDirectorAuditTitle}</span>
             </div>
             <span className={styles.aiDirectorStatusBadge}>
               {aiDirectorAudit.systemStatus}
@@ -1134,7 +1299,7 @@ export default function ReportScreen() {
           </div>
 
           <div className={styles.aiSafetyFirewallBanner}>
-            🛡️ <strong>SAFETY ARCHITECTURE FIREWALL:</strong> AI suggestions and creative narrations never determine safety-critical outcomes, correct procedures, scoring, or survival status. The deterministic NDMA engine remains the sole authority.
+            🛡️ <strong>{ui.safetyArchitectureFirewall}:</strong> AI suggestions and creative narrations never determine safety-critical outcomes, correct procedures, scoring, or survival status. The deterministic NDMA engine remains the sole authority.
           </div>
 
           <div className={styles.behaviorMetricsRow}>
@@ -1143,7 +1308,7 @@ export default function ReportScreen() {
                 {aiDirectorAudit.totalEvaluated}
               </span>
               <span className={styles.behaviorMetricLabel}>
-                Events Evaluated
+                {ui.stepsEvaluated}
               </span>
             </div>
             <div className={styles.behaviorMetricCard}>
@@ -1180,15 +1345,15 @@ export default function ReportScreen() {
           <div className={styles.adaptiveDirectorAuditHeader}>
             <div className={styles.adaptiveDirectorAuditTitle}>
               <span aria-hidden="true">🎬</span>
-              <span>DISASTER DIRECTOR AUDIT (PRE-VENUE FRAMEWORK)</span>
+              <span>{ui.disasterDirectorAuditTitle}</span>
             </div>
             <span className={styles.directorFrameworkModeTag}>
-              MODE: {adaptiveDirectorAudit.mode} (STANDBY)
+              MODE: {adaptiveDirectorAudit.mode} ({ui.directorStandby})
             </span>
           </div>
 
           <div className={styles.directorFrameworkNoticeBanner}>
-            🛡️ <strong>PRE-VENUE FRAMEWORK COMPLIANCE:</strong> The Live Adaptive Disaster Director operates in Pre-Venue Standby mode. Full runtime adaptive branching and dynamic mutations are reserved for the Round 2 offline final on 3 October 2026. The deterministic simulation engine remains the sole authority for safety truth, scores, and outcomes.
+            🛡️ <strong>{ui.preVenueComplianceNotice}:</strong> The Live Adaptive Disaster Director operates in Pre-Venue Standby mode. Full runtime adaptive branching and dynamic mutations are reserved for the Round 2 offline final on 3 October 2026. The deterministic simulation engine remains the sole authority for safety truth, scores, and outcomes.
           </div>
 
           <div className={styles.behaviorMetricsRow}>
@@ -1197,7 +1362,7 @@ export default function ReportScreen() {
                 {adaptiveDirectorAudit.totalEvaluated}
               </span>
               <span className={styles.behaviorMetricLabel}>
-                Steps Evaluated
+                {ui.stepsEvaluated}
               </span>
             </div>
             <div className={styles.behaviorMetricCard}>
@@ -1205,7 +1370,7 @@ export default function ReportScreen() {
                 {adaptiveDirectorAudit.validCount}
               </span>
               <span className={styles.behaviorMetricLabel}>
-                Registry Validations
+                {ui.registryValidations}
               </span>
             </div>
             <div className={styles.behaviorMetricCard}>
@@ -1213,21 +1378,21 @@ export default function ReportScreen() {
                 {adaptiveDirectorAudit.cooldownBlocks}
               </span>
               <span className={styles.behaviorMetricLabel}>
-                Cooldown Blocks
+                {ui.cooldownBlocks}
               </span>
             </div>
             <div className={styles.behaviorMetricCard}>
               <span className={styles.behaviorMetricVal} style={{ color: '#90cdf4' }}>
-                STANDBY
+                {ui.directorStandby}
               </span>
               <span className={styles.behaviorMetricLabel}>
-                Execution Status
+                {ui.executionStatus}
               </span>
             </div>
           </div>
 
           <div className={styles.directorSourceBreakdownRow}>
-            <span className={styles.sourceBreakdownTitle}>RECOMMENDATION SOURCES:</span>
+            <span className={styles.sourceBreakdownTitle}>{ui.recommendationSources}:</span>
             <span className={styles.sourceTag}>
               DETERMINISTIC: <strong>{adaptiveDirectorAudit.sourceBreakdown.deterministic}</strong>
             </span>
@@ -1241,155 +1406,9 @@ export default function ReportScreen() {
 
           <p className={styles.behaviorAuditDesc}>{adaptiveDirectorAudit.summary}</p>
         </div>
-
-        {/* Decision-by-Decision Replay */}
-        {decisionReviews.length > 0 && (
-          <div>
-            <h2 className={styles.sectionHeading}>
-              <span aria-hidden="true">📋</span>
-              <span>{ui.decisionBreakdown}</span>
-            </h2>
-
-            <div className={styles.reviewList}>
-              {decisionReviews.map((item) => {
-                const dec = decisions[item.step - 1];
-                return (
-                  <div
-                    key={item.nodeId + item.step}
-                    className={`${styles.reviewCard} ${
-                      item.isCorrect
-                        ? styles.reviewCardOptimal
-                        : styles.reviewCardSuboptimal
-                    }`}
-                  >
-                    <div className={styles.reviewHeader}>
-                      <span className={styles.reviewStep}>
-                        {ui.stepLabel} {String(item.step).padStart(2, '0')}
-                      </span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        {dec?.difficultyLevel !== undefined && (
-                          <span className={styles.reviewDiffTag}>
-                            DIFF: L{dec.difficultyLevel}
-                          </span>
-                        )}
-                        {dec?.squadCohesion !== undefined && (
-                          <span className={styles.reviewSquadTag}>
-                            SQUAD: {dec.squadCohesion}%
-                          </span>
-                        )}
-                        {dec?.cityMacroStatus && (
-                          <span className={styles.reviewCityTag}>
-                            CITY: {dec.cityMacroStatus}
-                          </span>
-                        )}
-                        {dec?.chainSeverity && dec.chainSeverity !== 'NONE' && (
-                          <span className={styles.reviewChainTag}>
-                            CHAIN: {dec.chainSeverity}
-                          </span>
-                        )}
-                        {dec?.aiDirectorEvent && dec.aiDirectorEvent !== 'NONE' && (
-                          <span className={styles.reviewDirectorTag}>
-                            DIRECTOR: {dec.aiDirectorEvent.replace(/_/g, ' ')}
-                          </span>
-                        )}
-                        {dec?.directorEventId && dec.directorEventId !== 'NONE' && (
-                          <span className={styles.reviewDirectorTag}>
-                            DIRECTOR [STANDBY]: {dec.directorEventId.replace(/_/g, ' ')}
-                          </span>
-                        )}
-                        {dec?.trainingBand && (
-                          <span className={styles.reviewTrainTag}>
-                            TRAIN: {dec.trainingBand}
-                          </span>
-                        )}
-                        {dec?.panicLevel !== undefined && (
-                          <span className={styles.reviewStressTag}>
-                            STRESS: {dec.panicBand || 'CONTROLLED'} ({dec.panicLevel}/100)
-                          </span>
-                        )}
-                        {dec?.convergenceBand && (
-                          <span className={styles.reviewEnvTag}>
-                            RISK: {dec.convergenceBand.replace('_', ' ')}
-                          </span>
-                        )}
-                        {dec?.hazardLevel !== undefined && (
-                          <span className={styles.reviewEnvTag}>
-                            HAZARD: {dec.hazardLevel}%
-                          </span>
-                        )}
-                        <span
-                          className={`${styles.reviewBadge} ${
-                            item.isCorrect ? styles.badgeOptimal : styles.badgeSuboptimal
-                          }`}
-                        >
-                          {item.isCorrect ? ui.optimalAction : ui.highRiskAction}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className={styles.reviewChoice}>
-                      <strong>{ui.actionLabel}</strong> {item.choiceLabel}
-                    </div>
-
-                    <div className={styles.reviewConsequence}>
-                      <strong>{ui.consequenceLabel}</strong> {item.consequenceText}
-                    </div>
-
-                    {dec?.stateShiftSummary && (
-                      <div className={styles.reviewShift}>
-                        <strong>⚡ Shift:</strong> {dec.stateShiftSummary}
-                      </div>
-                    )}
-
-                    {dec?.propagationSummary && (
-                      <div className={styles.reviewPropText}>
-                        <strong>🌐 Propagation:</strong> {dec.propagationSummary}
-                      </div>
-                    )}
-
-                    {dec?.behaviorSummary && (
-                      <div className={styles.reviewBehaviorText}>
-                        <strong>🧠 Behavior:</strong> {dec.behaviorSummary}
-                      </div>
-                    )}
-
-                    {dec?.alternativeBranch && (
-                      <div className={styles.reviewAltText}>
-                        <strong>🔀 What If:</strong> If chosen "{dec.alternativeBranch.choiceLabel}" →{' '}
-                        {dec.alternativeBranch.divergenceSummary}
-                      </div>
-                    )}
-
-                    <div className={styles.reviewInsight}>
-                      <div>
-                        <strong>{ui.protocolLabel}</strong> {item.insight}
-                      </div>
-                      <div className={styles.reviewSource}>
-                        {ui.sourceLabel} {item.insightSource}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Key Preparedness Takeaways */}
-        <div>
-          <h2 className={styles.sectionHeading}>
-            <span aria-hidden="true">💡</span>
-            <span>{ui.keyTakeaways}</span>
-          </h2>
-          <div className={styles.takeawayList}>
-            {takeawaysToDisplay.map((takeaway, idx) => (
-              <div key={idx} className={styles.takeawayItem}>
-                <span className={styles.takeawayBullet}>[{idx + 1}]</span>
-                <span>{takeaway}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+      </div>
+    )}
+  </div>
 
         {/* Emergency Helplines */}
         <div>
@@ -1436,9 +1455,9 @@ export default function ReportScreen() {
               color: 'var(--color-fog)',
             }}
           >
-            <span>PLAYING AS GUEST · </span>
+            <span>{ui.playingAsGuest} · </span>
             <Link to="/auth/signup" style={{ color: 'var(--color-white)', textDecoration: 'underline' }}>
-              CREATE OPERATOR ACCOUNT TO SAVE SIMULATION RECORDS
+              {ui.createAccountToSave}
             </Link>
           </div>
         )}
@@ -1460,7 +1479,7 @@ export default function ReportScreen() {
                 navigate('/profile');
               }}
             >
-              OPERATOR DOSSIER
+              {ui.operatorDossier}
             </button>
           ) : null}
           <button className={styles.btnSecondary} onClick={() => navigate('/')}>

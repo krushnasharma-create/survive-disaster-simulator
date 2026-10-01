@@ -282,23 +282,104 @@
   transform: translateY(-2px);
 }
 
-/* ── Simulation Telemetry HUD Bar (Panic Engine & Butterfly State) ── */
+/* ── Progressive Disclosure Simulation Telemetry (Layer 1 + Layer 2) ── */
 .telemetryBar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
+  flex-direction: column;
+  gap: 0.5rem;
   max-width: var(--max-content);
   margin: -0.5rem auto var(--space-md) auto;
   width: 100%;
-  padding: 0.5rem 0.85rem;
+  padding: 0.45rem 0.85rem;
   background: rgba(12, 14, 18, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 4px;
   backdrop-filter: blur(8px);
   position: relative;
   z-index: 9;
+}
+
+.compactTelemetryStrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
   flex-wrap: wrap;
+  width: 100%;
+}
+
+.compactBadgesGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.compactStressBadge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.compactHazardBadge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid rgba(237, 137, 54, 0.4);
+  border-radius: 2px;
+  background: rgba(237, 137, 54, 0.08);
+  color: #ed8936;
+}
+
+.statusToggleBtn {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-fog);
+  padding: 0.2rem 0.6rem;
+  border-radius: 2px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+  margin-left: auto;
+}
+
+.statusToggleBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--color-white);
+}
+
+.statusToggleBtnActive {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--color-primary, #63b3ed);
+  color: #90cdf4;
+}
+
+.systemStatusDrawer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  width: 100%;
 }
 
 .telemetryGroup {

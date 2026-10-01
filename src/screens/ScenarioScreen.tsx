@@ -68,6 +68,7 @@ export default function ScenarioScreen() {
 
   const [isTimedOut, setIsTimedOut] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [showSystemStatus, setShowSystemStatus] = useState(false);
 
   const targetDisaster = (disasterId as DisasterType) || activeDisaster || 'earthquake';
   const effectiveScenarioKey = activeScenarioId || targetDisaster;
@@ -80,6 +81,18 @@ export default function ScenarioScreen() {
   }, [rawScenario, language]);
 
   const ui = useMemo(() => getUiStrings(language), [language]);
+
+  // Localized Panic Band
+  const localizedPanicBand = useMemo(() => {
+    switch (simulationState.panicBand) {
+      case 'CALM': return ui.bandCalm;
+      case 'CONTROLLED': return ui.bandControlled;
+      case 'ELEVATED': return ui.bandElevated;
+      case 'HIGH': return ui.bandHigh;
+      case 'CRITICAL': return ui.bandCritical;
+      default: return simulationState.panicBand;
+    }
+  }, [simulationState.panicBand, ui]);
 
   // Dynamic Panic Band Color
   const panicBandColor = useMemo(() => {
@@ -102,6 +115,17 @@ export default function ScenarioScreen() {
     () => getConvergenceContext(simulationState, targetDisaster),
     [simulationState, targetDisaster]
   );
+
+  // Localized Environment Status
+  const localizedEnvStatus = useMemo(() => {
+    switch (simulationState.environmentStatus) {
+      case 'STABLE': return ui.statusStable;
+      case 'ELEVATED': return ui.bandElevated;
+      case 'ESCALATING': return ui.statusEscalating;
+      case 'CRITICAL': return ui.bandCritical;
+      default: return simulationState.environmentStatus || ui.statusStable;
+    }
+  }, [simulationState.environmentStatus, ui]);
 
   // Dynamic Environment Status Color
   const envStatusColor = useMemo(() => {
@@ -462,7 +486,9 @@ export default function ScenarioScreen() {
     return (
       <div className={`${styles.screen} ${themeClass}`}>
         <div className={styles.main}>
-          <p className={styles.situation}>Loading scenario situation...</p>
+          <p className={styles.situation}>
+            {language === 'hinglish' ? 'Scenario load ho raha hai...' : 'Loading scenario situation...'}
+          </p>
         </div>
       </div>
     );
@@ -500,80 +526,112 @@ export default function ScenarioScreen() {
         </div>
       </header>
 
-      {/* Simulation Telemetry HUD Bar (Panic Engine + Environmental Integrity) */}
+      {/* Simulation Telemetry HUD Bar (Progressive Disclosure: Layer 1 + Layer 2) */}
       <div className={styles.telemetryBar}>
-        <div className={styles.telemetryGroup}>
-          <div className={styles.panicHeader}>
-            <span className={styles.telemetryLabel}>PSYCHOLOGICAL STRESS</span>
+        {/* Layer 1: Primary Compact Telemetry Strip (Always Visible) */}
+        <div className={styles.compactTelemetryStrip}>
+          <div className={styles.compactBadgesGroup}>
             <span
-              className={styles.panicBadge}
+              className={styles.compactStressBadge}
               style={{ color: panicBandColor, borderColor: panicBandColor }}
             >
-              {simulationState.panicBand} ({simulationState.panic}/100)
+              {ui.stressLevel}: <strong>{localizedPanicBand}</strong> ({simulationState.panic}/100)
             </span>
+
+            <span className={styles.compactHazardBadge}>
+              {ui.hazardLevel}: <strong>{simulationState.hazardLevel}%</strong>
+            </span>
+
+            {(simulationState.timerModifierSeconds < 0 || (simulationState.difficultyModifierSeconds || 0) < 0) && (
+              <div className={styles.timerPenaltyBadge}>
+                ⚡ {Math.abs(simulationState.timerModifierSeconds + (simulationState.difficultyModifierSeconds || 0))}s {ui.timePressure}
+                {(simulationState.difficultyModifierSeconds || 0) < 0
+                  ? ` (${ui.stressLevel} + ${ui.difficultyLevel} L${simulationState.difficultyLevel || 2})`
+                  : ` (${ui.stressLevel})`}
+              </div>
+            )}
+            {simulationState.timerModifierSeconds === 0 && (simulationState.difficultyModifierSeconds || 0) > 0 && (
+              <div className={styles.timerGraceBadge}>
+                ⏱ +{simulationState.difficultyModifierSeconds}s {ui.timeGrace} ({ui.difficultyLevel} L1)
+              </div>
+            )}
           </div>
-          <div className={styles.panicMeterTrack}>
-            <div
-              className={styles.panicMeterFill}
-              style={{
-                width: `${simulationState.panic}%`,
-                backgroundColor: panicBandColor,
-              }}
-            />
-          </div>
+
+          <button
+            type="button"
+            className={`${styles.statusToggleBtn} ${showSystemStatus ? styles.statusToggleBtnActive : ''}`}
+            onClick={() => setShowSystemStatus((prev) => !prev)}
+            aria-expanded={showSystemStatus}
+            title={showSystemStatus ? ui.hideDetails : ui.showDetails}
+          >
+            <span>{showSystemStatus ? '▲' : '▼'}</span>
+            <span>{ui.systemStatus}</span>
+          </button>
         </div>
 
-        {(simulationState.timerModifierSeconds < 0 || (simulationState.difficultyModifierSeconds || 0) < 0) && (
-          <div className={styles.timerPenaltyBadge}>
-            ⚡ {Math.abs(simulationState.timerModifierSeconds + (simulationState.difficultyModifierSeconds || 0))}s PRESSURE
-            {(simulationState.difficultyModifierSeconds || 0) < 0
-              ? ` (PANIC + DIFF L${simulationState.difficultyLevel || 2})`
-              : ' (PANIC)'}
-          </div>
-        )}
-        {simulationState.timerModifierSeconds === 0 && (simulationState.difficultyModifierSeconds || 0) > 0 && (
-          <div className={styles.timerGraceBadge}>
-            ⏱ +{simulationState.difficultyModifierSeconds}s GRACE (DIFF L1)
-          </div>
-        )}
+        {/* Layer 2: Secondary System Status Drawer (Collapsed by Default) */}
+        {showSystemStatus && (
+          <div className={styles.systemStatusDrawer}>
+            <div className={styles.telemetryGroup}>
+              <div className={styles.panicHeader}>
+                <span className={styles.telemetryLabel}>{ui.psychologicalStress}</span>
+                <span
+                  className={styles.panicBadge}
+                  style={{ color: panicBandColor, borderColor: panicBandColor }}
+                >
+                  {localizedPanicBand} ({simulationState.panic}/100)
+                </span>
+              </div>
+              <div className={styles.panicMeterTrack}>
+                <div
+                  className={styles.panicMeterFill}
+                  style={{
+                    width: `${simulationState.panic}%`,
+                    backgroundColor: panicBandColor,
+                  }}
+                />
+              </div>
+            </div>
 
-        <div className={styles.telemetryStats}>
-          <span
-            className={`${styles.statChip} ${styles.envChip}`}
-            style={{ borderColor: envStatusColor }}
-          >
-            ENV: <strong style={{ color: envStatusColor }}>{simulationState.environmentStatus || 'STABLE'}</strong>
-          </span>
-          <span className={styles.statChip}>
-            SQUAD: <strong>{simulationState.squadCohesion ?? 75}%</strong>
-          </span>
-          <span className={styles.statChip}>
-            CITY: <strong>{simulationState.cityBrain?.macroStatus ?? 'OPERATIONAL'}</strong>
-          </span>
-          <span className={styles.statChip}>
-            TRAIN: <strong>{simulationState.trainingBand || 'DEVELOPING'}</strong>
-          </span>
-          <span className={styles.statChip}>
-            DIFF: <strong>L{simulationState.difficultyLevel || 2}/5</strong>
-          </span>
-          <span className={styles.statChip}>
-            HAZARD: <strong>{simulationState.hazardLevel}%</strong>
-          </span>
-          <span className={styles.statChip}>
-            SAFETY: <strong>{simulationState.safetyIntegrity}%</strong>
-          </span>
-          {simulationState.visibility < 100 && (
-            <span className={styles.statChip}>
-              VIS: <strong>{simulationState.visibility}%</strong>
-            </span>
-          )}
-          <span
-            className={`${styles.statChip} ${styles.directorChip}`}
-            title="Adaptive Disaster Director Framework (Pre-Venue Standby)"
-          >
-            DIRECTOR: <strong className={styles.directorStandbyText}>STANDBY</strong> <span className={styles.directorModeTag}>PRE-VENUE</span>
-          </span>
-        </div>
+            <div className={styles.telemetryStats}>
+              <span
+                className={`${styles.statChip} ${styles.envChip}`}
+                style={{ borderColor: envStatusColor }}
+              >
+                {ui.environmentalIntegrity}: <strong style={{ color: envStatusColor }}>{localizedEnvStatus}</strong>
+              </span>
+              <span className={styles.statChip}>
+                {ui.squadCohesion}: <strong>{simulationState.squadCohesion ?? 75}%</strong>
+              </span>
+              <span className={styles.statChip}>
+                {ui.cityStatus}: <strong>{simulationState.cityBrain?.macroStatus ?? 'OPERATIONAL'}</strong>
+              </span>
+              <span className={styles.statChip}>
+                {ui.trainingPace}: <strong>{simulationState.trainingBand || 'DEVELOPING'}</strong>
+              </span>
+              <span className={styles.statChip}>
+                {ui.difficultyLevel}: <strong>L{simulationState.difficultyLevel || 2}/5</strong>
+              </span>
+              <span className={styles.statChip}>
+                {ui.hazardLevel}: <strong>{simulationState.hazardLevel}%</strong>
+              </span>
+              <span className={styles.statChip}>
+                {ui.safetyIntegrity}: <strong>{simulationState.safetyIntegrity}%</strong>
+              </span>
+              {simulationState.visibility < 100 && (
+                <span className={styles.statChip}>
+                  {ui.visibility}: <strong>{simulationState.visibility}%</strong>
+                </span>
+              )}
+              <span
+                className={`${styles.statChip} ${styles.directorChip}`}
+                title="Adaptive Disaster Director Framework (Pre-Venue Standby)"
+              >
+                {ui.directorLabel}: <strong className={styles.directorStandbyText}>{ui.directorStandby}</strong> <span className={styles.directorModeTag}>{ui.directorPreVenue}</span>
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Situation & Decision Area */}
@@ -582,7 +640,11 @@ export default function ScenarioScreen() {
         {scenario.category === 'historical' && scenario.historicalMeta && (
           <div className={styles.historicalBanner}>
             <div className={styles.historicalHeader}>
-              <span>📜 HISTORICAL SIMULATION // EDUCATIONAL RECONSTRUCTION</span>
+              <span>
+                {language === 'hinglish'
+                  ? '📜 ITIHASIK SIMULATION // SHIKSHA HETU RECONSTRUCTION'
+                  : '📜 HISTORICAL SIMULATION // EDUCATIONAL RECONSTRUCTION'}
+              </span>
               <span>·</span>
               <span>{scenario.historicalMeta.eventTitle}</span>
             </div>
@@ -633,12 +695,12 @@ export default function ScenarioScreen() {
                 <span className={styles.chainAlertIcon}>⚡</span>
                 <span className={styles.chainAlertTitle}>
                   {simulationState.disasterChain.chainSeverity === 'ACTIVE'
-                    ? 'SECONDARY DISASTER ACTIVE'
-                    : 'SECONDARY THREAT IMMINENT'}
+                    ? (language === 'hinglish' ? 'DVITEEYAK SANKAT CHALU' : 'SECONDARY DISASTER ACTIVE')
+                    : (language === 'hinglish' ? 'DVITEEYAK KHATRA ASANNA' : 'SECONDARY THREAT IMMINENT')}
                   : {simulationState.disasterChain.chainTitle}
                 </span>
                 <span className={styles.chainAlertBadge}>
-                  CHAIN STAGE {simulationState.disasterChain.chainStage}/2
+                  {language === 'hinglish' ? 'CHAIN CHARAN' : 'CHAIN STAGE'} {simulationState.disasterChain.chainStage}/2
                 </span>
               </div>
               <p className={styles.chainBannerDesc}>
@@ -650,7 +712,9 @@ export default function ScenarioScreen() {
         {/* Subtle AI Director Tactical Advisory */}
         {aiDirectorState.activePressure !== 'NONE' && aiDirectorState.lastRecommendation?.tacticalAdvisory && (
           <div className={styles.directorAdvisoryBanner}>
-            <span className={styles.directorBannerTag}>DIRECTOR // PRE-VENUE FRAMEWORK</span>
+            <span className={styles.directorBannerTag}>
+              {language === 'hinglish' ? 'DIRECTOR // PRE-VENUE SANDARBH' : 'DIRECTOR // PRE-VENUE FRAMEWORK'}
+            </span>
             <span className={styles.directorBannerText}>{aiDirectorState.lastRecommendation.tacticalAdvisory}</span>
           </div>
         )}

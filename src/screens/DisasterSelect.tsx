@@ -167,7 +167,7 @@ export default function DisasterSelect() {
                     isPlayable ? styles.statusActive : styles.statusDev
                   }`}
                 >
-                  {isPlayable ? '● PLAYABLE' : '○ IN DEVELOPMENT'}
+                  {isPlayable ? `● ${ui.statusPlayable}` : `○ ${ui.statusInDev}`}
                 </span>
               </div>
 

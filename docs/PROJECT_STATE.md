@@ -8,11 +8,11 @@
 
 ## Current Phase
 
-**PHASE 3 (BATCH 9) — LIVE ADAPTIVE DISASTER DIRECTOR — PRE-VENUE FRAMEWORK** — Complete, Verified, & Finalized for Checkpoint Commit
+**PHASE 3 (BATCH 10) — PLAYER EXPERIENCE + INFORMATION HIERARCHY & COMPLETE HINGLISH LOCALIZATION** — Complete, Verified, & Finalized for Checkpoint Commit
 
-**BASELINE COMMIT BEFORE PHASE 3 BATCH 9:** `ee27e77` (feat: add secure live ai gateway foundation)
+**BASELINE COMMIT BEFORE PHASE 3 BATCH 10:** `4240d58` (feat: prepare adaptive disaster director framework)
 
-Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`. Baseline commit before Phase 3 Batch 3 & 4: `c74a095`. Baseline commit before Phase 3 Batch 5 & 6: `1be0097`. Baseline commit before Phase 3 Batch 7: `54ae1f4`. Baseline commit before Phase 3 Batch 8: `4b22f3e`. Baseline commit before Phase 3 Batch 9: `ee27e77`.
+Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`. Baseline commit before Phase 3 Batch 3 & 4: `c74a095`. Baseline commit before Phase 3 Batch 5 & 6: `1be0097`. Baseline commit before Phase 3 Batch 7: `54ae1f4`. Baseline commit before Phase 3 Batch 8: `4b22f3e`. Baseline commit before Phase 3 Batch 9: `ee27e77`. Baseline commit before Phase 3 Batch 10: `4240d58`.
 
 > **Agent handoff note:** `AGENTS.md` is the authoritative handoff source for any AI coding agent (Antigravity, Codex, or other) continuing this project. Read `AGENTS.md` first, then this file, before every task.
 
@@ -313,13 +313,34 @@ Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseli
   - `npm run build`: 0 errors (565 modules compiled).
   - `git diff --check`: 0 whitespace warnings.
 
+### Phase 3 (Batch 10) — Player Experience + Information Hierarchy & Complete Hinglish Localization
+- **Information Hierarchy & Progressive Disclosure:**
+  - **ScenarioScreen:**
+    - Layer 1 (primary, always visible): Scenario title, compact psychological stress mini-badge, compact hazard mini-badge, countdown timer, situation narrative card, decision prompt, and interactive choice cards.
+    - Layer 2 (System Status drawer): Collapsible drawer (collapsed by default) accessible via "SYSTEM STATUS [▼/▲]" toggle containing secondary telemetry: Environmental Integrity, Squad Cohesion, City Macro Status, Protocol Training pace, Adaptive Difficulty tier, Hazard level, Safety Integrity, Visibility, and Director framework status.
+  - **ConsequenceScreen:**
+    - Primary decision-consequence flow placed prominently first: Decision evaluation, Your Action, Immediate Consequence / New Risk, Safer Response, Authoritative NDMA Protocol Grounding, and prominent "Continue Simulation" button.
+    - Layer 3 (Advanced Incident Analysis drawer): Collapsible drawer (collapsed by default) accessible via "ADVANCED ANALYSIS [▼/▲]" containing all 8 deep simulation audit cards (Butterfly Effect, Dynamic Forward Propagation, Behavioral Response, NPC Squad, City Brain, Multi-Disaster Chain, Alternative Timeline What-If, AI Director & Disaster Director Pre-Venue audit).
+  - **ReportScreen:**
+    - Primary outcome and learning flow placed first: Outcome headline, Preparedness Score summary, Decision-by-Decision Replay breakdown, and Key NDMA Preparedness Takeaways.
+    - Layer 3 (Deep Incident Analysis & Simulation Audits): Collapsible section (collapsed by default) accessible via "DEEP INCIDENT ANALYSIS & SIMULATION AUDITS [▼/▲]" housing all 9 deep audit modules (Stress & Panic Regulation, Environmental Containment, Behavior & Instinct vs Training, NPC Survival Squad, City Brain & Infrastructure, Multi-Disaster Chain, Alternative Timeline What-If, AI Director Architecture, and Disaster Director Pre-Venue framework).
+    - Concludes with Official Emergency Helplines, Educational Disclaimer, Guest persistence prompt, and action buttons.
+- **Complete Roman Hinglish Localization:**
+  - Every UI string, HUD badge, drawer toggle, telemetry metric, status chip, consequence box, audit label, button, and menu item cleanly wired through `getUiStrings(language)`.
+  - Zero hardcoded English strings or partial translations in gameplay HUDs or audit sections.
+- **Strict Architecture & Safety Verification:**
+  - Deterministic simulation engine remains the sole authority for safety truth, score, and survival outcomes.
+  - Timer floor ($\ge 10\text{s}$) strictly maintained.
+  - Zero modifications to Supabase database schema.
+  - All 6 regression suites passed 100%.
+
 ---
 
 ## Next Task
 
 **ROUND 2 VENUE PREPARATION (3 OCTOBER 2026):**
-1. Commit and push Batch 9 milestone commit: `feat: prepare adaptive disaster director framework`.
-2. Finalize deployment on Vercel and verify production health.
+1. Stage Batch 10 changes and commit: `feat: simplify player experience and complete hinglish ui`.
+2. Push to `origin main` for automatic production deployment on Vercel.
 3. Prepare onsite implementation of venue-only adaptive director mutation on 3 October 2026.
 
 ---

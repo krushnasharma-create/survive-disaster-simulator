@@ -3,6 +3,26 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-10-01] PHASE 3 (Batch 10) — Player Experience + Information Hierarchy & Complete Hinglish Localization
+- **Information Hierarchy & Progressive Disclosure:**
+  - **ScenarioScreen:**
+    - Established Layer 1 HUD focus: player immediately perceives the core emergency with scenario title, compact stress badge, compact hazard badge, countdown timer, situation narrative card, decision question, and prominent action choices.
+    - Added Layer 2 collapsible System Status drawer (`SYSTEM STATUS [▼/▲]`), collapsed by default, revealing detailed environmental integrity, squad cohesion, city macro status, training pace, adaptive difficulty, hazard, safety integrity, visibility, and director status on demand.
+  - **ConsequenceScreen:**
+    - Prioritized primary consequence flow: Decision evaluation badge, Your Action card, Immediate Consequence / New Risk card, Safer Response card, Authoritative NDMA Grounding card, and prominent Continue Simulation action button.
+    - Encapsulated deep simulation systems inside Layer 3 collapsible Advanced Incident Analysis drawer (`ADVANCED ANALYSIS [▼/▲]`), collapsed by default (housing Butterfly Effect, Dynamic Hazard Propagation, Behavioral Profile, NPC Survival Squad, City Brain, Multi-Disaster Chain, Alternative Timeline What-If, AI Director, and Disaster Director Pre-Venue framework).
+  - **ReportScreen:**
+    - Restructured flow to show immediate learning outcomes first: Preparedness Rating, Numerical Score & Optimal Decision Summary, Decision-by-Decision Replay breakdown, and Key NDMA Takeaways.
+    - Encapsulated all 9 audit modules inside collapsible Deep Incident Analysis & Simulation Audits section (`DEEP INCIDENT ANALYSIS & SIMULATION AUDITS [▼/▲]`), collapsed by default (housing Stress Regulation, Environmental Containment, Behavior & Instinct vs Training, NPC Survival Squad, City Brain & Infrastructure, Multi-Disaster Chain, Alternative Timeline What-If, AI Director Architecture, and Disaster Director Pre-Venue audit).
+    - Preserved official Emergency Helplines, Educational Disclaimer, Guest persistence banner, and action buttons.
+- **Complete Roman Hinglish Localization:**
+  - Standardized all shared UI strings into `src/i18n/types.ts` and `src/i18n/ui.ts` for English and Hinglish.
+  - Localized every badge, drawer toggle button, telemetry metric, status chip, consequence card title, audit label, footer action, and menu text without hardcoded one-offs.
+- **Deterministic Simulation & Safety Integrity Invariance:**
+  - 100% preservation of NDMA safety truth, scoring calculations, panic engine formulas, adaptive difficulty, and timer constraints ($\ge 10\text{s}$).
+  - All 6 regression simulation suites pass (Batch 9, Batch 8, Batch 7, Batch 5/6, Batch 3/4, Batch 2).
+  - Zero Supabase database schema modifications.
+
 ## [2026-10-01] PHASE 3 (Batch 9) — Live Adaptive Disaster Director — Pre-Venue Framework
 - **Pre-Venue Architecture & Hackathon Final Alignment:**
   - Architected the pre-venue foundation for the Live Adaptive Disaster Director ahead of the Round 2 offline final on 3 October 2026.
