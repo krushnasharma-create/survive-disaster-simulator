@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
@@ -30,6 +30,7 @@ export default function ConsequenceScreen() {
   } = useGameStore();
 
   const [showAdvancedAnalysis, setShowAdvancedAnalysis] = useState(false);
+  const hasContinuedRef = useRef(false);
 
   const targetDisaster = (disasterId as DisasterType) || activeDisaster || 'earthquake';
   const effectiveScenarioKey = activeScenarioId || targetDisaster;
@@ -39,8 +40,9 @@ export default function ConsequenceScreen() {
 
   const themeClass = THEME_MAP[targetDisaster] || 'theme-earthquake';
 
-  // Play consequence reveal audio on mounting
+  // Play consequence reveal audio on mounting and reset continuation ref
   useEffect(() => {
+    hasContinuedRef.current = false;
     if (currentConsequence) {
       playConsequenceReveal(currentConsequence.isCorrect);
     }
@@ -64,6 +66,8 @@ export default function ConsequenceScreen() {
   }
 
   const handleContinue = () => {
+    if (hasContinuedRef.current) return;
+    hasContinuedRef.current = true;
     const nextNodeId = currentConsequence.nextNodeId;
 
     if (!scenario || !nextNodeId) {

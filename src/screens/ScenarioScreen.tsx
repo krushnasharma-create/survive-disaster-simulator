@@ -199,9 +199,11 @@ export default function ScenarioScreen() {
     return arr;
   }, [decisionNode]);
 
-  // Reset timeout state whenever activeNodeId changes
+  // Reset timeout and submission states whenever activeNodeId changes
+  const isSubmittingRef = useRef(false);
   useEffect(() => {
     setIsTimedOut(false);
+    isSubmittingRef.current = false;
   }, [activeNodeId]);
 
   // Time limit hook — 15 seconds limit with Panic Engine & Adaptive Difficulty modifiers, clamped to strict 10s floor
@@ -300,7 +302,8 @@ export default function ScenarioScreen() {
   // Handle choice selection with 150ms action commitment latch
   const handleSelectChoice = useCallback(
     (choiceId: string, remainingSeconds?: number) => {
-      if (!decisionNode) return;
+      if (!decisionNode || isSubmittingRef.current) return;
+      isSubmittingRef.current = true;
       stop(); // Immediately stop the timer to freeze countdown and clear interval
 
       const evalResult = evaluateChoice(decisionNode, choiceId, remainingSeconds, simulationState, targetDisaster);
