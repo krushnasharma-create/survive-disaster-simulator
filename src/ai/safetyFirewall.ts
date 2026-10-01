@@ -42,11 +42,11 @@ const FORBIDDEN_PATTERNS = [
   /<script/i,
   /javascript:/i,
   /\beval\s*\(/i,
-  /\b(score|safety|hazard|panic|cohesion)\s*[:=]/i,
-  /\b(survived|game_over|dead|fail|pass)\s*[:=]/i,
-  /\bdelete\b/i,
-  /\bwindow\b/i,
-  /\bdocument\b/i,
+  /\b(score|safety|hazard|panic|cohesion)\s*[:=]\s*[-+]?\d+/i,
+  /\b(survived|game_over|dead|fail|pass)\s*[:=]\s*(true|false|\d+)/i,
+  /\b(delete|drop)\s+(table|database|from)\b/i,
+  /\bwindow\s*(\.|\[)/i,
+  /\bdocument\s*(\.|\[)/i,
 ];
 
 /** Check if text contains forbidden script injection or state mutation attempts */
