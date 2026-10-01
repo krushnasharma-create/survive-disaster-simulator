@@ -12,6 +12,7 @@ import {
   simulateAlternativeChoice,
   type AlternativeTimelineBranch,
 } from '../engine/simulationState';
+import { buildAiContext, generateDeterministicJevFallback } from '../ai';
 import type { DisasterType, DecisionNode } from '../data/types';
 import styles from './RunInspectorModal.module.css';
 
@@ -95,12 +96,15 @@ function reconstructRunTelemetry(
       cityMacroStatus: string;
       chainSeverity: string;
       alternativeBranch: AlternativeTimelineBranch | null;
+      aiDirectorEvent?: string;
     }
   > = {};
 
   for (const step of decisions) {
     let nextState = currentState;
     let altBranch: AlternativeTimelineBranch | null = null;
+    let aiDirectorEvent: string | undefined;
+
     if (scenario && scenario.nodes[step.nodeId] && scenario.nodes[step.nodeId].type === 'decision') {
       const node = scenario.nodes[step.nodeId] as DecisionNode;
       const choice = node.choices.find((c) => c.id === step.choiceId);
@@ -113,6 +117,12 @@ function reconstructRunTelemetry(
           step.remainingSeconds ?? undefined
         );
         nextState = applySimulationState(currentState, delta, step.isCorrect, disasterType);
+      }
+
+      const aiContext = buildAiContext(currentState, node, scenarioId, disasterType);
+      const jevRec = generateDeterministicJevFallback(aiContext);
+      if (jevRec.payload.boundedEvent !== 'NONE') {
+        aiDirectorEvent = jevRec.payload.boundedEvent;
       }
     } else {
       const delta = {
@@ -148,6 +158,7 @@ function reconstructRunTelemetry(
       cityMacroStatus: nextState.cityBrain?.macroStatus ?? 'OPERATIONAL',
       chainSeverity: nextState.disasterChain?.chainSeverity ?? 'NONE',
       alternativeBranch: altBranch,
+      aiDirectorEvent,
     };
 
     currentState = nextState;
@@ -474,6 +485,14 @@ export function RunInspectorModal({ runId, userId, onClose }: RunInspectorModalP
                                   style={{ color: '#ff5252', borderColor: 'rgba(255, 82, 82, 0.4)' }}
                                 >
                                   CHAIN: <strong>{stepTelemetry[step.id].chainSeverity}</strong>
+                                </span>
+                              )}
+                              {stepTelemetry[step.id].aiDirectorEvent && (
+                                <span
+                                  className={styles.telemetryChip}
+                                  style={{ color: '#90cdf4', borderColor: 'rgba(99, 179, 237, 0.4)' }}
+                                >
+                                  DIRECTOR: <strong>{stepTelemetry[step.id].aiDirectorEvent?.replace(/_/g, ' ')}</strong>
                                 </span>
                               )}
                               <span

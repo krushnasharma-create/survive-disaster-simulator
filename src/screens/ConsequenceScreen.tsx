@@ -569,6 +569,30 @@ export default function ConsequenceScreen() {
           </motion.div>
         )}
 
+        {/* Batch 7: AI Director Context & Atmospheric Flavor Card */}
+        {((currentConsequence.aiDirectorEvent && currentConsequence.aiDirectorEvent !== 'NONE') || currentConsequence.aiTacticalAdvisory) && (
+          <motion.div
+            className={styles.aiDirectorCard}
+            variants={itemVariants}
+            transition={{ duration: 0.44, ease: 'easeOut' }}
+          >
+            <div className={styles.aiDirectorHeader}>
+              <span className={styles.aiDirectorBadge}>AI DIRECTOR // CONTEXT</span>
+              <span className={styles.aiDirectorSourceBadge}>
+                {currentConsequence.aiDirectorSource === 'gemini'
+                  ? 'GEMINI CREATIVE BRAIN'
+                  : 'DETERMINISTIC FALLBACK'}
+              </span>
+            </div>
+            <p className={styles.aiDirectorNarrativeText}>
+              "{currentConsequence.aiTacticalAdvisory || 'Environmental corridor pressure detected. Maintain tactical focus on marked exit pathways.'}"
+            </p>
+            <div className={styles.aiDirectorDisclaimer}>
+              * Non-authoritative atmospheric context. Safety truth is strictly governed by NDMA protocols below.
+            </div>
+          </motion.div>
+        )}
+
         {/* Authoritative Safety Insight */}
         <motion.div
           className={styles.insightCard}

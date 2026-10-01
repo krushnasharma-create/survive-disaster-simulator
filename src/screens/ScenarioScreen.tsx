@@ -16,6 +16,7 @@ import { useCountdown } from '../hooks/useCountdown';
 import { getLocalizedScenario, getUiStrings } from '../i18n';
 import { playTimerTick, playDisasterChoiceImpact, playPanicSpike } from '../utils/audio';
 import { recordDecision as recordPersistenceDecision, startRun, failRun } from '../services/gamePersistenceService';
+import { aiDirector, buildAiContext } from '../ai';
 import type { DisasterType, DecisionNode } from '../data/types';
 import styles from './ScenarioScreen.module.css';
 
@@ -56,6 +57,8 @@ export default function ScenarioScreen() {
     decisions,
     simulationState,
     updateSimulationState,
+    aiDirectorState,
+    updateAiDirectorState,
     language,
     setLanguage,
     authUserId,
@@ -200,6 +203,34 @@ export default function ScenarioScreen() {
     resetKey: `${activeNodeId}_${retryCount}`,
   });
 
+  // Batch 7: Asynchronous, non-blocking AI Director recommendation request
+  useEffect(() => {
+    if (!decisionNode) return;
+    const aiCtx = buildAiContext(
+      simulationState,
+      decisionNode,
+      effectiveScenarioKey,
+      targetDisaster,
+      decisions
+    );
+    let isCancelled = false;
+    aiDirector.requestRecommendation(aiCtx).then((envelope) => {
+      if (isCancelled) return;
+      updateAiDirectorState({
+        lastRecommendation: envelope.payload,
+        activePressure: envelope.payload.boundedEvent,
+        recommendationCount: aiDirector.getTelemetry().recommendationCount,
+        acceptedCount: aiDirector.getTelemetry().acceptedCount,
+        fallbackCount: aiDirector.getTelemetry().fallbackCount,
+      });
+    }).catch(() => {
+      // Complete safety boundary: zero unhandled errors
+    });
+    return () => {
+      isCancelled = true;
+    };
+  }, [decisionNode, effectiveScenarioKey, targetDisaster, simulationState, decisions, updateAiDirectorState]);
+
   // Handle choice selection with 150ms action commitment latch
   const handleSelectChoice = useCallback(
     (choiceId: string, remainingSeconds?: number) => {
@@ -224,7 +255,19 @@ export default function ScenarioScreen() {
         playPanicSpike(evalResult.nextSimulationState.panicBand);
       }
 
-      recordDecision(evalResult.record);
+      // Batch 7: Attach director recommendation telemetry to decision record
+      const currentDirector = aiDirector.getTelemetry();
+      const directorEvent = currentDirector.activePressure !== 'NONE' ? currentDirector.activePressure : undefined;
+      const directorAdvisory = currentDirector.lastRecommendation?.tacticalAdvisory;
+
+      const recordWithAi = {
+        ...evalResult.record,
+        aiDirectorEvent: directorEvent,
+        aiTacticalAdvisory: directorAdvisory,
+        aiFallbackUsed: currentDirector.fallbackCount > 0,
+      };
+
+      recordDecision(recordWithAi);
 
       // Advance deterministic simulation state
       updateSimulationState(evalResult.stateDelta, evalResult.isCorrect);
@@ -234,7 +277,7 @@ export default function ScenarioScreen() {
         recordPersistenceDecision(
           activeRunId,
           authUserId,
-          evalResult.record,
+          recordWithAi,
           decisions.length + 1,
           remainingSeconds
         );
@@ -259,6 +302,9 @@ export default function ScenarioScreen() {
         cityBrain: evalResult.nextSimulationState?.cityBrain,
         disasterChain: evalResult.nextSimulationState?.disasterChain,
         alternativeBranch: evalResult.stateDelta.alternativeBranch ?? evalResult.nextSimulationState?.alternativeBranch,
+        aiDirectorEvent: directorEvent,
+        aiTacticalAdvisory: directorAdvisory,
+        aiDirectorSource: currentDirector.geminiAvailable ? 'gemini' : 'deterministic-fallback',
       });
 
       // Brief 150ms commitment pulse gives tactile weight to the decision before transition
@@ -485,6 +531,11 @@ export default function ScenarioScreen() {
               VIS: <strong>{simulationState.visibility}%</strong>
             </span>
           )}
+          {aiDirectorState.activePressure && aiDirectorState.activePressure !== 'NONE' && (
+            <span className={`${styles.statChip} ${styles.directorChip}`}>
+              DIRECTOR: <strong>{aiDirectorState.activePressure.replace(/_/g, ' ')}</strong>
+            </span>
+          )}
         </div>
       </div>
 
@@ -558,6 +609,14 @@ export default function ScenarioScreen() {
               </p>
             </div>
           )}
+
+        {/* Subtle AI Director Tactical Advisory */}
+        {aiDirectorState.activePressure !== 'NONE' && aiDirectorState.lastRecommendation?.tacticalAdvisory && (
+          <div className={styles.directorAdvisoryBanner}>
+            <span style={{ fontWeight: 700 }}>DIRECTOR //</span>
+            <span>{aiDirectorState.lastRecommendation.tacticalAdvisory}</span>
+          </div>
+        )}
 
         {/* Situation Card */}
         <motion.div

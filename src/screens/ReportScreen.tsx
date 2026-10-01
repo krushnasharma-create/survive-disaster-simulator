@@ -30,6 +30,7 @@ export default function ReportScreen() {
     activeRunId,
     setActiveRunId,
     currentOutcome,
+    aiDirectorState,
   } = useGameStore();
 
   const report = useMemo(() => buildReport(decisions, activeDisaster || undefined), [decisions, activeDisaster]);
@@ -561,6 +562,31 @@ export default function ReportScreen() {
     };
   }, [decisions, language]);
 
+  // ── Batch 7: AI Director & Two-Brain Architecture Audit ──
+  const aiDirectorAudit = useMemo(() => {
+    const totalEvaluated = decisions.filter((d) => d.aiDirectorEvent && d.aiDirectorEvent !== 'NONE').length;
+    const fallbacksUsed = decisions.filter((d) => d.aiFallbackUsed).length;
+    const jevStatus = aiDirectorState.jevAvailable ? 'ONLINE (ACTIVE)' : 'FALLBACK ACTIVE (DETERMINISTIC)';
+    const geminiStatus = aiDirectorState.geminiAvailable ? 'ONLINE (ACTIVE)' : 'FALLBACK ACTIVE (DETERMINISTIC)';
+    const systemStatus = aiDirectorState.jevAvailable || aiDirectorState.geminiAvailable ? 'HYBRID ACTIVE' : 'DETERMINISTIC FALLBACK (SAFE)';
+
+    let summary = '';
+    if (language === 'hinglish') {
+      summary = `Jev Decision Brain ne ${totalEvaluated} simulation events suggest kiye aur Gemini Creative Brain ne non-authoritative flavor diya. Sabhi safety-critical faisle NDMA protocol engine dwara 100% deterministic maaniye rahe.`;
+    } else {
+      summary = `Jev Decision Brain evaluated ${totalEvaluated} bounded simulation events while Gemini Creative Brain delivered atmospheric flavor. All safety-critical consequences and scoring were authoritatively determined by the deterministic NDMA engine.`;
+    }
+
+    return {
+      totalEvaluated,
+      fallbacksUsed,
+      jevStatus,
+      geminiStatus,
+      systemStatus,
+      summary,
+    };
+  }, [decisions, aiDirectorState, language]);
+
   const scoreColor = useMemo(() => {
     if (scoreSummary.score >= 85) return 'var(--color-safe)';
     if (scoreSummary.score >= 65) return 'var(--color-warning)';
@@ -1059,6 +1085,60 @@ export default function ReportScreen() {
           <p className={styles.behaviorAuditDesc}>{altAudit.summary}</p>
         </div>
 
+        {/* AI Director & Two-Brain Architecture Audit */}
+        <div className={styles.aiDirectorAuditBox}>
+          <div className={styles.aiDirectorAuditHeader}>
+            <div className={styles.aiDirectorAuditTitle}>
+              <span aria-hidden="true">🤖</span>
+              <span>AI DIRECTOR & TWO-BRAIN ARCHITECTURE AUDIT</span>
+            </div>
+            <span className={styles.aiDirectorStatusBadge}>
+              {aiDirectorAudit.systemStatus}
+            </span>
+          </div>
+
+          <div className={styles.aiSafetyFirewallBanner}>
+            🛡️ <strong>SAFETY ARCHITECTURE FIREWALL:</strong> AI suggestions and creative narrations never determine safety-critical outcomes, correct procedures, scoring, or survival status. The deterministic NDMA engine remains the sole authority.
+          </div>
+
+          <div className={styles.behaviorMetricsRow}>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#63b3ed' }}>
+                {aiDirectorAudit.totalEvaluated}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                Events Evaluated
+              </span>
+            </div>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#38bdf8' }}>
+                {aiDirectorAudit.jevStatus.includes('ONLINE') ? 'ONLINE' : 'FALLBACK'}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                Layer 2: Jev Decision Brain
+              </span>
+            </div>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#c084fc' }}>
+                {aiDirectorAudit.geminiStatus.includes('ONLINE') ? 'ONLINE' : 'FALLBACK'}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                Layer 1: Gemini Creative Brain
+              </span>
+            </div>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#39d353' }}>
+                100%
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                Safety Truth Determinism
+              </span>
+            </div>
+          </div>
+
+          <p className={styles.behaviorAuditDesc}>{aiDirectorAudit.summary}</p>
+        </div>
+
         {/* Decision-by-Decision Replay */}
         {decisionReviews.length > 0 && (
           <div>
@@ -1102,6 +1182,11 @@ export default function ReportScreen() {
                         {dec?.chainSeverity && dec.chainSeverity !== 'NONE' && (
                           <span className={styles.reviewChainTag}>
                             CHAIN: {dec.chainSeverity}
+                          </span>
+                        )}
+                        {dec?.aiDirectorEvent && dec.aiDirectorEvent !== 'NONE' && (
+                          <span className={styles.reviewDirectorTag}>
+                            DIRECTOR: {dec.aiDirectorEvent.replace(/_/g, ' ')}
                           </span>
                         )}
                         {dec?.trainingBand && (

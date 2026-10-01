@@ -405,6 +405,31 @@
   transition: color 0.3s ease, border-color 0.3s ease;
 }
 
+.directorChip {
+  border-color: rgba(99, 179, 237, 0.4);
+  background: rgba(99, 179, 237, 0.08);
+}
+
+.directorChip strong {
+  color: #63b3ed;
+}
+
+.directorAdvisoryBanner {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: #63b3ed;
+  background: rgba(99, 179, 237, 0.08);
+  border: 1px solid rgba(99, 179, 237, 0.25);
+  border-left: 3px solid #63b3ed;
+  padding: 0.45rem 0.85rem;
+  border-radius: 2px;
+  margin-bottom: var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 /* Convergence Risk Advisory Banner */
 .convergenceBanner {
   padding: 0.85rem 1.25rem;

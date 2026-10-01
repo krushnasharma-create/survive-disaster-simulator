@@ -899,3 +899,62 @@
   line-height: 1.5;
   margin: 0;
 }
+
+/* ── Batch 7: AI Director Context Card ── */
+.aiDirectorCard {
+  background: rgba(14, 20, 28, 0.75);
+  border: 1px solid rgba(99, 179, 237, 0.25);
+  border-left: 3px solid #63b3ed;
+  padding: 1.25rem 1.6rem;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.aiDirectorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.aiDirectorBadge {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #63b3ed;
+  font-weight: 700;
+}
+
+.aiDirectorSourceBadge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #90cdf4;
+  background: rgba(99, 179, 237, 0.12);
+  border: 1px solid rgba(99, 179, 237, 0.3);
+  padding: 0.18rem 0.5rem;
+  border-radius: 2px;
+}
+
+.aiDirectorNarrativeText {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.55;
+  margin: 0;
+  font-style: italic;
+}
+
+.aiDirectorDisclaimer {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-fog);
+  letter-spacing: 0.04em;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.4rem;
+}

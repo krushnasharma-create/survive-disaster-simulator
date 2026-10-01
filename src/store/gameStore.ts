@@ -22,6 +22,7 @@ import {
   createInitialSimulationState,
   applySimulationState,
 } from '../engine/simulationState';
+import type { AiDirectorState, BoundedEventType } from '../ai/types';
 
 export interface DecisionRecord {
   nodeId: string;
@@ -64,6 +65,11 @@ export interface DecisionRecord {
   chainSeverity?: ChainSeverity;
   chainTitle?: string;
   alternativeBranch?: AlternativeTimelineBranch | null;
+  /** Batch 7 Extensions: Jev & Gemini Two-Brain Architecture Telemetry */
+  aiDirectorEvent?: BoundedEventType;
+  aiTacticalAdvisory?: string;
+  aiFallbackUsed?: boolean;
+  aiNarrativeContext?: string;
 }
 
 export interface ConsequenceState {
@@ -89,6 +95,11 @@ export interface ConsequenceState {
   cityBrain?: CityBrainState;
   disasterChain?: DisasterChainState;
   alternativeBranch?: AlternativeTimelineBranch | null;
+  /** Batch 7 Extensions: Jev & Gemini Two-Brain Architecture */
+  aiDirectorEvent?: BoundedEventType;
+  aiTacticalAdvisory?: string;
+  aiNarrativeContext?: string;
+  aiDirectorSource?: string;
 }
 
 export interface OutcomeState {
@@ -130,6 +141,9 @@ interface GameState {
   isAuthLoading: boolean;
   activeRunId: string | null;
 
+  // ── AI Director (Layer 1 & 2 Two-Brain Telemetry) ────
+  aiDirectorState: AiDirectorState;
+
   // ── Actions ──────────────────────────────────────────
   setAuthUserId: (id: string | null) => void;
   setAuthLoading: (loading: boolean) => void;
@@ -144,9 +158,23 @@ interface GameState {
   recordDecision: (record: DecisionRecord) => void;
   updateSimulationState: (delta: SimulationStateDelta, isCorrect: boolean) => void;
   setSimulationState: (simulationState: SimulationState) => void;
+  updateAiDirectorState: (patch: Partial<AiDirectorState>) => void;
   finaliseScore: (score: number) => void;
   resetSession: () => void;
 }
+
+const initialAiDirectorState: AiDirectorState = {
+  mode: 'ACTIVE',
+  jevAvailable: false,
+  geminiAvailable: false,
+  lastRecommendation: null,
+  lastNarrative: null,
+  recommendationCount: 0,
+  acceptedCount: 0,
+  rejectedCount: 0,
+  fallbackCount: 0,
+  activePressure: 'NONE',
+};
 
 const initialState = {
   language: 'en' as const,
@@ -160,6 +188,7 @@ const initialState = {
   decisions: [] as DecisionRecord[],
   totalScore: 0,
   simulationState: createInitialSimulationState(),
+  aiDirectorState: initialAiDirectorState,
   authUserId: null as string | null,
   isAuthLoading: isSupabaseConfigured,
   activeRunId: null as string | null,
@@ -239,6 +268,11 @@ export const useGameStore = create<GameState>((set) => ({
     })),
 
   setSimulationState: (simulationState) => set({ simulationState }),
+
+  updateAiDirectorState: (patch) =>
+    set((state) => ({
+      aiDirectorState: { ...state.aiDirectorState, ...patch },
+    })),
 
   finaliseScore: (score) => set({ totalScore: score }),
 

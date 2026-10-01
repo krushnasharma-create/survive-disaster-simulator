@@ -3,6 +3,32 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-09-30] PHASE 3 (Batch 7) — AI Architecture: JEV + GEMINI Two-Brain System & Safety Firewall
+- **Three-Layer AI Architecture (`src/ai/types.ts`, `src/ai/aiDirector.ts`):**
+  - Architected a clear, safety-critical separation of concerns:
+    - **Layer 1 — Gemini Creative Brain (`src/ai/gemini/`):** Bounded narrative enrichment, contextual NPC dialogue, and educational reflections (strictly clamped: max 2 sentences, <= 280 chars). Gemini has ZERO authority over simulation state, scoring, or survival outcomes.
+    - **Layer 2 — Jev Decision Brain (`src/ai/jev/`):** Strategic event recommendation, bounded NPC intent, and dynamic difficulty pressure recommendations. Operates via structured recommendation envelopes (`JevRecommendation`) without mutating game state.
+    - **Layer 3 — Authoritative Deterministic Simulation Engine (`src/engine/`):** Sole authority for all safety-critical consequences, state deltas (panic, hazard, safety, visibility), convergence, squad dynamics, city brain, multi-disaster chains, and survival scores.
+- **Safety Architecture Firewall (`src/ai/safetyFirewall.ts`):**
+  - Strict allowlist filtering for bounded event types (`ROUTE_CONGESTION`, `AFTERSHOCK_PRESSURE`, `DEBRIS_FALL`, `SMOKE_DENSITY_SURGE`, `COMM_DELAY`, `PANIC_RIPPLE`, `WATER_SURGE`, `POWER_FLICKER`, `STANDARD_PROGRESSION`).
+  - Validation guards enforce confidence threshold (>= 60), schema compliance, length bounds, and rejection of injection payloads (`eval`, `script`, state mutation tokens like `safety=`, `score=`, etc.).
+  - Automatic fallback to deterministic engine on firewall rejection or network failure.
+- **State Invariance & Zero Gameplay Disruption:**
+  - Guaranteed invariant: AI ON === AI OFF. Core simulation outcomes, scores, and DAG transitions remain 100% identical regardless of whether AI recommendations are present or absent.
+  - Fully asynchronous, non-blocking requests with abort controllers and deterministic fallback generation. Zero latency impact on per-decision timers (>= 10s floor preserved) or player interactions.
+- **Zero-Migration Historical Replay Telemetry (`src/components/RunInspectorModal.tsx`):**
+  - Enhanced client-side telemetry reconstruction (`reconstructRunTelemetry`) with deterministic AI Director events and fallback indicators without altering the Supabase database schema.
+- **HUD & UI Integrations (`src/screens/`):**
+  - ScenarioScreen: Live `DIRECTOR: {event}` HUD badge, non-intrusive tactical advisory banner above situation card.
+  - ConsequenceScreen: Dedicated **AI DIRECTOR // CONTEXT** panel with provider badge (`GEMINI CREATIVE BRAIN` vs `DETERMINISTIC FALLBACK`) and non-authoritative NDMA grounding notice.
+  - ReportScreen: Comprehensive **AI DIRECTOR & TWO-BRAIN ARCHITECTURE AUDIT** card with provider status, event counters, fallback audit, safety architecture firewall banner, and decision replay chips.
+- **Verification & QA:**
+  - Simulation suite (`scratch/test_batch7_simulation.ts`) passed 944 assertions across all 7 scenarios, verifying invariance, firewall allowlists, fallback determinism, and timer preservation.
+  - Batch 5/6 (964/964), Batch 3/4 (789/789), and Batch 2 regression suites passing 100%.
+  - `npm run lint`: 0 errors.
+  - `npm run build`: 0 errors.
+  - `git diff --check`: 0 whitespace errors.
+
 ## [2026-09-30] PHASE 3 (Batch 5 & 6) — Deep Simulation Systems: NPC Survival Squad + City Brain & Multi-Disaster Chain + Alternative Timeline
 - **Deterministic NPC Survival Squad Engine (`src/engine/simulationState.ts`):**
   - Architected modular companion model (`NpcMember`) with distinct roles (`MEDIC`, `TECHNICIAN`, `ELDER`, `GUIDE`, `VULNERABLE_CIVILIAN`), individual health/safety (0–100), trust (0–100), stress (0–100), and statuses (`SAFE`, `STABLE`, `DISTRESSED`, `INJURED`, `CRITICAL`).

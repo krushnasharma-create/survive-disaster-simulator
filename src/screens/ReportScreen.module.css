@@ -1000,3 +1000,72 @@
   border-radius: 2px;
   border-left: 2px solid #818cf8;
 }
+
+/* ── Batch 7: AI Director & Two-Brain Architecture Audit ── */
+.aiDirectorAuditBox {
+  background: rgba(14, 20, 28, 0.7);
+  border: 1px solid rgba(99, 179, 237, 0.2);
+  border-left: 3px solid #63b3ed;
+  border-radius: 4px;
+  padding: 1.75rem;
+  margin-bottom: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.aiDirectorAuditHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.aiDirectorAuditTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #63b3ed;
+  font-weight: 700;
+}
+
+.aiDirectorStatusBadge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid rgba(99, 179, 237, 0.4);
+  border-radius: 2px;
+  background: rgba(99, 179, 237, 0.12);
+  color: #90cdf4;
+}
+
+.aiSafetyFirewallBanner {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #e2e8f0;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 0.75rem 1rem;
+  border-radius: 2px;
+  border: 1px solid rgba(99, 179, 237, 0.2);
+  border-left: 3px solid #38bdf8;
+}
+
+.reviewDirectorTag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: #90cdf4;
+  background: rgba(99, 179, 237, 0.1);
+  padding: 0.12rem 0.45rem;
+  border-radius: 2px;
+  border: 1px solid rgba(99, 179, 237, 0.3);
+}

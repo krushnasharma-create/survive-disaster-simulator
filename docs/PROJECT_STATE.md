@@ -8,11 +8,11 @@
 
 ## Current Phase
 
-**PHASE 3 (BATCH 5 & 6) — NPC SURVIVAL SQUAD + CITY BRAIN & MULTI-DISASTER CHAIN + ALTERNATIVE TIMELINE** — Complete & Verified (Working tree prepared for user review; uncommitted per instructions)
+**PHASE 3 (BATCH 7) — JEV + GEMINI TWO-BRAIN ARCHITECTURE & SAFETY FIREWALL** — Complete, Verified, & Finalized for Checkpoint Commit
 
-**BASELINE COMMIT BEFORE PHASE 3 BATCH 5 & 6:** `1be0097` (feat: add instinct training and adaptive difficulty)
+**BASELINE COMMIT BEFORE PHASE 3 BATCH 7:** `54ae1f4` (feat: add npc city brain and alternative timelines)
 
-Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`. Baseline commit before Phase 3 Batch 3 & 4: `c74a095`. Baseline commit before Phase 3 Batch 5 & 6: `1be0097`.
+Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`. Baseline commit before Phase 3 Batch 3 & 4: `c74a095`. Baseline commit before Phase 3 Batch 5 & 6: `1be0097`. Baseline commit before Phase 3 Batch 7: `54ae1f4`.
 
 > **Agent handoff note:** `AGENTS.md` is the authoritative handoff source for any AI coding agent (Antigravity, Codex, or other) continuing this project. Read `AGENTS.md` first, then this file, before every task.
 
@@ -276,64 +276,47 @@ Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseli
 
 ## Current Task
 
-**PHASE 3 (BATCH 5 & 6) — NPC SURVIVAL SQUAD + CITY BRAIN & MULTI-DISASTER CHAIN + ALTERNATIVE TIMELINE (2026-09-30):**
-- **Deterministic NPC Survival Squad Engine (`src/engine/simulationState.ts`):**
-  - Architected modular companion model (`NpcMember`) with distinct roles (`MEDIC`, `TECHNICIAN`, `ELDER`, `GUIDE`, `VULNERABLE_CIVILIAN`), individual health/safety (0–100), trust (0–100), stress (0–100), and statuses (`SAFE`, `STABLE`, `DISTRESSED`, `INJURED`, `CRITICAL`).
-  - Implemented authentic disaster-specific companion squads:
-    - Earthquake: Dr. Aarti (Medic), Kabir (Technician), Sunita (Elder).
-    - Fire: Captain Verma (Guide), Ananya (Medic), Rohan (Vulnerable civilian).
-    - Flood: Vikram (Guide), Nurse Deepa (Medic), Tariq (Technician).
-  - Derived holistic Squad Cohesion score (0–100) dynamically weighted by average trust (40%), member safety (35%), and stress resilience (25%).
-  - Implemented deterministic Specialist Synergies: Active Medic provides panic buffer (-3) during trauma when cohesion >= 65; active Technician provides hazard buffer (-2 to -3) during structural/utility crises when cohesion >= 65.
-  - Authentic context-driven dialogue barks reflecting live member status and stress tiers.
-- **City Brain Municipal Crisis Simulation (`src/engine/simulationState.ts`):**
-  - Macro-level municipal infrastructure and emergency response modeling: `infrastructureIntegrity` (0–100), `trafficFlow` (0–100), `emergencyAccess` (0–100), `publicOrder` (0–100), `utilityStability` (0–100), and `responderAvailability` (0–100).
-  - Categorical City Macro Status: `OPERATIONAL`, `STRAINED`, `OVERWHELMED`, `CRITICAL_GRIDLOCK`.
-  - Micro-decisions cascade into city grid: prompt utility shutdowns safeguard grid integrity and clear emergency corridors; delayed alerts or stampedes reduce public order and block rescue access.
-- **Multi-Disaster Secondary Hazard Chain Engine (`src/engine/simulationState.ts`):**
-  - Deterministic secondary disaster escalation:
-    - Earthquake -> Gas Leak & Electrical Fire (`CHAIN-EQ-GAS-ARC`).
-    - Flood -> Submerged Grid Electrocution & Contaminated Runoff (`CHAIN-FL-ELEC-SEW`).
-    - Fire -> Structural Collapse & Toxic Polymer Flashover (`CHAIN-FR-STRUCT-TOX`).
-  - Dynamic Chain Severity progression: `INACTIVE` -> `MONITORING` -> `IMMINENT` -> `ACTIVE` -> `CONTAINED`.
-  - Deterministic trigger calibration: activates when city utility stability <= 45 or local hazard level >= 65; transitions to `CONTAINED` when player takes prompt NDMA protective actions while chain is imminent/active.
-- **Alternative Timeline & "What If?" Counterfactual Engine (`src/engine/simulationState.ts`):**
-  - Pure, non-mutating counterfactual simulator `simulateAlternativeChoice(node, chosenChoiceId, stateAtDecision, disasterType)`.
-  - Evaluates unchosen paths to project counterfactual panic, hazard, safety, squad cohesion, and emergency access.
-  - Dynamically synthesizes divergence summary and classifies regret/validation level (`STRONG_VALIDATION`, `MARGINAL_DIFFERENCE`, `TACTICAL_REGRET`, `CRITICAL_MISTAKE`).
-  - 100% deterministic rule-based evaluation without runtime LLMs or hallucinations.
-- **Scenario HUD & Telemetry Extensions (`src/screens/ScenarioScreen.tsx`, `.module.css`):**
-  - Added live `SQUAD: {cohesion}%` and `CITY: {status}` chips with dynamic status-color mapping to the telemetry HUD bar.
-  - Added dynamic **Multi-Disaster Chain Warning Banner** (`.chainBannerActive`, `.chainBannerImminent`) providing immediate visual and tactical alert when cascading crises threaten.
-- **Consequence Screen Multi-System Cards (`src/screens/ConsequenceScreen.tsx`, `.module.css`):**
-  - Added **NPC SURVIVAL SQUAD // COMPANION STATUS** card: shows overall squad cohesion gauge, individual member cards with role badges, status pills, trust/stress/safety bars, and contextual spoken dialogue barks.
-  - Added **CITY BRAIN // MUNICIPAL CRISIS IMPACT** card: tracks infrastructure integrity, emergency access, utility stability, and public order with live deltas.
-  - Added **MULTI-DISASTER CHAIN** card: alerts player when secondary cascade is active/imminent or confirms successful containment.
-  - Added **ALTERNATIVE TIMELINE // WHAT IF?** card: displays the unchosen counterfactual action, projected metrics, divergence summary, and regret tag.
-- **Report Screen Quad-System Audits (`src/screens/ReportScreen.tsx`, `.module.css`):**
-  - Dedicated **NPC SURVIVAL SQUAD & COMPANION AUDIT**: final cohesion, casualty count, companion roster with final health/trust/stress and bilingual NDMA evaluation.
-  - Dedicated **CITY BRAIN & MUNICIPAL INFRASTRUCTURE AUDIT**: final municipal status, emergency access corridor rating, utility stability, and civic resilience assessment.
-  - Dedicated **MULTI-DISASTER CHAIN & SECONDARY HAZARDS**: cascading threat status, trigger timeline, containment assessment, and NDMA cascading risk protocol grounding.
-  - Dedicated **ALTERNATIVE TIMELINES & WHAT-IF ANALYSIS**: comparative breakdown of key divergent junctures, highlighting catastrophic traps avoided and alternative outcomes.
-  - Enriched Decision Breakdown replay cards with `SQUAD`, `CITY`, and `CHAIN` tags, plus `🔀 What If` branch comparative explanations.
-- **Run Inspector Modal Replay Telemetry (`src/components/RunInspectorModal.tsx`, `.module.css`):**
-  - Extended client-side deterministic telemetry reconstruction (`reconstructRunTelemetry`) with squad cohesion, city macro status, chain severity, and alternative timeline counterfactuals.
-  - Enriched historical run cards with `SQUAD: XX%`, `CITY: {status}`, `CHAIN: {status}` chips, and expandable `What If` comparative panels without modifying Supabase database schema.
-- **Verification & QA:**
-  - Automated simulation test (`scratch/test_batch5_batch6_simulation.ts`) verified 100% pass across all 7 scenarios with 964 assert validations (squad dynamics, city brain metrics, chain state progression, counterfactual evaluation, timer floor >= 10s, and determinism).
-  - Regression tests `scratch/test_batch3_batch4_simulation.ts` (789/789 passed) and `scratch/test_batch2_simulation.ts` (100% passed).
+**PHASE 3 (BATCH 7) — JEV + GEMINI TWO-BRAIN ARCHITECTURE & SAFETY FIREWALL (2026-09-30 / 2026-10-01):**
+- **Strict Three-Layer Separation of Concerns:**
+  - **Layer 1 — Gemini Creative Brain (`src/ai/gemini/`):** Dedicated non-authoritative creative provider delivering atmospheric scene narration, NPC dialogue barks, and educational context. Strictly bounded (max 2 sentences, max 280 chars). Gemini NEVER decides safety-critical state, scores, or routing.
+  - **Layer 2 — Jev Decision Brain (`src/ai/jev/`):** Non-authoritative tactical simulation director. Returns structured, bounded recommendation envelopes (`JevRecommendation`) containing allowlisted event selection (`ROUTE_CONGESTION`, `AFTERSHOCK_PRESSURE`, etc.), companion intent (`WARN`, `GUIDE`, etc.), and difficulty recommendations (`HOLD`, `INCREASE`, etc.). Jev NEVER directly mutates game state or store data.
+  - **Layer 3 — Authoritative Deterministic Engine (`src/engine/simulationState.ts`):** Sole source of safety truth. Resolves all state deltas, panic, hazard, safety, visibility, convergence, squad, city, chain, scores, and survival outcomes. AI recommendations are treated as inputs/advisories only.
+- **Strict Safety Firewall (`src/ai/safetyFirewall.ts`):**
+  - Hard boundary enforcing allowlists: `ALLOWED_BOUNDED_EVENTS`, `ALLOWED_NPC_INTENTS`, `ALLOWED_DIFFICULTY_PRESSURES`.
+  - Rejection filters for low confidence (< 60), schema mismatches, string overflows, code injection patterns (`eval`, `<script`), and state mutation attempts (`safety=`, `score=`, `survived=`).
+- **Sanitized Minimal Context Builder (`src/ai/contextBuilder.ts`):**
+  - Extracts only necessary simulation telemetry. Zero secrets, zero auth tokens, zero private user records.
+- **Provider Abstractions & Deterministic Fallback (`src/ai/jev/jevAdapter.ts`, `src/ai/gemini/geminiAdapter.ts`):**
+  - Production-grade interfaces: `DecisionBrain` and `CreativeBrain`.
+  - Seamless fallback engines (`generateDeterministicJevFallback`, `generateDeterministicGeminiFallback`) that run 100% offline with zero dependencies and zero latency.
+  - **Live API Status & Security Boundaries:**
+    - Live API keys and external endpoints are intentionally **NOT** configured in the client repository.
+    - Zero provider secrets exist in code or client configuration.
+    - Future production live AI integration requires a secure server-side AI gateway / provider boundary rather than client-exposed secrets.
+    - The client UI explicitly reflects `DETERMINISTIC FALLBACK` mode and does not falsely claim live connectivity.
+- **AI Director Session Coordinator (`src/ai/aiDirector.ts`):**
+  - Manages asynchronous, non-blocking director queries throughout gameplay with zero unhandled exceptions.
+  - Maintains `aiDirectorState`: tracking recommendation counts, accepted/rejected counts, fallback usage, and active environmental pressure.
+- **UI & Telemetry Integration:**
+  - **ScenarioScreen (`src/screens/ScenarioScreen.tsx`, `.module.css`):** Live `DIRECTOR: {event}` telemetry chip and subtle tactical advisory banner (`.directorAdvisoryBanner`) without interrupting player control.
+  - **ConsequenceScreen (`src/screens/ConsequenceScreen.tsx`, `.module.css`):** Context card (`AI DIRECTOR // CONTEXT`) displaying non-authoritative atmospheric narration with explicit source attribution and NDMA precedence disclaimer.
+  - **ReportScreen (`src/screens/ReportScreen.tsx`, `.module.css`):** Dedicated **AI DIRECTOR & TWO-BRAIN ARCHITECTURE AUDIT** section with provider availability badges, events evaluated, fallback telemetry, and prominent **Safety Architecture Firewall** disclaimer.
+  - **Run Inspector Modal (`src/components/RunInspectorModal.tsx`):** Historical run flight recorder displaying `DIRECTOR: {event}` chips deterministically reconstructed without Supabase schema migrations.
+- **Verification & QA (100% Passed):**
+  - Verified Tests A through J in `test_batch7_simulation.ts`: 944/944 assertions passed across all 7 scenarios.
+  - Confirmed state invariance: **AI ON === AI OFF** (scores, hazards, safety integrity, panic, and outcomes remain 100% identical).
+  - Regressions verified: Batch 5/6 (964/964 passed), Batch 3/4 (789/789 passed), Batch 2 (100% passed).
   - `npm run lint`: 0 errors.
-  - `npm run build`: 0 errors.
+  - `npm run build`: 0 errors (552 modules compiled).
   - `git diff --check`: 0 whitespace warnings.
-  - Working tree remains dirty on `main` and UNCOMMITTED / UNPUSHED per user instructions.
 
 ---
 
 ## Next Task
 
-**PHASE 3 BATCH 5 & 6 REVIEW & POLISH:**
-1. Awaiting user review and manual testing approval of Phase 3 Batch 5 & 6.
-2. Proceed to git commit and push checkpoint once approved.
+**POST-BATCH 7 ROADMAP:**
+1. Commit and push Batch 7 milestone commit: `feat: add Jev Gemini two-brain safety architecture`.
+2. Proceed to next hackathon phase / deployment readiness.
 
 ---
 
