@@ -101,6 +101,7 @@ export interface GeminiNarrativeRequest {
   speakerRole?: string;
   speakerName?: string;
   maxSentences?: number;
+  language?: 'en' | 'hinglish';
 }
 
 /** Narrative payload returned by Gemini Creative Brain */

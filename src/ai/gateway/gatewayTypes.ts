@@ -78,6 +78,7 @@ export interface GatewayValidationResult {
 /** Server environment interface for dependency injection & testing */
 export interface GatewayServerEnv {
   GEMINI_API_KEY?: string;
+  GEMINI_MODEL?: string;
   JEV_API_URL?: string;
   JEV_API_KEY?: string;
 }

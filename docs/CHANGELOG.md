@@ -3,6 +3,34 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-10-01] PHASE 3 (Batch 11) — Live Gemini Provider Integration
+- **Live Gemini Provider Integration via `@google/genai`:**
+  - Upgraded `ServerGeminiProvider` (`src/ai/gateway/serverProviders.ts`) from deterministic fallback-only behavior to a live server-side Google Gemini integration using the official `@google/genai` SDK (`^2.25.0`).
+  - Isolated credential management entirely on the server via `GEMINI_API_KEY` and configurable `GEMINI_MODEL` (defaulting to `gemini-2.5-flash`), with `.env.example` updated with explanatory placeholders.
+  - Zero browser leakage: verified via production rollup build that `@google/genai` is cleanly tree-shaken and strictly absent from client browser bundles (`dist/assets/*.js`).
+- **Safety Firewall & Operational Policy Constraints:**
+  - Enforced structured JSON output schema (`responseSchema`: `text`, `tone`) and max output tokens (140) to eliminate markdown bloat and unparsed payload risk.
+  - Reduced server-side Gemini timeout to `2500ms` (`GEMINI_TIMEOUT_MS`), providing an operational buffer before the client gateway's `2800ms` abort deadline.
+  - Routed all live responses through `validateGeminiEnvelope` in the Safety Firewall, rejecting any out-of-bounds, malicious, or safety-critical tampering.
+  - Enforced strict sanitized error handling: provider network or timeout errors cleanly log and gracefully return deterministic fallback without leaking internal stack traces or secrets.
+- **Bilingual Support (English & Authentic Roman Hinglish):**
+  - Added language propagation (`language?: 'en' | 'hinglish'`) to `GeminiNarrativeRequest`.
+  - Added language-specific system instructions enforcing authentic Roman Hinglish (Latin script only, natural conversational Hindi written in English letters, zero Devanagari) when `language === 'hinglish'`.
+  - Upgraded `generateDeterministicGeminiFallback` in `src/ai/gemini/geminiAdapter.ts` to supply deterministic Roman Hinglish fallback narratives alongside English fallback.
+- **Gameplay HUD Integration & Asynchronous Pacing:**
+  - `ScenarioScreen`: Asynchronously requests creative atmospheric narration (`requestNarrative`) on node load according to the active language, updating `aiDirectorState` without blocking user choices or timers.
+  - `ConsequenceScreen`: Seamlessly attaches and displays `aiNarrativeContext` or fallback advisory within the AI Director narrative card with firewall disclaimer.
+- **State Invariance & Safety Architecture Integrity:**
+  - Guaranteed 100% simulation invariance: Google Gemini functions solely as a bounded creative/narrative layer.
+  - The deterministic SURVIVE engine remains the sole authority for safety truth, score, survival outcomes, hazard level, panic level, safety integrity, visibility, NPC states, city states, disaster chains, and decision branching.
+  - Jev Advisory Brain remains in deterministic fallback mode (no live integration, zero invented endpoints).
+  - Disaster Director remains strictly in `PRE_VENUE` framework mode ahead of the 3 October 2026 venue final.
+- **Verification & QA:**
+  - Dedicated Batch 11 test suite (`scratch/test_batch11_gemini.ts`): **25/25 assertions passed** covering missing key fallback, language branching, custom model specification, gateway status, malicious injection rejection, bundle secret scanning, and graceful degradation.
+  - `npm run lint`: 0 errors.
+  - `npm run build`: 0 errors (570 modules compiled, zero secrets in bundle).
+  - `git diff --check`: 0 whitespace errors.
+
 ## [2026-10-01] PHASE 3 (Batch 10) — Player Experience + Information Hierarchy & Complete Hinglish Localization
 - **Information Hierarchy & Progressive Disclosure:**
   - **ScenarioScreen:**

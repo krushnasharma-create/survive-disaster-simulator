@@ -116,26 +116,45 @@ export class ServerJevProvider {
   }
 }
 
+import { GoogleGenAI, Type } from '@google/genai';
+
 /**
  * Server-side Gemini Creative Provider.
- * Checks server environment variables (GEMINI_API_KEY).
+ * Connects to the real Google Gemini API via official @google/genai SDK.
+ * Checks server environment variables (GEMINI_API_KEY, GEMINI_MODEL).
+ * Completely server-isolated with bounded timeout, untrusted output validation, and safety firewall.
  * Falls back deterministically if unconfigured or rejected by safety firewall.
  */
 export class ServerGeminiProvider {
   private readonly apiKey: string | undefined;
+  private readonly model: string;
+  private aiClient: GoogleGenAI | null = null;
 
   constructor(env?: GatewayServerEnv) {
     const serverEnv = getServerEnv(env);
-    this.apiKey = serverEnv.GEMINI_API_KEY;
+    this.apiKey = serverEnv.GEMINI_API_KEY?.trim();
+    this.model = serverEnv.GEMINI_MODEL?.trim() || GEMINI_DEFAULT_MODEL;
+
+    if (this.apiKey && this.apiKey.length > 0) {
+      try {
+        this.aiClient = new GoogleGenAI({ apiKey: this.apiKey });
+      } catch {
+        this.aiClient = null;
+      }
+    }
   }
 
   public isConfigured(): boolean {
-    return Boolean(this.apiKey && this.apiKey.trim().length > 0);
+    return Boolean(this.apiKey && this.apiKey.length > 0 && this.aiClient);
+  }
+
+  public getModel(): string {
+    return this.model;
   }
 
   public async narrate(request: GeminiNarrativeRequest): Promise<AiEnvelope<GeminiNarrativeResponse>> {
-    // If GEMINI_API_KEY is absent: immediately return deterministic fallback without latency
-    if (!this.isConfigured()) {
+    // If GEMINI_API_KEY is absent or client failed to initialize: immediately return deterministic fallback without latency
+    if (!this.isConfigured() || !this.aiClient) {
       return generateDeterministicGeminiFallback(
         request,
         'Gemini API key unconfigured on server. Using deterministic creative narrator.'
@@ -143,75 +162,127 @@ export class ServerGeminiProvider {
     }
 
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+      const isHinglish = request.language === 'hinglish';
 
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_DEFAULT_MODEL}:generateContent?key=${this.apiKey}`;
-      const promptText = `Disaster: ${request.context.disasterType}. Node: ${request.context.situationTitle}. Hazard: ${request.context.hazardBand}. Request Type: ${request.type}. Speaker: ${request.speakerName || 'Narrator'}. Write max 1-2 serious sentences describing environmental tension or dialogue. Return strictly valid JSON: {"text": "...", "tone": "URGENT"|"CAUTIOUS"|"STABILIZING"|"INFORMATIVE"}`;
+      const languageInstruction = isHinglish
+        ? 'MANDATORY LANGUAGE RULE: Output MUST be in natural, realistic Roman Hinglish (Hindi written using the English/Latin alphabet, e.g., "Dhuaan tezi se stairwell mein badh raha hai. Hosh sambhalo aur neeche jhuko."). NEVER output Devanagari script.'
+        : 'MANDATORY LANGUAGE RULE: Output MUST be in clear, atmospheric, serious English.';
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: promptText }] }],
-          systemInstruction: {
-            parts: [
-              {
-                text: 'You are an atmospheric simulation narrator. Output strictly JSON matching the required schema. Never generate emergency advice, numerical rules, or state commands.',
-              },
-            ],
-          },
-          generationConfig: {
-            temperature: 0.4,
-            maxOutputTokens: 120,
-            responseMimeType: 'application/json',
-          },
-        }),
-        signal: controller.signal,
+      const systemInstruction = [
+        'You are the narrative atmosphere layer for SURVIVE, a realistic emergency-response simulation.',
+        'Your SOLE responsibility is to describe sensory conditions, environmental tension, companion reactions, or brief dialogue.',
+        'You do NOT determine safety outcomes, scores, numerical hazard levels, or player survival.',
+        'You NEVER provide authoritative safety instructions, procedures, or medical advice.',
+        'You NEVER tell the player that an action is guaranteed safe or unsafe.',
+        'The deterministic simulation engine is the sole authority for safety truth.',
+        'Output strictly JSON matching the required schema: {"text": "...", "tone": "..."}.',
+        'Maximum 2 concise sentences (under 220 characters total).',
+        languageInstruction,
+      ].join('\n');
+
+      const promptLines = [
+        `Disaster: ${request.context.disasterType}`,
+        `Scene Context: ${request.context.situationTitle}`,
+        `Hazard State: ${request.context.hazardBand} (${request.context.hazardLevel}%)`,
+        `Stress Level: ${request.context.panicBand} (${request.context.panicLevel}/100)`,
+        `Environment: ${request.context.environmentStatus}`,
+        `Request Type: ${request.type}`,
+        `Speaker: ${request.speakerName || request.speakerRole || 'Narrator'}`,
+        `Target Language: ${isHinglish ? 'Roman Hinglish' : 'English'}`,
+      ];
+
+      if (request.type === 'NPC_DIALOGUE') {
+        promptLines.push(`Speaker Role: ${request.speakerRole || 'Companion'}`);
+        promptLines.push('Goal: Write a brief, realistic dialogue line showing companion reaction to current scene.');
+      } else if (request.type === 'CONSEQUENCE_NARRATION') {
+        promptLines.push('Goal: Write a sensory description of the immediate physical consequence in the environment.');
+      } else if (request.type === 'EDUCATIONAL_FLAVOR') {
+        promptLines.push('Goal: Write a brief operational perspective on the unfolding situation.');
+      } else {
+        promptLines.push('Goal: Write an atmospheric description of sensory pressure (sounds, heat, water, dust).');
+      }
+
+      const promptText = promptLines.join('\n');
+
+      // Bounded timeout race: resolves in <= GEMINI_TIMEOUT_MS (2500ms)
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('GEMINI_TIMEOUT')), GEMINI_TIMEOUT_MS);
       });
 
-      clearTimeout(timeoutId);
+      const generatePromise = this.aiClient.models.generateContent({
+        model: this.model,
+        contents: promptText,
+        config: {
+          systemInstruction,
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              text: {
+                type: Type.STRING,
+                description: 'Concise narrative description or dialogue line (max 2 sentences, under 220 chars)',
+              },
+              tone: {
+                type: Type.STRING,
+                enum: ['URGENT', 'CAUTIOUS', 'STABILIZING', 'INFORMATIVE'],
+              },
+            },
+            required: ['text', 'tone'],
+          },
+          temperature: 0.4,
+          maxOutputTokens: 140,
+        },
+      });
 
-      if (!response.ok) {
+      const response = await Promise.race([generatePromise, timeoutPromise]);
+      const rawText = response.text?.trim();
+
+      if (!rawText) {
         return generateDeterministicGeminiFallback(
           request,
-          `Gemini API returned HTTP ${response.status}. Fallback activated.`
+          'Empty response received from Gemini provider. Fallback activated.'
         );
       }
 
-      const data = await response.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawText) {
-        return generateDeterministicGeminiFallback(request, 'Empty candidate text from Gemini. Fallback activated.');
-      }
-
-      let parsed: any;
+      let parsed: { text?: string; tone?: string };
       try {
         parsed = JSON.parse(rawText);
       } catch {
-        parsed = { text: rawText.replace(/```json|```/g, '').trim(), tone: 'INFORMATIVE' };
+        const cleaned = rawText.replace(/```json|```/g, '').trim();
+        try {
+          parsed = JSON.parse(cleaned);
+        } catch {
+          parsed = { text: cleaned, tone: 'INFORMATIVE' };
+        }
+      }
+
+      const narrativeText = typeof parsed.text === 'string' ? parsed.text.trim() : '';
+      if (!narrativeText) {
+        return generateDeterministicGeminiFallback(
+          request,
+          'Malformed or empty narrative text from Gemini. Fallback activated.'
+        );
       }
 
       const envelope: AiEnvelope<GeminiNarrativeResponse> = {
-        requestId: `gemini-srv-${Date.now()}`,
+        requestId: `gemini-srv-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         contextVersion: '1.0',
         source: 'gemini',
-        confidence: 85,
+        confidence: 88,
         timestamp: Date.now(),
         allowedActions: [],
         expirationMs: 30000,
-        reasoningSummary: 'Gemini live creative response via server gateway.',
+        reasoningSummary: `Gemini live creative response via server gateway (${this.model}).`,
         deterministicFallbackUsed: false,
         payload: {
           type: request.type,
-          text: String(parsed.text || ''),
+          text: narrativeText,
           speaker: request.speakerName,
-          tone: parsed.tone || 'INFORMATIVE',
+          tone: (parsed.tone as any) || 'INFORMATIVE',
         },
       };
 
+      // Enforce strict Safety Firewall boundary
       const validation = validateGeminiEnvelope(envelope);
       if (!validation.valid || !validation.envelope) {
         return generateDeterministicGeminiFallback(
@@ -229,12 +300,12 @@ export class ServerGeminiProvider {
 
       return validation.envelope;
     } catch (err: unknown) {
-      const isTimeout = err instanceof Error && err.name === 'AbortError';
+      const isTimeout = err instanceof Error && (err.message === 'GEMINI_TIMEOUT' || err.name === 'AbortError');
       const reason = isTimeout
         ? `Gemini request timed out after ${GEMINI_TIMEOUT_MS}ms.`
-        : `Gemini network error: ${err instanceof Error ? err.message : 'Unknown'}`;
+        : 'Gemini provider encountered an error. Deterministic fallback activated.';
 
-      return generateDeterministicGeminiFallback(request, `${reason} Deterministic fallback activated.`);
+      return generateDeterministicGeminiFallback(request, reason);
     }
   }
 }

@@ -636,7 +636,7 @@ export default function ConsequenceScreen() {
               </span>
             </div>
             <p className={styles.aiDirectorNarrativeText}>
-              "{currentConsequence.aiTacticalAdvisory || 'Environmental corridor pressure detected. Maintain tactical focus on marked exit pathways.'}"
+              "{currentConsequence.aiNarrativeContext || currentConsequence.aiTacticalAdvisory || 'Environmental corridor pressure detected. Maintain tactical focus on marked exit pathways.'}"
             </p>
             <div className={styles.aiDirectorDisclaimer}>
               * {ui.safetyArchitectureFirewall}

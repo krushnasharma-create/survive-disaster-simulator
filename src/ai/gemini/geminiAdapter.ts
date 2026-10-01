@@ -27,37 +27,74 @@ export function generateDeterministicGeminiFallback(
   let text = '';
   let tone: 'URGENT' | 'CAUTIOUS' | 'STABILIZING' | 'INFORMATIVE' = 'INFORMATIVE';
 
-  if (type === 'NPC_DIALOGUE') {
-    tone = 'CAUTIOUS';
-    const role = (speakerRole || '').toUpperCase();
-    if (role.includes('MEDIC')) {
-      text = 'Watch your footing and keep breathing steady; avoid inhaling smoke particulate.';
-    } else if (role.includes('TECHNICIAN')) {
-      text = 'Conduit wiring along this partition looks compromised. Keep clear of metal surfaces.';
-    } else if (role.includes('GUIDE')) {
-      text = 'Maintain spacing and follow marked emergency exit vectors. Do not pause.';
-    } else if (role.includes('ELDER')) {
-      text = 'Stay close together; keep visual contact so no one gets left behind.';
-    } else {
-      text = "I'm right behind you—lead the way through the corridor.";
-    }
-  } else if (type === 'CONSEQUENCE_NARRATION') {
-    if (context.disasterType === 'earthquake') {
-      text = 'Suspended particulate clouds reduce corridor visibility while aftershock tremors stress structural partitions.';
-      tone = 'URGENT';
-    } else if (context.disasterType === 'fire') {
-      text = 'Dense thermal smoke rolls across the ceiling while heated draft currents pulse along the evacuation vector.';
-      tone = 'URGENT';
-    } else {
-      text = 'Turbid storm runoff surges against building thresholds as drainage conduits struggle under hydraulic pressure.';
+  const isHinglish = request.language === 'hinglish';
+
+  if (isHinglish) {
+    if (type === 'NPC_DIALOGUE') {
       tone = 'CAUTIOUS';
+      const role = (speakerRole || '').toUpperCase();
+      if (role.includes('MEDIC')) {
+        text = 'Sambhal ke kadam rakho aur dheere saans lo; dhuein se bacho.';
+      } else if (role.includes('TECHNICIAN')) {
+        text = 'Yahan conduit wiring kharab lag rahi hai. Metal surfaces se door raho.';
+      } else if (role.includes('GUIDE')) {
+        text = 'Line banaye rakho aur emergency exit route follow karo. Ruko mat.';
+      } else if (role.includes('ELDER')) {
+        text = 'Saath mein raho; sab par nazar rakho taaki koi peeche na chhoot jaye.';
+      } else {
+        text = 'Main theek tumhare peeche hoon—corridor se aage badho.';
+      }
+    } else if (type === 'CONSEQUENCE_NARRATION') {
+      if (context.disasterType === 'earthquake') {
+        text = 'Hawa mein dhool ki wajah se visibility kam hai aur aftershock se deewaron par dabaav badh raha hai.';
+        tone = 'URGENT';
+      } else if (context.disasterType === 'fire') {
+        text = 'Chhat par ghana kaala dhuaan jama ho raha hai aur garmi evacuation path par tezi se badh rahi hai.';
+        tone = 'URGENT';
+      } else {
+        text = 'Tez paani imarat ki dahleez tak pahunch gaya hai aur drainage conduits dabav mein hain.';
+        tone = 'CAUTIOUS';
+      }
+    } else if (type === 'EDUCATIONAL_FLAVOR') {
+      text = 'Sahi samay par liya gaya shant faisla emergency ke dauraan suraksha corridor banaye rakhta hai.';
+      tone = 'STABILIZING';
+    } else {
+      text = 'Aas-paas ke ilaqe mein emergency alert aur halchal ka mahaul bana hua hai.';
+      tone = 'INFORMATIVE';
     }
-  } else if (type === 'EDUCATIONAL_FLAVOR') {
-    text = 'Calculated tactical actions systematically preserve evacuation corridor viability during mass emergencies.';
-    tone = 'STABILIZING';
   } else {
-    text = 'Environmental pressure signals active structural and municipal distress in the immediate quadrant.';
-    tone = 'INFORMATIVE';
+    if (type === 'NPC_DIALOGUE') {
+      tone = 'CAUTIOUS';
+      const role = (speakerRole || '').toUpperCase();
+      if (role.includes('MEDIC')) {
+        text = 'Watch your footing and keep breathing steady; avoid inhaling smoke particulate.';
+      } else if (role.includes('TECHNICIAN')) {
+        text = 'Conduit wiring along this partition looks compromised. Keep clear of metal surfaces.';
+      } else if (role.includes('GUIDE')) {
+        text = 'Maintain spacing and follow marked emergency exit vectors. Do not pause.';
+      } else if (role.includes('ELDER')) {
+        text = 'Stay close together; keep visual contact so no one gets left behind.';
+      } else {
+        text = "I'm right behind you—lead the way through the corridor.";
+      }
+    } else if (type === 'CONSEQUENCE_NARRATION') {
+      if (context.disasterType === 'earthquake') {
+        text = 'Suspended particulate clouds reduce corridor visibility while aftershock tremors stress structural partitions.';
+        tone = 'URGENT';
+      } else if (context.disasterType === 'fire') {
+        text = 'Dense thermal smoke rolls across the ceiling while heated draft currents pulse along the evacuation vector.';
+        tone = 'URGENT';
+      } else {
+        text = 'Turbid storm runoff surges against building thresholds as drainage conduits struggle under hydraulic pressure.';
+        tone = 'CAUTIOUS';
+      }
+    } else if (type === 'EDUCATIONAL_FLAVOR') {
+      text = 'Calculated tactical actions systematically preserve evacuation corridor viability during mass emergencies.';
+      tone = 'STABILIZING';
+    } else {
+      text = 'Environmental pressure signals active structural and municipal distress in the immediate quadrant.';
+      tone = 'INFORMATIVE';
+    }
   }
 
   return {

@@ -250,10 +250,26 @@ export default function ScenarioScreen() {
     }).catch(() => {
       // Complete safety boundary: zero unhandled errors
     });
+
+    // Layer 1: Gemini Creative atmospheric narration
+    aiDirector.requestNarrative({
+      type: 'ENVIRONMENTAL_ATMOSPHERE',
+      context: aiCtx,
+      language,
+    }).then((envelope) => {
+      if (isCancelled) return;
+      updateAiDirectorState({
+        lastNarrative: envelope.payload.text,
+        geminiAvailable: !envelope.deterministicFallbackUsed,
+      });
+    }).catch(() => {
+      // Complete safety boundary: zero unhandled errors
+    });
+
     return () => {
       isCancelled = true;
     };
-  }, [decisionNode, effectiveScenarioKey, targetDisaster, simulationState, decisions, updateAiDirectorState]);
+  }, [decisionNode, effectiveScenarioKey, targetDisaster, simulationState, decisions, language, updateAiDirectorState]);
 
   // Handle choice selection with 150ms action commitment latch
   const handleSelectChoice = useCallback(
@@ -308,6 +324,7 @@ export default function ScenarioScreen() {
         ...evalResult.record,
         aiDirectorEvent: directorEvent,
         aiTacticalAdvisory: directorAdvisory,
+        aiNarrativeContext: currentDirector.lastNarrative || undefined,
         aiFallbackUsed: currentDirector.fallbackCount > 0,
         directorEventId: directorExecResult.eventId,
         directorEventCategory: directorEventDef?.category,
@@ -355,6 +372,7 @@ export default function ScenarioScreen() {
         alternativeBranch: evalResult.stateDelta.alternativeBranch ?? evalResult.nextSimulationState?.alternativeBranch,
         aiDirectorEvent: directorEvent,
         aiTacticalAdvisory: directorAdvisory,
+        aiNarrativeContext: currentDirector.lastNarrative || undefined,
         aiDirectorSource: currentDirector.geminiAvailable ? 'gemini' : 'deterministic-fallback',
         directorEventId: directorExecResult.eventId,
         directorEventLabel: directorEventDef?.label,

@@ -88,7 +88,7 @@ export async function handleGatewayRequest(
           gemini: {
             configured: geminiProvider.isConfigured(),
             mode: geminiProvider.isConfigured() ? 'LIVE' : 'FALLBACK',
-            providerName: 'Gemini Creative Brain',
+            providerName: `Gemini Creative Brain (${geminiProvider.getModel()})`,
           },
         },
         safetyFirewallEnforced: true,

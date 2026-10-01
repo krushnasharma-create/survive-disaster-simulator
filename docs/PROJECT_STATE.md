@@ -8,11 +8,11 @@
 
 ## Current Phase
 
-**PHASE 3 (BATCH 10) — PLAYER EXPERIENCE + INFORMATION HIERARCHY & COMPLETE HINGLISH LOCALIZATION** — Complete, Verified, & Finalized for Checkpoint Commit
+**PHASE 3 (BATCH 11) — LIVE GEMINI PROVIDER INTEGRATION** — Complete, Verified, & Finalized for Checkpoint Commit
 
-**BASELINE COMMIT BEFORE PHASE 3 BATCH 10:** `4240d58` (feat: prepare adaptive disaster director framework)
+**BASELINE COMMIT BEFORE PHASE 3 BATCH 11:** `7cde722` (feat: simplify player experience and complete hinglish ui)
 
-Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`. Baseline commit before Phase 3 Batch 3 & 4: `c74a095`. Baseline commit before Phase 3 Batch 5 & 6: `1be0097`. Baseline commit before Phase 3 Batch 7: `54ae1f4`. Baseline commit before Phase 3 Batch 8: `4b22f3e`. Baseline commit before Phase 3 Batch 9: `ee27e77`. Baseline commit before Phase 3 Batch 10: `4240d58`.
+Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`. Baseline commit before Phase 3 Batch 3 & 4: `c74a095`. Baseline commit before Phase 3 Batch 5 & 6: `1be0097`. Baseline commit before Phase 3 Batch 7: `54ae1f4`. Baseline commit before Phase 3 Batch 8: `4b22f3e`. Baseline commit before Phase 3 Batch 9: `ee27e77`. Baseline commit before Phase 3 Batch 10: `4240d58`. Baseline commit before Phase 3 Batch 11: `7cde722`.
 
 > **Agent handoff note:** `AGENTS.md` is the authoritative handoff source for any AI coding agent (Antigravity, Codex, or other) continuing this project. Read `AGENTS.md` first, then this file, before every task.
 
@@ -334,12 +334,40 @@ Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseli
   - Zero modifications to Supabase database schema.
   - All 6 regression suites passed 100%.
 
+### Phase 3 (Batch 11) — Live Gemini Provider Integration
+- **Server-Side Integration via `@google/genai`:**
+  - Upgraded `ServerGeminiProvider` (`src/ai/gateway/serverProviders.ts`) to connect to Google's official Gemini API using `@google/genai` (`^2.25.0`).
+  - Isolated server credentials: reads `GEMINI_API_KEY` and optional `GEMINI_MODEL` (defaulting to `gemini-2.5-flash`) exclusively on the server.
+  - Zero browser leakage: verified via Vite/Rollup tree-shaking that `@google/genai` and server provider logic are excluded from client bundles (`dist/assets/*.js`).
+- **Safety Firewall & Operational Policy Constraints:**
+  - Structured output schema (`responseSchema`: `text`, `tone`) and max output tokens (140) enforce concise atmospheric narrative without unparsed formatting.
+  - Bounded timeout: server-side timeout reduced to `2500ms` (`GEMINI_TIMEOUT_MS`) before the client gateway's `2800ms` abort deadline.
+  - Routed all live responses through `validateGeminiEnvelope` in the Safety Firewall, rejecting any out-of-bounds, malicious, or safety-critical tampering.
+  - Graceful sanitized degradation: on missing key, timeout, or network error, seamlessly returns deterministic fallback without leaking internal details.
+- **Bilingual Narrative Atmosphere:**
+  - Propagates `language` (`'en' | 'hinglish'`) to `GeminiNarrativeRequest`.
+  - Added language-specific system instructions enforcing natural Roman Hinglish (Latin alphabet only, zero Devanagari) when `language === 'hinglish'`.
+  - Updated `generateDeterministicGeminiFallback` in `src/ai/gemini/geminiAdapter.ts` to provide authentic Roman Hinglish narrative fallback alongside English.
+- **HUD Integration & Pacing:**
+  - `ScenarioScreen` triggers creative narrative requests asynchronously on node transitions, updating `aiDirectorState` without blocking timers or interaction.
+  - `ConsequenceScreen` attaches `aiNarrativeContext` to consequence records and presents atmospheric tension beneath the primary decision results with firewall disclaimer.
+- **State Invariance & Safety Integrity:**
+  - Guaranteed 100% simulation invariance: Google Gemini functions solely as a bounded creative/narrative layer.
+  - The deterministic SURVIVE engine remains the sole authority for safety truth, score, survival outcomes, hazard level, panic level, safety integrity, visibility, NPC states, city states, disaster chains, and decision branching.
+  - Jev Advisory Brain remains in deterministic fallback mode (no live integration, zero invented endpoints).
+  - Disaster Director remains strictly in `PRE_VENUE` framework mode ahead of the 3 October 2026 venue final.
+- **Verification & QA:**
+  - Dedicated Batch 11 test suite (`scratch/test_batch11_gemini.ts`): **25/25 assertions passed**.
+  - `npm run lint`: 0 errors.
+  - `npm run build`: 0 errors (570 modules compiled).
+  - `git diff --check`: 0 whitespace errors.
+
 ---
 
 ## Next Task
 
 **ROUND 2 VENUE PREPARATION (3 OCTOBER 2026):**
-1. Stage Batch 10 changes and commit: `feat: simplify player experience and complete hinglish ui`.
+1. Stage Batch 11 changes and commit: `feat: connect live gemini narrative provider`.
 2. Push to `origin main` for automatic production deployment on Vercel.
 3. Prepare onsite implementation of venue-only adaptive director mutation on 3 October 2026.
 
