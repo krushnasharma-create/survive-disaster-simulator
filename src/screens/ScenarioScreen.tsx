@@ -16,7 +16,7 @@ import { useCountdown } from '../hooks/useCountdown';
 import { getLocalizedScenario, getUiStrings } from '../i18n';
 import { playTimerTick, playDisasterChoiceImpact, playPanicSpike } from '../utils/audio';
 import { recordDecision as recordPersistenceDecision, startRun, failRun } from '../services/gamePersistenceService';
-import { aiDirector, buildAiContext } from '../ai';
+import { aiDirector, buildAiContext, adaptiveDirector, buildDirectorContext, getDirectorEvent } from '../ai';
 import type { DisasterType, DecisionNode } from '../data/types';
 import styles from './ScenarioScreen.module.css';
 
@@ -260,11 +260,38 @@ export default function ScenarioScreen() {
       const directorEvent = currentDirector.activePressure !== 'NONE' ? currentDirector.activePressure : undefined;
       const directorAdvisory = currentDirector.lastRecommendation?.tacticalAdvisory;
 
+      // Batch 9: Live Adaptive Disaster Director — Pre-Venue Framework Evaluation
+      const currentStep = decisions.length + 1;
+      const directorCtx = buildDirectorContext(
+        simulationState,
+        effectiveScenarioKey,
+        targetDisaster,
+        decisionNode.id,
+        currentStep,
+        adaptiveDirector.getRecentEvents()
+      );
+      const directorExecResult = adaptiveDirector.evaluateStep(directorCtx);
+      const directorEventDef = getDirectorEvent(directorExecResult.eventId);
+
+      const validationState: 'VALID' | 'REJECTED' | 'COOLDOWN_BLOCKED' =
+        directorExecResult.validation.valid
+          ? 'VALID'
+          : directorExecResult.status === 'COOLDOWN_BLOCKED'
+          ? 'COOLDOWN_BLOCKED'
+          : 'REJECTED';
+
       const recordWithAi = {
         ...evalResult.record,
         aiDirectorEvent: directorEvent,
         aiTacticalAdvisory: directorAdvisory,
         aiFallbackUsed: currentDirector.fallbackCount > 0,
+        directorEventId: directorExecResult.eventId,
+        directorEventCategory: directorEventDef?.category,
+        directorSource: directorExecResult.source,
+        directorValidation: validationState,
+        directorExecutionStatus: directorExecResult.status,
+        directorTriggerReason: directorExecResult.triggerReason,
+        directorImpactSummary: directorExecResult.narrativeSummary,
       };
 
       recordDecision(recordWithAi);
@@ -305,6 +332,14 @@ export default function ScenarioScreen() {
         aiDirectorEvent: directorEvent,
         aiTacticalAdvisory: directorAdvisory,
         aiDirectorSource: currentDirector.geminiAvailable ? 'gemini' : 'deterministic-fallback',
+        directorEventId: directorExecResult.eventId,
+        directorEventLabel: directorEventDef?.label,
+        directorEventCategory: directorEventDef?.category,
+        directorSource: directorExecResult.source,
+        directorValidation: validationState,
+        directorExecutionStatus: directorExecResult.status,
+        directorTriggerReason: directorExecResult.triggerReason,
+        directorImpactSummary: directorExecResult.narrativeSummary,
       });
 
       // Brief 150ms commitment pulse gives tactile weight to the decision before transition
@@ -318,6 +353,7 @@ export default function ScenarioScreen() {
       recordDecision,
       setConsequence,
       targetDisaster,
+      effectiveScenarioKey,
       authUserId,
       activeRunId,
       decisions.length,
@@ -531,11 +567,12 @@ export default function ScenarioScreen() {
               VIS: <strong>{simulationState.visibility}%</strong>
             </span>
           )}
-          {aiDirectorState.activePressure && aiDirectorState.activePressure !== 'NONE' && (
-            <span className={`${styles.statChip} ${styles.directorChip}`}>
-              DIRECTOR: <strong>{aiDirectorState.activePressure.replace(/_/g, ' ')}</strong>
-            </span>
-          )}
+          <span
+            className={`${styles.statChip} ${styles.directorChip}`}
+            title="Adaptive Disaster Director Framework (Pre-Venue Standby)"
+          >
+            DIRECTOR: <strong className={styles.directorStandbyText}>STANDBY</strong> <span className={styles.directorModeTag}>PRE-VENUE</span>
+          </span>
         </div>
       </div>
 
@@ -613,8 +650,8 @@ export default function ScenarioScreen() {
         {/* Subtle AI Director Tactical Advisory */}
         {aiDirectorState.activePressure !== 'NONE' && aiDirectorState.lastRecommendation?.tacticalAdvisory && (
           <div className={styles.directorAdvisoryBanner}>
-            <span style={{ fontWeight: 700 }}>DIRECTOR //</span>
-            <span>{aiDirectorState.lastRecommendation.tacticalAdvisory}</span>
+            <span className={styles.directorBannerTag}>DIRECTOR // PRE-VENUE FRAMEWORK</span>
+            <span className={styles.directorBannerText}>{aiDirectorState.lastRecommendation.tacticalAdvisory}</span>
           </div>
         )}
 

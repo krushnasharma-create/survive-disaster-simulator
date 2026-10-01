@@ -593,6 +593,80 @@ export default function ConsequenceScreen() {
           </motion.div>
         )}
 
+        {/* Batch 9: Disaster Director // Pre-Venue Framework Card */}
+        {currentConsequence.directorEventId && currentConsequence.directorEventId !== 'NONE' && (
+          <motion.div
+            className={styles.directorFrameworkCard}
+            variants={itemVariants}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
+          >
+            <div className={styles.directorFrameworkHeader}>
+              <div className={styles.directorFrameworkTitle}>
+                <span className={styles.directorFrameworkIcon} aria-hidden="true">🎬</span>
+                <span>DISASTER DIRECTOR // PRE-VENUE FRAMEWORK</span>
+              </div>
+              <div className={styles.directorFrameworkBadges}>
+                <span
+                  className={`${styles.directorStatusBadge} ${
+                    currentConsequence.directorExecutionStatus === 'STANDBY_FRAMEWORK'
+                      ? styles.directorStatusStandby
+                      : currentConsequence.directorExecutionStatus === 'EXECUTED'
+                      ? styles.directorStatusExecuted
+                      : styles.directorStatusBlocked
+                  }`}
+                >
+                  {currentConsequence.directorExecutionStatus === 'STANDBY_FRAMEWORK'
+                    ? 'STANDBY (PRE-VENUE)'
+                    : currentConsequence.directorExecutionStatus}
+                </span>
+                <span className={styles.directorSourceBadge}>
+                  SOURCE: {currentConsequence.directorSource || 'DETERMINISTIC'}
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.directorEventBanner}>
+              <div className={styles.directorEventLabel}>
+                <strong>EVENT:</strong> {currentConsequence.directorEventLabel || currentConsequence.directorEventId}
+              </div>
+              <span className={styles.directorCategoryTag}>
+                CATEGORY: {currentConsequence.directorEventCategory?.toUpperCase() || 'ENVIRONMENTAL'}
+              </span>
+            </div>
+
+            <div className={styles.directorFrameworkGrid}>
+              <div className={styles.directorFrameworkItem}>
+                <span className={styles.directorFrameworkItemLabel}>TRIGGER REASON</span>
+                <span className={styles.directorFrameworkItemVal}>
+                  {currentConsequence.directorTriggerReason || 'Simulation telemetry threshold satisfied.'}
+                </span>
+              </div>
+              <div className={styles.directorFrameworkItem}>
+                <span className={styles.directorFrameworkItemLabel}>VALIDATION STATE</span>
+                <span
+                  className={`${styles.directorFrameworkItemVal} ${
+                    currentConsequence.directorValidation === 'VALID'
+                      ? styles.validationValid
+                      : styles.validationBlocked
+                  }`}
+                >
+                  {currentConsequence.directorValidation || 'VALID'}
+                </span>
+              </div>
+            </div>
+
+            {currentConsequence.directorImpactSummary && (
+              <p className={styles.directorImpactText}>
+                {currentConsequence.directorImpactSummary}
+              </p>
+            )}
+
+            <div className={styles.directorFrameworkNotice}>
+              🛡️ PRE-VENUE COMPLIANCE NOTICE: Full runtime adaptive branching is scheduled for the Round 2 offline final (3 Oct 2026). In this framework build, the Director is advisory and standing by. Safety truth remains 100% deterministic.
+            </div>
+          </motion.div>
+        )}
+
         {/* Authoritative Safety Insight */}
         <motion.div
           className={styles.insightCard}

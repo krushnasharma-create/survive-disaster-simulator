@@ -1069,3 +1069,91 @@
   border-radius: 2px;
   border: 1px solid rgba(99, 179, 237, 0.3);
 }
+
+/* ── Batch 9: Disaster Director Pre-Venue Framework Audit ── */
+.adaptiveDirectorAuditBox {
+  background: rgba(14, 20, 32, 0.75);
+  border: 1px solid rgba(99, 179, 237, 0.25);
+  border-left: 3px solid #63b3ed;
+  border-radius: 4px;
+  padding: 1.75rem;
+  margin-bottom: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.adaptiveDirectorAuditHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.adaptiveDirectorAuditTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #63b3ed;
+  font-weight: 700;
+}
+
+.directorFrameworkModeTag {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid rgba(99, 179, 237, 0.4);
+  border-radius: 2px;
+  background: rgba(99, 179, 237, 0.15);
+  color: #90cdf4;
+}
+
+.directorFrameworkNoticeBanner {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #e2e8f0;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 0.75rem 1rem;
+  border-radius: 2px;
+  border: 1px solid rgba(99, 179, 237, 0.25);
+  border-left: 3px solid #63b3ed;
+}
+
+.directorSourceBreakdownRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.6rem 0.85rem;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sourceBreakdownTitle {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--color-fog);
+  font-weight: 600;
+}
+
+.sourceTag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  color: #cbd5e0;
+}
+
+.sourceTag strong {
+  color: #63b3ed;
+}

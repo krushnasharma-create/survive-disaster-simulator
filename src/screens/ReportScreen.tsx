@@ -16,6 +16,7 @@ import {
   getProfileDescription,
 } from '../engine/simulationState';
 import { playSelect } from '../utils/audio';
+import { adaptiveDirector } from '../ai';
 import styles from './ReportScreen.module.css';
 
 export default function ReportScreen() {
@@ -587,6 +588,41 @@ export default function ReportScreen() {
     };
   }, [decisions, aiDirectorState, language]);
 
+  // ── Batch 9: Live Adaptive Disaster Director Audit (Pre-Venue Framework) ──
+  const adaptiveDirectorAudit = useMemo(() => {
+    const directorTelemetry = adaptiveDirector.getTelemetry(decisions.length);
+    const validCount = decisions.filter((d) => d.directorValidation === 'VALID').length;
+    const cooldownBlocks =
+      directorTelemetry.cooldownBlocks ||
+      decisions.filter((d) => d.directorValidation === 'COOLDOWN_BLOCKED').length;
+    const standbyCount = decisions.filter(
+      (d) => d.directorExecutionStatus === 'STANDBY_FRAMEWORK'
+    ).length;
+
+    const sourceBreakdown = {
+      deterministic: decisions.filter((d) => d.directorSource === 'DETERMINISTIC').length,
+      jev: decisions.filter((d) => d.directorSource === 'JEV').length,
+      fallback: decisions.filter((d) => d.directorSource === 'FALLBACK').length,
+    };
+
+    let summary = '';
+    if (language === 'hinglish') {
+      summary = `Adaptive Disaster Director ne Pre-Venue Standby mode mein ${decisions.length} steps evaluate kiye. ${validCount} events safely validated rahe aur ${cooldownBlocks} pacing cooldowns block hue. Live adaptive mutations 3 October venue par deploy honge.`;
+    } else {
+      summary = `The Adaptive Disaster Director evaluated ${decisions.length} steps under Pre-Venue Standby mode. ${validCount} candidate events were strictly validated through the deterministic registry, with ${cooldownBlocks} cooldown interventions applied. Live dynamic branching remains standing by for the 3 October 2026 venue final.`;
+    }
+
+    return {
+      mode: directorTelemetry.mode,
+      totalEvaluated: decisions.length,
+      validCount,
+      cooldownBlocks,
+      standbyCount,
+      sourceBreakdown,
+      summary,
+    };
+  }, [decisions, language]);
+
   const scoreColor = useMemo(() => {
     if (scoreSummary.score >= 85) return 'var(--color-safe)';
     if (scoreSummary.score >= 65) return 'var(--color-warning)';
@@ -1139,6 +1175,73 @@ export default function ReportScreen() {
           <p className={styles.behaviorAuditDesc}>{aiDirectorAudit.summary}</p>
         </div>
 
+        {/* Batch 9: Disaster Director Audit (Pre-Venue Framework) */}
+        <div className={styles.adaptiveDirectorAuditBox}>
+          <div className={styles.adaptiveDirectorAuditHeader}>
+            <div className={styles.adaptiveDirectorAuditTitle}>
+              <span aria-hidden="true">🎬</span>
+              <span>DISASTER DIRECTOR AUDIT (PRE-VENUE FRAMEWORK)</span>
+            </div>
+            <span className={styles.directorFrameworkModeTag}>
+              MODE: {adaptiveDirectorAudit.mode} (STANDBY)
+            </span>
+          </div>
+
+          <div className={styles.directorFrameworkNoticeBanner}>
+            🛡️ <strong>PRE-VENUE FRAMEWORK COMPLIANCE:</strong> The Live Adaptive Disaster Director operates in Pre-Venue Standby mode. Full runtime adaptive branching and dynamic mutations are reserved for the Round 2 offline final on 3 October 2026. The deterministic simulation engine remains the sole authority for safety truth, scores, and outcomes.
+          </div>
+
+          <div className={styles.behaviorMetricsRow}>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#63b3ed' }}>
+                {adaptiveDirectorAudit.totalEvaluated}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                Steps Evaluated
+              </span>
+            </div>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#39d353' }}>
+                {adaptiveDirectorAudit.validCount}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                Registry Validations
+              </span>
+            </div>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#ecc94b' }}>
+                {adaptiveDirectorAudit.cooldownBlocks}
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                Cooldown Blocks
+              </span>
+            </div>
+            <div className={styles.behaviorMetricCard}>
+              <span className={styles.behaviorMetricVal} style={{ color: '#90cdf4' }}>
+                STANDBY
+              </span>
+              <span className={styles.behaviorMetricLabel}>
+                Execution Status
+              </span>
+            </div>
+          </div>
+
+          <div className={styles.directorSourceBreakdownRow}>
+            <span className={styles.sourceBreakdownTitle}>RECOMMENDATION SOURCES:</span>
+            <span className={styles.sourceTag}>
+              DETERMINISTIC: <strong>{adaptiveDirectorAudit.sourceBreakdown.deterministic}</strong>
+            </span>
+            <span className={styles.sourceTag}>
+              JEV ADVISORY: <strong>{adaptiveDirectorAudit.sourceBreakdown.jev}</strong>
+            </span>
+            <span className={styles.sourceTag}>
+              FALLBACK: <strong>{adaptiveDirectorAudit.sourceBreakdown.fallback}</strong>
+            </span>
+          </div>
+
+          <p className={styles.behaviorAuditDesc}>{adaptiveDirectorAudit.summary}</p>
+        </div>
+
         {/* Decision-by-Decision Replay */}
         {decisionReviews.length > 0 && (
           <div>
@@ -1187,6 +1290,11 @@ export default function ReportScreen() {
                         {dec?.aiDirectorEvent && dec.aiDirectorEvent !== 'NONE' && (
                           <span className={styles.reviewDirectorTag}>
                             DIRECTOR: {dec.aiDirectorEvent.replace(/_/g, ' ')}
+                          </span>
+                        )}
+                        {dec?.directorEventId && dec.directorEventId !== 'NONE' && (
+                          <span className={styles.reviewDirectorTag}>
+                            DIRECTOR [STANDBY]: {dec.directorEventId.replace(/_/g, ' ')}
                           </span>
                         )}
                         {dec?.trainingBand && (

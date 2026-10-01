@@ -12,7 +12,15 @@ import {
   simulateAlternativeChoice,
   type AlternativeTimelineBranch,
 } from '../engine/simulationState';
-import { buildAiContext, generateDeterministicJevFallback } from '../ai';
+import {
+  buildAiContext,
+  generateDeterministicJevFallback,
+  buildDirectorContext,
+  generateBaselineRecommendation,
+  executeDirectorEvent,
+  DirectorCooldownTracker,
+  getDirectorEvent,
+} from '../ai';
 import type { DisasterType, DecisionNode } from '../data/types';
 import styles from './RunInspectorModal.module.css';
 
@@ -80,6 +88,7 @@ function reconstructRunTelemetry(
 ) {
   const scenario = getScenario(scenarioId) || getScenario(disasterType);
   let currentState = createInitialSimulationState(disasterType);
+  const cooldownTracker = new DirectorCooldownTracker();
   const telemetryByStepId: Record<
     string,
     {
@@ -97,6 +106,9 @@ function reconstructRunTelemetry(
       chainSeverity: string;
       alternativeBranch: AlternativeTimelineBranch | null;
       aiDirectorEvent?: string;
+      directorEventId?: string;
+      directorEventLabel?: string;
+      directorExecutionStatus?: string;
     }
   > = {};
 
@@ -104,6 +116,25 @@ function reconstructRunTelemetry(
     let nextState = currentState;
     let altBranch: AlternativeTimelineBranch | null = null;
     let aiDirectorEvent: string | undefined;
+    let directorEventId: string | undefined;
+    let directorEventLabel: string | undefined;
+    let directorExecutionStatus: string | undefined;
+
+    const currentStepIndex = decisions.indexOf(step) + 1;
+    const directorCtx = buildDirectorContext(
+      currentState,
+      scenarioId,
+      disasterType,
+      step.nodeId,
+      currentStepIndex
+    );
+    const rec = generateBaselineRecommendation(directorCtx);
+    const execRes = executeDirectorEvent(rec, directorCtx, cooldownTracker, 'PRE_VENUE');
+    if (execRes.eventId !== 'NONE') {
+      directorEventId = execRes.eventId;
+      directorEventLabel = getDirectorEvent(execRes.eventId)?.label;
+      directorExecutionStatus = execRes.status;
+    }
 
     if (scenario && scenario.nodes[step.nodeId] && scenario.nodes[step.nodeId].type === 'decision') {
       const node = scenario.nodes[step.nodeId] as DecisionNode;
@@ -159,6 +190,9 @@ function reconstructRunTelemetry(
       chainSeverity: nextState.disasterChain?.chainSeverity ?? 'NONE',
       alternativeBranch: altBranch,
       aiDirectorEvent,
+      directorEventId,
+      directorEventLabel,
+      directorExecutionStatus,
     };
 
     currentState = nextState;
@@ -493,6 +527,15 @@ export function RunInspectorModal({ runId, userId, onClose }: RunInspectorModalP
                                   style={{ color: '#90cdf4', borderColor: 'rgba(99, 179, 237, 0.4)' }}
                                 >
                                   DIRECTOR: <strong>{stepTelemetry[step.id].aiDirectorEvent?.replace(/_/g, ' ')}</strong>
+                                </span>
+                              )}
+                              {stepTelemetry[step.id].directorEventId && (
+                                <span
+                                  className={styles.telemetryChip}
+                                  style={{ color: '#90cdf4', borderColor: 'rgba(99, 179, 237, 0.4)' }}
+                                  title="Disaster Director Pre-Venue Framework"
+                                >
+                                  DIRECTOR [STANDBY]: <strong>{stepTelemetry[step.id].directorEventLabel || stepTelemetry[step.id].directorEventId}</strong>
                                 </span>
                               )}
                               <span

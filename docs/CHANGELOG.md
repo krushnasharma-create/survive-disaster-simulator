@@ -3,6 +3,43 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-10-01] PHASE 3 (Batch 9) — Live Adaptive Disaster Director — Pre-Venue Framework
+- **Pre-Venue Architecture & Hackathon Final Alignment:**
+  - Architected the pre-venue foundation for the Live Adaptive Disaster Director ahead of the Round 2 offline final on 3 October 2026.
+  - Strictly enforced the pre-venue framework boundary: the system operates in `PRE_VENUE` Standby mode with full atmospheric pacing and telemetry logging, while full runtime adaptive mutation is reserved for onsite deployment at the venue.
+- **Deterministic Event Registry (`src/ai/director/eventRegistry.ts`):**
+  - Registered the complete allowlist of 8 Director events with disaster compatibility and deterministic eligibility predicates:
+    - `ROUTE_CONGESTION` (earthquake, fire, flood) — evacuation bottlenecks under strained municipal access or crowd panic
+    - `AFTERSHOCK_PRESSURE` (earthquake) — secondary tremors under active seismic hazard or high risk convergence
+    - `DEBRIS_FALL` (earthquake, fire) — architectural shatter obstructing pathways
+    - `SMOKE_DENSITY_SURGE` (fire) — combustion gasses billowing into stairwells
+    - `COMM_DELAY` (earthquake, flood) — emergency network tower congestion
+    - `PANIC_RIPPLE` (earthquake, fire, flood) — crowd anxiety and companion distress contagion
+    - `WATER_SURGE` (flood) — torrential runoff and drainage backflow
+    - `POWER_FLICKER` (earthquake, fire, flood) — transformer faults and emergency circuit tripping
+  - Rejects all unknown, out-of-bounds, or invented event candidates.
+- **Deterministic Validation & Cooldown Boundary (`src/ai/director/cooldownTracker.ts`, `src/ai/director/directorValidator.ts`):**
+  - Pure offline validation pipeline checking allowlist membership, disaster compatibility, eligibility predicates, cooldown satisfaction, and clamping severity bounds (1 to 5).
+  - Enforces per-run cooldown windows (2 nodes) to prevent event spamming and preserve atmospheric pacing.
+- **Pre-Venue Execution Coordinator (`src/ai/director/adaptiveDirector.ts`, `src/ai/director/directorExecutor.ts`):**
+  - Singleton `adaptiveDirector` coordinating the evaluation pipeline across playthrough steps.
+  - In `PRE_VENUE` mode, sets `status: 'STANDBY_FRAMEWORK'` and applies cooldowns and narrative pacing without altering core simulation state.
+  - Supports automatic session resets on scenario re-selection or retry.
+- **State Invariance (AI ON === AI OFF):**
+  - Guaranteed 100% state invariance: the Disaster Director NEVER becomes the authority for safety truth.
+  - The deterministic simulation engine remains the sole authority for panic, hazard, safetyIntegrity, visibility, training/instinct scores, difficulty level, NPC state, city state, disaster chain state, and survival outcomes.
+- **UI & HUD Integrations (`src/screens/`, `src/components/`):**
+  - `ScenarioScreen`: Displays non-intrusive HUD chip `DIRECTOR: STANDBY [PRE-VENUE]` and recommendation advisory banner when active.
+  - `ConsequenceScreen`: Dedicated card `DISASTER DIRECTOR // PRE-VENUE FRAMEWORK` displaying event, category, trigger reason, source badge, validation state, and pre-venue framework compliance notice.
+  - `ReportScreen`: Dedicated audit card `DISASTER DIRECTOR AUDIT (PRE-VENUE FRAMEWORK)` with step evaluation counts, registry validation metrics, cooldown blocks, source breakdown, and pre-venue disclaimer banner.
+  - `RunInspectorModal`: Flight recorder client-side telemetry reconstruction for Director events with zero Supabase schema migrations.
+- **Verification & QA:**
+  - Dedicated Batch 9 test suite (`scratch/test_batch9_simulation.ts`): **742 assertions verified** across all 7 scenarios with 100% pass rate.
+  - Regression test suites passed: Batch 8 (979 assertions), Batch 7 (944 assertions), Batch 5/6 (964 assertions), Batch 3/4 (789 assertions), Batch 2 (100%).
+  - `npm run lint`: 0 errors.
+  - `npm run build`: 0 errors (565 modules compiled).
+  - `git diff --check`: 0 whitespace errors.
+
 ## [2026-10-01] PHASE 3 (Batch 8) — AI Architecture: Secure Live AI Gateway Foundation
 - **Server-Side AI Gateway Boundary (`api/ai.ts`, `src/ai/gateway/`):**
   - Architected a secure serverless boundary using Vercel Serverless Function entry point (`api/ai.ts`) supporting both Web Standard (`POST`, `GET`) and Node.js handler signatures.

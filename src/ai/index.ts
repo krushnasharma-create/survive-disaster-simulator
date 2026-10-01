@@ -14,3 +14,4 @@ export * from './gemini/geminiAdapter';
 export * from './gateway/gatewayTypes';
 export * from './gateway/gatewayClient';
 export * from './gateway/gatewayCore';
+export * from './director';

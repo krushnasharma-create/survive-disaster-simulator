@@ -8,11 +8,11 @@
 
 ## Current Phase
 
-**PHASE 3 (BATCH 8) — SECURE LIVE AI GATEWAY FOUNDATION** — Complete, Verified, & Finalized for Checkpoint Commit
+**PHASE 3 (BATCH 9) — LIVE ADAPTIVE DISASTER DIRECTOR — PRE-VENUE FRAMEWORK** — Complete, Verified, & Finalized for Checkpoint Commit
 
-**BASELINE COMMIT BEFORE PHASE 3 BATCH 8:** `4b22f3e` (feat: add Jev Gemini two-brain safety architecture)
+**BASELINE COMMIT BEFORE PHASE 3 BATCH 9:** `ee27e77` (feat: add secure live ai gateway foundation)
 
-Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`. Baseline commit before Phase 3 Batch 3 & 4: `c74a095`. Baseline commit before Phase 3 Batch 5 & 6: `1be0097`. Baseline commit before Phase 3 Batch 7: `54ae1f4`. Baseline commit before Phase 3 Batch 8: `4b22f3e`.
+Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`. Baseline commit before Phase 3 Batch 3 & 4: `c74a095`. Baseline commit before Phase 3 Batch 5 & 6: `1be0097`. Baseline commit before Phase 3 Batch 7: `54ae1f4`. Baseline commit before Phase 3 Batch 8: `4b22f3e`. Baseline commit before Phase 3 Batch 9: `ee27e77`.
 
 > **Agent handoff note:** `AGENTS.md` is the authoritative handoff source for any AI coding agent (Antigravity, Codex, or other) continuing this project. Read `AGENTS.md` first, then this file, before every task.
 
@@ -276,43 +276,51 @@ Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseli
 
 ## Current Task
 
-**PHASE 3 (BATCH 8) — SECURE LIVE AI GATEWAY FOUNDATION (2026-10-01):**
-- **Server-Side AI Gateway Boundary (`api/ai.ts`, `src/ai/gateway/`):**
-  - Architected a secure serverless boundary using Vercel Serverless Function entry point (`api/ai.ts`) supporting both Web Standard (`POST`, `GET`) and traditional Node handler signatures.
-  - Core modular gateway orchestration (`src/ai/gateway/gatewayCore.ts`) coordinating validation, dispatch, timeout controls, and safety firewall execution.
-- **Strict Credential Isolation & Secret Safety:**
-  - Environment variables are strictly server-side: `GEMINI_API_KEY`, `JEV_API_URL`, `JEV_API_KEY`.
-  - Zero `VITE_` secret prefixes; client bundles contain zero provider credentials or private endpoints.
-  - Template `.env.example` documents variable names only with zero hardcoded values.
-  - Neither live provider keys nor fake endpoints exist in source code or client assets.
-- **Inbound Context Allowlist & Payload Protection (`src/ai/gateway/contextValidator.ts`):**
-  - Enforces strict 16 KB payload size ceiling (`MAX_GATEWAY_PAYLOAD_BYTES = 16384`).
-  - Scans for and rejects unauthorized sensitive fields (`apiKey`, `password`, `service_role`, `token`, `auth`, `email`).
-  - Rejects script injection (`<script>`, `eval(`) and simulated state mutation attempts (`safety=`, `score=`, `survived=`).
-  - Enforces numerical bounds and allowlisted disaster types on `AiContext`.
-- **Server-Side Provider Abstractions (`src/ai/gateway/serverProviders.ts`):**
-  - `ServerJevProvider`: Checks server environment, executes bounded timeout queries with `AbortController`, enforces `validateJevEnvelope`, and returns deterministic fallback when unconfigured or failing.
-  - `ServerGeminiProvider`: Checks server environment, executes bounded timeout queries with `AbortController`, enforces `validateGeminiEnvelope`, and returns deterministic fallback when unconfigured or failing.
-  - Neither provider invents undocumented schemas or attempts arbitrary network proxying.
-- **Client Boundary Integration (`src/ai/gateway/gatewayClient.ts`, `src/ai/jev/jevAdapter.ts`, `src/ai/gemini/geminiAdapter.ts`):**
-  - Client adapters communicate through `gatewayClient` to `/api/ai`.
-  - Non-blocking client timeouts (2800ms) guarantee zero gameplay stalls; immediate fallback engages if gateway is unreachable (e.g. offline, local dev server without backend).
-  - Explicit and honest UI status: remains in `DETERMINISTIC FALLBACK` mode with zero false "LIVE" claims.
+**PHASE 3 (BATCH 9) — LIVE ADAPTIVE DISASTER DIRECTOR — PRE-VENUE FRAMEWORK (2026-10-01):**
+- **Pre-Venue Architecture & Hackathon Final Alignment:**
+  - Architected the pre-venue foundation for the Live Adaptive Disaster Director ahead of the Round 2 offline final on 3 October 2026.
+  - Strictly enforced the pre-venue framework boundary: the system operates in `PRE_VENUE` Standby mode with full atmospheric pacing and telemetry logging, while full runtime adaptive mutation is reserved for onsite deployment at the venue.
+- **Deterministic Event Registry (`src/ai/director/eventRegistry.ts`):**
+  - Registered the complete allowlist of 8 Director events with disaster compatibility and deterministic eligibility predicates:
+    - `ROUTE_CONGESTION` (earthquake, fire, flood) — evacuation bottlenecks under strained municipal access or crowd panic
+    - `AFTERSHOCK_PRESSURE` (earthquake) — secondary tremors under active seismic hazard or high risk convergence
+    - `DEBRIS_FALL` (earthquake, fire) — architectural shatter obstructing pathways
+    - `SMOKE_DENSITY_SURGE` (fire) — combustion gasses billowing into stairwells
+    - `COMM_DELAY` (earthquake, flood) — emergency network tower congestion
+    - `PANIC_RIPPLE` (earthquake, fire, flood) — crowd anxiety and companion distress contagion
+    - `WATER_SURGE` (flood) — torrential runoff and drainage backflow
+    - `POWER_FLICKER` (earthquake, fire, flood) — transformer faults and emergency circuit tripping
+  - Rejects all unknown, out-of-bounds, or invented event candidates.
+- **Deterministic Validation & Cooldown Boundary (`src/ai/director/cooldownTracker.ts`, `src/ai/director/directorValidator.ts`):**
+  - Pure offline validation pipeline checking allowlist membership, disaster compatibility, eligibility predicates, cooldown satisfaction, and clamping severity bounds (1 to 5).
+  - Enforces per-run cooldown windows (2 nodes) to prevent event spamming and preserve atmospheric pacing.
+- **Pre-Venue Execution Coordinator (`src/ai/director/adaptiveDirector.ts`, `src/ai/director/directorExecutor.ts`):**
+  - Singleton `adaptiveDirector` coordinating the evaluation pipeline across playthrough steps.
+  - In `PRE_VENUE` mode, sets `status: 'STANDBY_FRAMEWORK'` and applies cooldowns and narrative pacing without altering core simulation state.
+  - Supports automatic session resets on scenario re-selection or retry.
+- **State Invariance (AI ON === AI OFF):**
+  - Guaranteed 100% state invariance: the Disaster Director NEVER becomes the authority for safety truth.
+  - The deterministic simulation engine remains the sole authority for panic, hazard, safetyIntegrity, visibility, training/instinct scores, difficulty level, NPC state, city state, disaster chain state, and survival outcomes.
+- **UI & HUD Integrations (`src/screens/`, `src/components/`):**
+  - `ScenarioScreen`: Displays non-intrusive HUD chip `DIRECTOR: STANDBY [PRE-VENUE]` and recommendation advisory banner when active.
+  - `ConsequenceScreen`: Dedicated card `DISASTER DIRECTOR // PRE-VENUE FRAMEWORK` displaying event, category, trigger reason, source badge, validation state, and pre-venue framework compliance notice.
+  - `ReportScreen`: Dedicated audit card `DISASTER DIRECTOR AUDIT (PRE-VENUE FRAMEWORK)` with step evaluation counts, registry validation metrics, cooldown blocks, source breakdown, and pre-venue disclaimer banner.
+  - `RunInspectorModal`: Flight recorder client-side telemetry reconstruction for Director events with zero Supabase schema migrations.
 - **Verification & QA (100% Passed):**
-  - Dedicated Batch 8 simulation suite (`test_batch8_simulation.ts`): **979/979 assertions passed** across all 7 scenarios.
-  - Confirmed state invariance: **AI ON === AI OFF** (scores, hazards, safety integrity, panic, NPC status, city state, disaster chain, and outcomes remain 100% identical).
-  - Regressions verified: Batch 7 (944/944 passed), Batch 5/6 (964/964 passed), Batch 3/4 (789/789 passed), Batch 2 (100% passed).
-  - `npm run lint`: 0 errors (6 pre-existing non-blocking warnings).
-  - `npm run build`: 0 errors (557 modules compiled).
+  - Dedicated Batch 9 test suite (`scratch/test_batch9_simulation.ts`): **742 assertions verified** across all 7 scenarios with 100% pass rate.
+  - Regression test suites passed: Batch 8 (979 assertions), Batch 7 (944 assertions), Batch 5/6 (964 assertions), Batch 3/4 (789 assertions), Batch 2 (100%).
+  - `npm run lint`: 0 errors.
+  - `npm run build`: 0 errors (565 modules compiled).
   - `git diff --check`: 0 whitespace warnings.
 
 ---
 
 ## Next Task
 
-**PHASE 4 / POST-BATCH 8 ROADMAP:**
-1. Commit and push Batch 8 milestone commit: `feat: add secure live ai gateway foundation`.
-2. Prepare for next hackathon phase / deployment readiness.
+**ROUND 2 VENUE PREPARATION (3 OCTOBER 2026):**
+1. Commit and push Batch 9 milestone commit: `feat: prepare adaptive disaster director framework`.
+2. Finalize deployment on Vercel and verify production health.
+3. Prepare onsite implementation of venue-only adaptive director mutation on 3 October 2026.
 
 ---
 

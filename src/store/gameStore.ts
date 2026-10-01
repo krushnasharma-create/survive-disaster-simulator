@@ -23,6 +23,12 @@ import {
   applySimulationState,
 } from '../engine/simulationState';
 import type { AiDirectorState, BoundedEventType } from '../ai/types';
+import type {
+  DirectorEventId,
+  DirectorRecommendationSource,
+  DirectorExecutionStatus,
+} from '../ai/director/directorTypes';
+import { adaptiveDirector } from '../ai/director/adaptiveDirector';
 
 export interface DecisionRecord {
   nodeId: string;
@@ -70,6 +76,14 @@ export interface DecisionRecord {
   aiTacticalAdvisory?: string;
   aiFallbackUsed?: boolean;
   aiNarrativeContext?: string;
+  /** Batch 9 Extensions: Live Adaptive Disaster Director — Pre-Venue Framework Telemetry */
+  directorEventId?: DirectorEventId | string;
+  directorEventCategory?: string;
+  directorSource?: DirectorRecommendationSource;
+  directorValidation?: 'VALID' | 'REJECTED' | 'COOLDOWN_BLOCKED';
+  directorExecutionStatus?: DirectorExecutionStatus;
+  directorTriggerReason?: string;
+  directorImpactSummary?: string;
 }
 
 export interface ConsequenceState {
@@ -100,6 +114,15 @@ export interface ConsequenceState {
   aiTacticalAdvisory?: string;
   aiNarrativeContext?: string;
   aiDirectorSource?: string;
+  /** Batch 9 Extensions: Live Adaptive Disaster Director — Pre-Venue Framework */
+  directorEventId?: DirectorEventId | string;
+  directorEventLabel?: string;
+  directorEventCategory?: string;
+  directorSource?: DirectorRecommendationSource;
+  directorValidation?: 'VALID' | 'REJECTED' | 'COOLDOWN_BLOCKED';
+  directorExecutionStatus?: DirectorExecutionStatus;
+  directorTriggerReason?: string;
+  directorImpactSummary?: string;
 }
 
 export interface OutcomeState {
@@ -219,7 +242,8 @@ export const useGameStore = create<GameState>((set) => ({
 
   markIntroSeen: () => set({ hasSeenIntro: true }),
 
-  selectDisaster: (disaster) =>
+  selectDisaster: (disaster) => {
+    adaptiveDirector.resetSession();
     set({
       activeDisaster: disaster,
       activeScenarioId: null,
@@ -231,9 +255,11 @@ export const useGameStore = create<GameState>((set) => ({
       totalScore: 0,
       simulationState: createInitialSimulationState(disaster),
       activeRunId: null,
-    }),
+    });
+  },
 
-  selectScenario: (scenarioId, disaster) =>
+  selectScenario: (scenarioId, disaster) => {
+    adaptiveDirector.resetSession();
     set({
       activeDisaster: disaster,
       activeScenarioId: scenarioId,
@@ -245,7 +271,8 @@ export const useGameStore = create<GameState>((set) => ({
       totalScore: 0,
       simulationState: createInitialSimulationState(disaster),
       activeRunId: null,
-    }),
+    });
+  },
 
   advanceTo: (nodeId) =>
     set((state) => ({
@@ -276,11 +303,13 @@ export const useGameStore = create<GameState>((set) => ({
 
   finaliseScore: (score) => set({ totalScore: score }),
 
-  resetSession: () =>
+  resetSession: () => {
+    adaptiveDirector.resetSession();
     set((state) => ({
       ...initialState,
       language: state.language,
       authUserId: state.authUserId,
       isAuthLoading: false,
-    })),
+    }));
+  },
 }));
