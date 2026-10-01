@@ -9,7 +9,7 @@ import type {
   BoundedEventType,
   BoundedNpcIntent,
   BoundedDifficultyRecommendation,
-} from './types';
+} from './types.js';
 
 export const ALLOWED_BOUNDED_EVENTS: readonly BoundedEventType[] = [
   'NONE',
@@ -130,7 +130,7 @@ export function validateJevEnvelope(
     source: env.source === 'jev' ? 'jev' : 'deterministic-fallback',
     confidence: Math.round(env.confidence),
     timestamp: typeof env.timestamp === 'number' ? env.timestamp : Date.now(),
-    allowedActions: Array.isArray(env.allowedActions) ? env.allowedActions.map((a) => String(a)) : [],
+    allowedActions: Array.isArray(env.allowedActions) ? env.allowedActions.map((a: unknown) => String(a)) : [],
     expirationMs: typeof env.expirationMs === 'number' ? env.expirationMs : 15000,
     reasoningSummary: sanitizeString(env.reasoningSummary || '', 160),
     deterministicFallbackUsed: Boolean(env.deterministicFallbackUsed),

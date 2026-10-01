@@ -8,13 +8,13 @@ import type {
   GeminiNarrativeRequest,
   GeminiNarrativeResponse,
   AiEnvelope,
-} from '../types';
+} from '../types.js';
 import {
   GEMINI_PROVIDER_NAME,
   GEMINI_MAX_CHARS,
   GEMINI_CONFIDENCE_THRESHOLD,
-} from './geminiPolicy';
-import { validateGeminiEnvelope } from '../safetyFirewall';
+} from './geminiPolicy.js';
+import { validateGeminiEnvelope } from '../safetyFirewall.js';
 
 /**
  * Deterministic Creative Narrative Engine providing authoritative NDMA-aligned fallback narrative flavor.
@@ -116,7 +116,7 @@ export function generateDeterministicGeminiFallback(
   };
 }
 
-import { gatewayClient } from '../gateway/gatewayClient';
+import { gatewayClient } from '../gateway/gatewayClient.js';
 
 /**
  * Gemini Creative Brain Adapter

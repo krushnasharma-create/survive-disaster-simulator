@@ -3,16 +3,16 @@
 // Validates inbound payloads, coordinates isolated server providers, enforces safety firewall,
 // and ensures 100% resilient fallback behavior with zero unhandled exceptions.
 
-import { validateGatewayPayload } from './contextValidator';
-import { ServerJevProvider, ServerGeminiProvider } from './serverProviders';
-import { generateDeterministicJevFallback } from '../jev/jevAdapter';
-import { generateDeterministicGeminiFallback } from '../gemini/geminiAdapter';
+import { validateGatewayPayload } from './contextValidator.js';
+import { ServerJevProvider, ServerGeminiProvider } from './serverProviders.js';
+import { generateDeterministicJevFallback } from '../jev/jevAdapter.js';
+import { generateDeterministicGeminiFallback } from '../gemini/geminiAdapter.js';
 import type {
   GatewayRequest,
   GatewayResponse,
   GatewayServerEnv,
   GatewayStatusResponse,
-} from './gatewayTypes';
+} from './gatewayTypes.js';
 
 export interface GatewayExecutionResult {
   statusCode: number;

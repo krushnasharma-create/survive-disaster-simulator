@@ -10,13 +10,13 @@ import type {
   JevRecommendation,
   GeminiNarrativeRequest,
   GeminiNarrativeResponse,
-} from '../types';
+} from '../types.js';
 import type {
   GatewayRecommendRequest,
   GatewayNarrateRequest,
   GatewayStatusRequest,
   GatewayStatusResponse,
-} from './gatewayTypes';
+} from './gatewayTypes.js';
 
 const GATEWAY_ENDPOINT = '/api/ai';
 const CLIENT_TIMEOUT_MS = 2800;
@@ -50,9 +50,9 @@ class GatewayClient {
       clearTimeout(timeoutId);
       if (!res.ok) return null;
 
-      const data = await res.json();
+      const data = (await res.json()) as GatewayStatusResponse | null;
       if (data && data.status === 'ok') {
-        return data as GatewayStatusResponse;
+        return data;
       }
       return null;
     } catch {

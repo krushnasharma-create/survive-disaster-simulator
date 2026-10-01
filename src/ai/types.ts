@@ -2,7 +2,7 @@
 // Core serializable contracts and types for Jev + Gemini Two-Brain Architecture.
 // Strict safety boundary: AI recommendations and narrations NEVER determine safety-critical simulation state.
 
-import type { DisasterType } from '../data/types';
+import type { DisasterType } from '../data/types.js';
 
 /** AI Provider source classification */
 export type AiSource = 'jev' | 'gemini' | 'deterministic-fallback';

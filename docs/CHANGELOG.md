@@ -3,10 +3,18 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-10-01] FIX — AI Gateway Vercel Node Runtime & NodeNext Resolution
+- **ESM-Compatible .js Specifiers for Vercel Node16/NodeNext Runtime:**
+  - Resolved TypeScript `TS2835` compiler errors occurring during Vercel serverless function builds of `api/ai.ts` under `Node16`/`NodeNext` module resolution.
+  - Added explicit `.js` extensions across all server-reachable AI gateway imports: `api/ai.ts`, `src/ai/gateway/gatewayCore.ts`, `src/ai/gateway/contextValidator.ts`, `src/ai/gateway/serverProviders.ts`, `src/ai/gateway/gatewayTypes.ts`, `src/ai/gateway/gatewayClient.ts`, `src/ai/jev/jevAdapter.ts`, `src/ai/gemini/geminiAdapter.ts`, `src/ai/safetyFirewall.ts`, and `src/ai/types.ts`.
+  - Created `tsconfig.server.json` dedicated to serverless functions in `api/` with `module: "nodenext"` and `moduleResolution: "nodenext"`, and added reference to root `tsconfig.json` for unified `tsc -b` compilation.
+  - Set default Gemini model to `gemini-3.5-flash-lite` in `src/ai/gemini/geminiPolicy.ts`.
+  - Added focused server-side smoke test suite (`scratch/test_api_ai_smoke.ts`) verifying `GET`, `POST`, error boundaries, and NodeNext resolution.
+
 ## [2026-10-01] PHASE 3 (Batch 11) — Live Gemini Provider Integration
 - **Live Gemini Provider Integration via `@google/genai`:**
   - Upgraded `ServerGeminiProvider` (`src/ai/gateway/serverProviders.ts`) from deterministic fallback-only behavior to a live server-side Google Gemini integration using the official `@google/genai` SDK (`^2.25.0`).
-  - Isolated credential management entirely on the server via `GEMINI_API_KEY` and configurable `GEMINI_MODEL` (defaulting to `gemini-2.5-flash`), with `.env.example` updated with explanatory placeholders.
+  - Isolated credential management entirely on the server via `GEMINI_API_KEY` and configurable `GEMINI_MODEL` (defaulting to `gemini-3.5-flash-lite`), with `.env.example` updated with explanatory placeholders.
   - Zero browser leakage: verified via production rollup build that `@google/genai` is cleanly tree-shaken and strictly absent from client browser bundles (`dist/assets/*.js`).
 - **Safety Firewall & Operational Policy Constraints:**
   - Enforced structured JSON output schema (`responseSchema`: `text`, `tone`) and max output tokens (140) to eliminate markdown bloat and unparsed payload risk.

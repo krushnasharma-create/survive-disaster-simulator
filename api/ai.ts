@@ -3,7 +3,7 @@
 // Receives sanitized simulation context from the browser, isolates provider credentials,
 // and enforces the Safety Architecture Firewall before returning output.
 
-import { handleGatewayRequest } from '../src/ai/gateway/gatewayCore';
+import { handleGatewayRequest } from '../src/ai/gateway/gatewayCore.js';
 
 /**
  * Web Standard POST handler (Vercel Edge & Node.js 18+ Serverless).

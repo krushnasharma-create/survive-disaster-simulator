@@ -11,13 +11,13 @@ import type {
   BoundedEventType,
   BoundedNpcIntent,
   BoundedDifficultyRecommendation,
-} from '../types';
+} from '../types.js';
 import {
   JEV_PROVIDER_NAME,
   JEV_CONFIDENCE_THRESHOLD,
   JEV_EXPIRATION_MS,
-} from './jevPolicy';
-import { validateJevEnvelope } from '../safetyFirewall';
+} from './jevPolicy.js';
+import { validateJevEnvelope } from '../safetyFirewall.js';
 
 /**
  * Deterministic Decision Engine acting as the unbreakable fallback for Jev.
@@ -91,7 +91,7 @@ export function generateDeterministicJevFallback(
   };
 }
 
-import { gatewayClient } from '../gateway/gatewayClient';
+import { gatewayClient } from '../gateway/gatewayClient.js';
 
 /**
  * Jev Decision Brain Adapter

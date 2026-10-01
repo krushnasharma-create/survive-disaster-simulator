@@ -337,8 +337,9 @@ Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseli
 ### Phase 3 (Batch 11) — Live Gemini Provider Integration
 - **Server-Side Integration via `@google/genai`:**
   - Upgraded `ServerGeminiProvider` (`src/ai/gateway/serverProviders.ts`) to connect to Google's official Gemini API using `@google/genai` (`^2.25.0`).
-  - Isolated server credentials: reads `GEMINI_API_KEY` and optional `GEMINI_MODEL` (defaulting to `gemini-2.5-flash`) exclusively on the server.
+  - Isolated server credentials: reads `GEMINI_API_KEY` and optional `GEMINI_MODEL` (defaulting to `gemini-3.5-flash-lite`) exclusively on the server.
   - Zero browser leakage: verified via Vite/Rollup tree-shaking that `@google/genai` and server provider logic are excluded from client bundles (`dist/assets/*.js`).
+  - **Vercel Node16/NodeNext Runtime Compatibility:** Fixed TypeScript TS2835 errors by adding explicit ESM `.js` import specifiers across all server-reachable modules (`api/ai.ts`, `gatewayCore.ts`, `contextValidator.ts`, `serverProviders.ts`, `gatewayTypes.ts`, `gatewayClient.ts`, `jevAdapter.ts`, `geminiAdapter.ts`, `safetyFirewall.ts`, and `types.ts`). Added dedicated `tsconfig.server.json` referenced in root `tsconfig.json` for unified `tsc -b` compilation.
 - **Safety Firewall & Operational Policy Constraints:**
   - Structured output schema (`responseSchema`: `text`, `tone`) and max output tokens (140) enforce concise atmospheric narrative without unparsed formatting.
   - Bounded timeout: server-side timeout reduced to `2500ms` (`GEMINI_TIMEOUT_MS`) before the client gateway's `2800ms` abort deadline.
@@ -358,8 +359,10 @@ Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseli
   - Disaster Director remains strictly in `PRE_VENUE` framework mode ahead of the 3 October 2026 venue final.
 - **Verification & QA:**
   - Dedicated Batch 11 test suite (`scratch/test_batch11_gemini.ts`): **25/25 assertions passed**.
+  - Server-side smoke test suite (`scratch/test_api_ai_smoke.ts`): **5/5 assertions passed** verifying NodeNext resolution and Web Standard handlers.
+  - Live Gemini verification (`scratch/verify_live_gemini.ts`): **100% passed** using `gemini-3.5-flash-lite`.
   - `npm run lint`: 0 errors.
-  - `npm run build`: 0 errors (570 modules compiled).
+  - `npm run build`: 0 errors (all project references compile cleanly).
   - `git diff --check`: 0 whitespace errors.
 
 ---

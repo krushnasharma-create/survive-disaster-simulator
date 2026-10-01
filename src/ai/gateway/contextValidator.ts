@@ -2,14 +2,14 @@
 // Inbound payload validation and schema enforcement for the Secure AI Gateway.
 // Rejects oversized requests, unauthorized fields, script injection, and state mutation attempts.
 
-import type { AiContext, GeminiNarrativeRequest } from '../types';
-import { containsForbiddenPatterns } from '../safetyFirewall';
+import type { AiContext, GeminiNarrativeRequest } from '../types.js';
+import { containsForbiddenPatterns } from '../safetyFirewall.js';
 import {
   MAX_GATEWAY_PAYLOAD_BYTES,
   MAX_GATEWAY_STRING_LENGTH,
   type GatewayRequest,
   type GatewayValidationResult,
-} from './gatewayTypes';
+} from './gatewayTypes.js';
 
 const DISALLOWED_KEYS = [
   'apikey',

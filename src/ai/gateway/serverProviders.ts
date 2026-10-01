@@ -8,13 +8,13 @@ import type {
   JevRecommendation,
   GeminiNarrativeRequest,
   GeminiNarrativeResponse,
-} from '../types';
-import { validateJevEnvelope, validateGeminiEnvelope } from '../safetyFirewall';
-import { generateDeterministicJevFallback } from '../jev/jevAdapter';
-import { generateDeterministicGeminiFallback } from '../gemini/geminiAdapter';
-import { JEV_TIMEOUT_MS, JEV_CONFIDENCE_THRESHOLD } from '../jev/jevPolicy';
-import { GEMINI_TIMEOUT_MS, GEMINI_CONFIDENCE_THRESHOLD, GEMINI_DEFAULT_MODEL } from '../gemini/geminiPolicy';
-import type { GatewayServerEnv } from './gatewayTypes';
+} from '../types.js';
+import { validateJevEnvelope, validateGeminiEnvelope } from '../safetyFirewall.js';
+import { generateDeterministicJevFallback } from '../jev/jevAdapter.js';
+import { generateDeterministicGeminiFallback } from '../gemini/geminiAdapter.js';
+import { JEV_TIMEOUT_MS, JEV_CONFIDENCE_THRESHOLD } from '../jev/jevPolicy.js';
+import { GEMINI_TIMEOUT_MS, GEMINI_CONFIDENCE_THRESHOLD, GEMINI_DEFAULT_MODEL } from '../gemini/geminiPolicy.js';
+import type { GatewayServerEnv } from './gatewayTypes.js';
 
 function getServerEnv(env?: GatewayServerEnv): GatewayServerEnv {
   if (env) return env;

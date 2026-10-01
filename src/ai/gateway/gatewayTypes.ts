@@ -8,7 +8,7 @@ import type {
   JevRecommendation,
   GeminiNarrativeRequest,
   GeminiNarrativeResponse,
-} from '../types';
+} from '../types.js';
 
 /** Maximum allowed gateway payload size in bytes (16 KB) */
 export const MAX_GATEWAY_PAYLOAD_BYTES = 16384;
