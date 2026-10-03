@@ -28,7 +28,12 @@ const DISALLOWED_KEYS = [
   'session',
 ];
 
-const VALID_DISASTER_TYPES = ['earthquake', 'fire', 'flood'] as const;
+const VALID_DISASTER_TYPES = [
+  'earthquake',
+  'fire',
+  'flood',
+  'gas_leak',
+] as const;
 const VALID_NARRATIVE_TYPES = [
   'NPC_DIALOGUE',
   'CONSEQUENCE_NARRATION',
