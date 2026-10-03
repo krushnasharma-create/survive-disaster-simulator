@@ -649,8 +649,8 @@ export default function ConsequenceScreen() {
           </motion.div>
         )}
 
-        {/* Batch 9: Disaster Director // Pre-Venue Framework Card */}
-        {currentConsequence.directorEventId && currentConsequence.directorEventId !== 'NONE' && (
+        {/* Batch 9: Disaster Director // Pre-Venue Framework Card (Hidden for Gas Leakage dynamic director) */}
+        {targetDisaster !== 'gas_leak' && currentConsequence.directorEventId && currentConsequence.directorEventId !== 'NONE' && (
           <motion.div
             className={styles.directorFrameworkCard}
             variants={itemVariants}

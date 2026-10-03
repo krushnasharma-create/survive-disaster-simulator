@@ -733,12 +733,14 @@ export default function ScenarioScreen() {
                   {ui.visibility}: <strong>{simulationState.visibility}%</strong>
                 </span>
               )}
-              <span
-                className={`${styles.statChip} ${styles.directorChip}`}
-                title="Adaptive Disaster Director Framework (Pre-Venue Standby)"
-              >
-                {ui.directorLabel}: <strong className={styles.directorStandbyText}>{ui.directorStandby}</strong> <span className={styles.directorModeTag}>{ui.directorPreVenue}</span>
-              </span>
+              {targetDisaster !== 'gas_leak' && (
+                <span
+                  className={`${styles.statChip} ${styles.directorChip}`}
+                  title="Adaptive Disaster Director Framework (Pre-Venue Standby)"
+                >
+                  {ui.directorLabel}: <strong className={styles.directorStandbyText}>{ui.directorStandby}</strong> <span className={styles.directorModeTag}>{ui.directorPreVenue}</span>
+                </span>
+              )}
             </div>
           </div>
         )}
@@ -820,7 +822,7 @@ export default function ScenarioScreen() {
           )}
 
         {/* Subtle AI Director Tactical Advisory */}
-        {aiDirectorState.activePressure !== 'NONE' && aiDirectorState.lastRecommendation?.tacticalAdvisory && (
+        {targetDisaster !== 'gas_leak' && aiDirectorState.activePressure !== 'NONE' && aiDirectorState.lastRecommendation?.tacticalAdvisory && (
           <div className={styles.directorAdvisoryBanner}>
             <span className={styles.directorBannerTag}>
               {language === 'hinglish' ? 'DIRECTOR // PRE-VENUE SANDARBH' : 'DIRECTOR // PRE-VENUE FRAMEWORK'}
