@@ -11,9 +11,10 @@ import { fireHinglish, FIRE_HINGLISH_TAKEAWAYS } from './fire';
 import { fireCommercialHinglish } from './fireCommercial';
 import { floodHinglish, FLOOD_HINGLISH_TAKEAWAYS } from './flood';
 import { floodStreetHinglish } from './floodStreet';
+import { gasLeakHinglish, GAS_LEAK_HINGLISH_TAKEAWAYS } from './gasLeak';
 
 export type { Language, UiStrings } from './types';
-export { getUiStrings, UI_EN, UI_HINGLISH, FIRE_HINGLISH_TAKEAWAYS, FLOOD_HINGLISH_TAKEAWAYS };
+export { getUiStrings, UI_EN, UI_HINGLISH, FIRE_HINGLISH_TAKEAWAYS, FLOOD_HINGLISH_TAKEAWAYS, GAS_LEAK_HINGLISH_TAKEAWAYS };
 
 const HINGLISH_SCENARIOS: Record<string, LocalizedScenarioData> = {
   earthquake: earthquakeHinglish,
@@ -26,6 +27,11 @@ const HINGLISH_SCENARIOS: Record<string, LocalizedScenarioData> = {
   flood: floodHinglish,
   'flood-urban': floodHinglish,
   'flood-street': floodStreetHinglish,
+  gas_leak: gasLeakHinglish,
+  'gas-leak': gasLeakHinglish,
+  gas_leakage: gasLeakHinglish,
+  'gas-leakage': gasLeakHinglish,
+  'gas-leak-facility': gasLeakHinglish,
 };
 
 /**

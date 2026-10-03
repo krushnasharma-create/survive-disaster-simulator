@@ -14,6 +14,7 @@ const THEME_MAP: Record<DisasterType, string> = {
   earthquake: 'theme-earthquake',
   fire: 'theme-fire',
   flood: 'theme-flood',
+  gas_leak: 'theme-gas-leak',
 };
 
 export default function OutcomeScreen() {

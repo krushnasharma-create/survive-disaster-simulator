@@ -245,6 +245,23 @@
   100% { opacity: 0.75; }
 }
 
+/* Gas Leak effects */
+.gasVaporHaze {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+  animation: waterGleam 4s ease-in-out infinite alternate;
+}
+
+.gasWarningPulse {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 60%);
+  animation: flickerGlowUrgent 1.2s ease-in-out infinite alternate;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rumbleActive,
   .rumbleUrgent,
@@ -255,7 +272,9 @@
   .currentStream,
   .dustMotes,
   .heatDistortion,
-  .waterShimmer {
+  .waterShimmer,
+  .gasVaporHaze,
+  .gasWarningPulse {
     animation: none !important;
   }
 }

@@ -3,6 +3,54 @@
 All meaningful changes to this project are documented here.
 Format: `[YYYY-MM-DD] [Phase] — Description`
 
+## [2026-10-03] ROUND 2 OFFLINE CHALLENGE — Gas Leakage Dynamic Real-Time Event Engine
+- **4th Standalone Disaster (Gas Leakage) Registration:**
+  - Registered `gas_leak` as a first-class disaster type across `src/data/types.ts` (`earthquake`, `fire`, `flood`, `gas_leak`).
+  - Added Gas Leakage card to `DisasterSelect.tsx` (`SCN-GL-04`, icon: `☣️`, accent: `#10b981`), displaying updated count of 4 Standalone Disasters.
+  - Implemented toxic gas / chemical hazard theme (`src/styles/themes/gasLeak.css`) with toxic lime green accents, hazardous vapors, and environmental alerts.
+- **Dynamic Real-Time Event Generator (`src/engine/gasLeakDirector.ts`):**
+  - Created deterministic Gas Leakage Event Director that continuously evaluates live simulation state:
+    - Gas exposure / concentration (`hazardLevel`)
+    - Ventilation quality (`visibility`)
+    - Ignition risk (`disasterChain`, electrical sparks, `utilityStability`)
+    - Panic level (`panic`)
+    - Squad safety / NPC status (`squadCohesion`, `squadMembers`)
+    - Emergency access (`cityBrain.emergencyAccess`)
+  - Evaluates and dynamically selects eligible events:
+    1. `GAS_LEAK_DETECTED` (Start trigger / mercaptan sulfur odor)
+    2. `HIGH_GAS_CONCENTRATION` (Acute gas buildup above 45%)
+    3. `IGNITION_RISK` (Spark hazard / electrical switch threat)
+    4. `VENTILATION_FAILURE` (Trapped explosive vapor / inadequate cross-draft)
+    5. `EVACUATION_ALERT` (Perimeter clearance / upwind crowd dispersal)
+    6. `EMERGENCY_RESPONDER_ARRIVAL` (112 ERSS Fire & Hazmat team arrival and handover)
+  - Incorporated priority scoring, 2-step event anti-spam cooldown, and deterministic outcome resolution (`gas-outcome-containment` vs `gas-outcome-critical`).
+- **Complete Scenario Graph & NDMA/PESO Protocol Integration (`src/data/gasLeak.ts`):**
+  - Designed full 6-event decision graph + 2 outcome nodes + 1 report node grounded in official NDMA Chemical Incident Guidelines, Petroleum and Explosives Safety Organisation (PESO), and 112 ERSS.
+  - Authored deterministic state deltas for each choice (safe: valve isolation, natural cross-ventilation, upwind dispersal; risky: switching on electrical lights/fans, sealing room, car ignition).
+- **HUD & Cinematic Feedback Integration:**
+  - Added dynamic real-time event banner in `ScenarioScreen.tsx` displaying `DIRECTOR: ACTIVE`, event badge, dynamic severity, and state trigger rationale.
+  - Added chemical vapor haze overlay and toxic alert pulse in `EnvironmentalOverlay.tsx`.
+  - Added procedural Web Audio API gas hiss sound effect on choice commitment.
+- **Story-First Gameplay Experience (`ScenarioScreen.tsx` & `ScenarioScreen.module.css`):**
+  - Re-architected Gas Leakage flow from immediate multiple-choice questions to an atmospheric, unfolding crisis story:
+    `STORY → SITUATION DEVELOPS → DECISION → CONSEQUENCE → NEW STORY → NEW SITUATION → DECISION → CONSEQUENCE`.
+  - Added dedicated `storyCard` with real-time timestamps (e.g. `03:07 AM`), specific location coordinates (e.g. `RR Venkatapuram, Visakhapatnam`), and 2–4 lines of sensory/narrative immersion.
+  - Paused countdown timer during story reading so players absorb the crisis atmosphere without rushed pressure until clicking `[ ASSESS SITUATION & RESPOND ▶ ]`.
+- **Historical Context (Vizag May 2020 Styrene Gas Incident):**
+  - Integrated the May 2020 Visakhapatnam (Vizag) styrene gas leak as educational historical inspiration, capturing authentic sensory details (stinging eyes, confused neighbors, ground-level vapor clouds) while strictly adhering to NDMA/PESO protocols.
+- **Deterministic Fresh Replay System (`src/engine/gasLeakDirector.ts` & `src/store/gameStore.ts`):**
+  - Integrated `runSeed` in `useGameStore`. Replaying Gas Leakage initializes a new seed while preserving 100% determinism given the same seed.
+  - Added `getOpeningGasLeakNodeId(seed)` to deterministically vary opening entry events across runs (`gas-event-detect`, `gas-event-vent-fail`, `gas-event-high-conc`), ensuring each playthrough feels fresh without breaking state-based evaluation.
+- **Full Roman Hinglish Localization (`src/i18n/gasLeak.ts`):**
+  - Added complete Roman Hinglish translations for all 6 events, choices, consequences, outcomes, and takeaways.
+- **Preparedness Report Integration (`src/engine/reportBuilder.ts`):**
+  - Added dedicated Gas Leakage key takeaways and integrated National Gas Leakage Emergency Helpline `1906` alongside `112` and `101`.
+- **Test Suite & Verification:**
+  - Expanded challenge test suite (`scratch/test_gas_leakage_challenge.ts`): **12/12 tests passed**.
+  - Verified regression across all existing scenarios (`scratch/test_all_scenarios_gameplay.ts`): **1301/1301 assertions passed**.
+  - `npm run build`: 0 TypeScript / Vite errors (574 modules in 435ms).
+  - `npm run lint`: 0 errors.
+
 ## [2026-10-01] FIX — AI Gateway Vercel Node Runtime & NodeNext Resolution
 - **ESM-Compatible .js Specifiers for Vercel Node16/NodeNext Runtime:**
   - Resolved TypeScript `TS2835` compiler errors occurring during Vercel serverless function builds of `api/ai.ts` under `Node16`/`NodeNext` module resolution.

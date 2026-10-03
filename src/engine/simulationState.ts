@@ -417,6 +417,21 @@ export function calculatePropagationSummary(
     }
   }
 
+  if (disasterType === 'gas_leak') {
+    switch (convergenceBand) {
+      case 'CRITICAL_RISK':
+        return 'Combustible gas concentration has reached the Lower Explosive Limit (LEL) with severe oxygen displacement. Any electrical spark or lingering vehicle will trigger catastrophic deflagration.';
+      case 'HIGH_RISK':
+        return 'Pungent mercaptan vapor density is rising rapidly in the breathing zone. Unventilated pockets threaten acute asphyxiation along escape avenues.';
+      case 'MODERATE_RISK':
+        return 'Persistent chemical vapor accumulation requires active natural cross-draft. Stay low, avoid sparking switches, and clear perimeter.';
+      case 'LOW_RISK':
+        return isCorrect
+          ? 'Disciplined primary valve isolation and natural cross-draft diluted gas vapors below explosive limits. Upwind corridors are tenable.'
+          : 'Trace gas odor persists; maintain strict elimination of spark and open-flame sources.';
+    }
+  }
+
   // Generic fallback
   switch (convergenceBand) {
     case 'CRITICAL_RISK':
@@ -451,6 +466,8 @@ export function getConvergenceContext(
             ? `Dense thermal smoke layer and severe oxygen depletion. Visibility at ${state.visibility}%. Extreme caution required on all egress routes.`
             : type === 'flood'
             ? `Deep hydrodynamic current and submerged infrastructure hazards. Safety integrity degraded to ${state.safetyIntegrity}%. Zero margin for hesitation.`
+            : type === 'gas_leak'
+            ? `Explosive stoichiometric gas-air mixture detected. Hazard level at ${state.hazardLevel}%. Absolute prohibition on electrical switches and sparks.`
             : `Severe structural instability and active collapse envelope. Safety integrity degraded to ${state.safetyIntegrity}%. Hazard intensity at ${state.hazardLevel}%.`,
         environmentalModifier: 'HIGH DANGER // ELEVATED STRESS',
       };
@@ -464,6 +481,8 @@ export function getConvergenceContext(
             ? `Smoke accumulation accelerating. Low-level visibility reduced to ${state.visibility}%. Stay beneath thermal boundary.`
             : type === 'flood'
             ? `Rising water depth and drainage backflow detected. Traction degraded; avoid submerged electrical conductors.`
+            : type === 'gas_leak'
+            ? `Gas concentration elevating rapidly (${state.hazardLevel}%). Ventilation compromised; initiate immediate low-level upwind evacuation.`
             : `Fractured masonry and falling debris along transit path. Hazard intensity at ${state.hazardLevel}%.`,
         environmentalModifier: 'ESCALATING HAZARD // NARROW MARGINS',
       };
@@ -608,6 +627,41 @@ export function createInitialNpcSquad(disasterType?: DisasterType | null): NpcMe
     ];
   }
 
+  if (disasterType === 'gas_leak') {
+    return [
+      {
+        id: 'npc-karan',
+        name: 'Karan',
+        role: 'GUIDE',
+        trust: 80,
+        stress: 30,
+        safety: 85,
+        status: 'STABLE',
+        dialogue: 'Keep everyone moving UPWIND away from the building! Do not touch doorbells or gate motors!',
+      },
+      {
+        id: 'npc-sanjay',
+        name: 'Sanjay',
+        role: 'TECHNICIAN',
+        trust: 75,
+        stress: 35,
+        safety: 80,
+        status: 'STABLE',
+        dialogue: 'I know where the external isolation valve is, but DO NOT flip any wall switches!',
+      },
+      {
+        id: 'npc-gupta',
+        name: 'Mr. Gupta',
+        role: 'ELDER',
+        trust: 75,
+        stress: 45,
+        safety: 75,
+        status: 'DISTRESSED',
+        dialogue: 'This rotten egg smell is so strong it is making my chest tight...',
+      },
+    ];
+  }
+
   // Fallback generic squad
   return [
     {
@@ -689,6 +743,20 @@ export function createInitialCityBrain(disasterType?: DisasterType | null): City
     };
   }
 
+  if (disasterType === 'gas_leak') {
+    return {
+      infrastructureIntegrity: 70,
+      trafficFlow: 65,
+      emergencyAccess: 75,
+      publicOrder: 70,
+      utilityStability: 45,
+      responderAvailability: 80,
+      macroStatus: 'STRAINED',
+      macroSummary:
+        'City Gas Distribution grid alert active; 112 Fire & Hazmat tenders dispatched to utility sector.',
+    };
+  }
+
   return {
     infrastructureIntegrity: 70,
     trafficFlow: 65,
@@ -737,6 +805,18 @@ export function createInitialDisasterChain(disasterType?: DisasterType | null): 
       chainTitle: 'SECONDARY HAZARD: LOAD-BEARING FAILURE & EGRESS BLOCKADE',
       chainDescription:
         'Thermal degradation of floor assemblies and structural trusses threatens imminent transit collapse.',
+      isContained: false,
+    };
+  }
+
+  if (disasterType === 'gas_leak') {
+    return {
+      chainStage: 0,
+      secondaryDisaster: 'electrical_hazard',
+      chainSeverity: 'NONE',
+      chainTitle: 'SECONDARY HAZARD: ELECTRICAL SPARK & VAPOR CLOUD EXPLOSION',
+      chainDescription:
+        'Vapor cloud accumulation near electrical switchgear or vehicle starters poses acute detonation risk.',
       isContained: false,
     };
   }
@@ -849,6 +929,11 @@ export function createInitialSimulationState(disasterType?: DisasterType | null)
     panic = 20; // Early warning phase
     hazardLevel = 25; // Inflow from storm runoff
     visibility = 85; // Heavy rain
+  } else if (disasterType === 'gas_leak') {
+    panic = 25; // Pungent odor creates acute tension
+    hazardLevel = 30; // Initial pipeline discharge
+    visibility = 80; // Atmospheric vapor accumulation
+    safetyIntegrity = 80;
   }
 
   const panicBand = getPanicBand(panic);

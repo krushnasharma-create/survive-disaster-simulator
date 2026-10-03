@@ -62,6 +62,18 @@ const SCENARIO_LIST: DisasterScenarioItem[] = [
     glow: 'rgba(0, 168, 204, 0.2)',
     status: 'playable',
   },
+  {
+    id: 'gas_leak',
+    code: 'SCN-GL-04',
+    icon: '☣️',
+    title: 'Gas Leakage',
+    tag: 'Dynamic Facility · Real-Time Incident',
+    description:
+      'Sharp mercaptan sulfur odor detected with active pipe breach. Real-time dynamic response: isolate supply, manage explosive atmospheric limits, and coordinate upwind evacuation.',
+    accent: '#10b981',
+    glow: 'rgba(16, 185, 129, 0.25)',
+    status: 'playable',
+  },
 ];
 
 export default function DisasterSelect() {
@@ -80,7 +92,11 @@ export default function DisasterSelect() {
     playSelect();
     if (item.status === 'playable') {
       selectDisaster(item.id);
-      navigate(`/disaster/${item.id}/scenarios`);
+      if (item.id === 'gas_leak') {
+        navigate(`/disaster/${item.id}/intro`);
+      } else {
+        navigate(`/disaster/${item.id}/scenarios`);
+      }
     } else {
       setToastMessage(
         language === 'hinglish'

@@ -77,7 +77,7 @@ SURVIVE bridges this gap through **consequence-driven interactive simulation**. 
 
 ## 4. Disaster & Scenario Catalogue
 
-SURVIVE includes **7 fully playable deterministic scenarios** across 3 disaster classifications, alongside documented historical reconstructions:
+SURVIVE includes fully playable deterministic scenarios across 4 disaster classifications, alongside documented historical reconstructions:
 
 ### 🌋 Earthquake Scenarios
 *Ground motion, non-structural hazards, aftershocks, and structural collapse.*
@@ -95,6 +95,10 @@ SURVIVE includes **7 fully playable deterministic scenarios** across 3 disaster 
 - **Urban Flash Flood (`flood-urban`) [Playable]:** Sudden monsoon cloudburst inundating a ground-floor residential home. Focus: Main breaker isolation, vertical evacuation to upper levels, water contamination awareness, and roof signaling.
 - **Street Stranded (`flood-street`) [Playable]:** Caught inside a vehicle on a waterlogged road as water levels rise to the door handles. Focus: Timing vehicle evacuation before door pressure lock, avoiding hidden open manholes, and dodging downed electric cables.
 
+### ☣️ Gas Leakage Scenarios (Dynamic Real-Time Event Director)
+*Hazardous atmospheric vapor clouds, Lower Explosive Limit (LEL) mitigation, and real-time dynamic event progression.*
+- **Enclosed Utility Facility (`gas-leak-facility`) [Playable Real-Time Dynamic Simulation]:** High-risk pressurized gas rupture in an enclosed facility. Unlike static scenarios, the **Gas Leak Event Director** continuously evaluates live gas exposure, ventilation, and ignition risk to dynamically generate real-time events: `GAS_LEAK_DETECTED`, `IGNITION_RISK`, `VENTILATION_FAILURE`, `HIGH_GAS_CONCENTRATION`, `EVACUATION_ALERT`, and `EMERGENCY_RESPONDER_ARRIVAL`.
+
 ### ⏳ Extended Roadmap Scenarios
 - **Uphaar Cinema Fire 1997 (`fire-uphaar-1997`) [Locked / Coming Soon]:** Historical simulation of the Delhi cinema tragedy focusing on electrical transformer fires, toxic carbon monoxide inhalation, and unblocked exit enforcement.
 - **Mumbai Floods 2005 (`flood-mumbai-2005`) [Locked / Coming Soon]:** Extreme urban deluge simulation focusing on public transport failure, walking through flood currents, and community mutual aid.
@@ -105,7 +109,7 @@ SURVIVE includes **7 fully playable deterministic scenarios** across 3 disaster 
 
 ```
 +-----------------------------------------------------------------------------------+
-| 1. DISASTER SELECT  -> Select Earthquake, Fire, or Flood scenario                |
+| 1. DISASTER SELECT  -> Select Earthquake, Fire, Flood, or Gas Leakage             |
 | 2. CONTEXT BRIEFING -> Read scenario location, situational parameters, & hazards  |
 | 3. TIMED DECISION   -> 15-second countdown to choose one of 3 realistic actions   |
 | 4. CONSEQUENCE      -> Immediate physical evaluation: health, stress, environment |

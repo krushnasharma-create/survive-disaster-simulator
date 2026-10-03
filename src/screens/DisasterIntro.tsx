@@ -46,6 +46,14 @@ const CONFIGS: Record<DisasterType, DisasterConfig> = {
     narrative:
       'Your phone screams with an emergency alert. Through the window you see water moving fast down the street. The drains are overwhelmed. The warning says: act now.',
   },
+  gas_leak: {
+    theme: 'theme-gas-leak',
+    icon: '☣️',
+    title: 'Gas Leakage',
+    setting: 'Industrial & Utility Enclosure — 10:15 AM',
+    narrative:
+      'A sharp, rotten-egg mercaptan sulfur odor suddenly fills the air. A fractured utility pipe is venting pressurized flammable gas into the enclosed facility. Any electrical spark or delayed evacuation could trigger a catastrophic explosion. You have seconds.',
+  },
 };
 
 const SCENARIO_INTROS: Record<string, { setting: string; narrative: string }> = {

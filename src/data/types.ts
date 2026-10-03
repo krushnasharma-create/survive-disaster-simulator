@@ -3,7 +3,7 @@
 // Safety-critical content (isCorrect, scoreImpact, insight) must always be
 // static, sourced from NDMA/SACHET/112 ERSS (primary) or FEMA/Red Cross (supplementary).
 
-export type DisasterType = 'earthquake' | 'fire' | 'flood';
+export type DisasterType = 'earthquake' | 'fire' | 'flood' | 'gas_leak';
 
 export type NodeType = 'intro' | 'decision' | 'consequence' | 'outcome' | 'report';
 

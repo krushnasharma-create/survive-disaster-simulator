@@ -30,6 +30,11 @@ const THEME_ACCENTS: Record<DisasterType, { accent: string; glow: string; name: 
     glow: 'rgba(0, 168, 204, 0.2)',
     name: 'Flash Flood',
   },
+  gas_leak: {
+    accent: '#10b981',
+    glow: 'rgba(16, 185, 129, 0.2)',
+    name: 'Gas Leakage',
+  },
 };
 
 export default function ScenarioSelectScreen() {

@@ -17,6 +17,7 @@ import { getLocalizedScenario, getUiStrings } from '../i18n';
 import { playTimerTick, playDisasterChoiceImpact, playPanicSpike } from '../utils/audio';
 import { recordDecision as recordPersistenceDecision, startRun, failRun } from '../services/gamePersistenceService';
 import { aiDirector, buildAiContext, adaptiveDirector, buildDirectorContext, getDirectorEvent, generateDeterministicGeminiFallback } from '../ai';
+import { evaluateNextGasLeakEvent, getGasLeakEventByNodeId, getOpeningGasLeakNodeId, getGasLeakStory } from '../engine/gasLeakDirector';
 import type { DisasterType, DecisionNode } from '../data/types';
 import styles from './ScenarioScreen.module.css';
 
@@ -24,6 +25,7 @@ const THEME_MAP: Record<DisasterType, string> = {
   earthquake: 'theme-earthquake',
   fire: 'theme-fire',
   flood: 'theme-flood',
+  gas_leak: 'theme-gas-leak',
 };
 
 const LABEL_MAP: Record<DisasterType, { en: string; hinglish: string }> = {
@@ -38,6 +40,10 @@ const LABEL_MAP: Record<DisasterType, { en: string; hinglish: string }> = {
   flood: {
     en: 'Flash Flood — Evacuation Warning',
     hinglish: 'Flash Flood — Baadh Ki Warning',
+  },
+  gas_leak: {
+    en: 'Gas Leakage — Real-Time Director Active',
+    hinglish: 'Gas Leakage — Real-Time Director Sakriya',
   },
 };
 
@@ -64,11 +70,13 @@ export default function ScenarioScreen() {
     authUserId,
     activeRunId,
     setActiveRunId,
+    runSeed,
   } = useGameStore();
 
   const [isTimedOut, setIsTimedOut] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [showSystemStatus, setShowSystemStatus] = useState(false);
+  const [storyAcknowledged, setStoryAcknowledged] = useState(false);
 
   const targetDisaster = (disasterId as DisasterType) || activeDisaster || 'earthquake';
   const effectiveScenarioKey = activeScenarioId || targetDisaster;
@@ -150,12 +158,17 @@ export default function ScenarioScreen() {
     }
   }, [activeDisaster, scenario, selectDisaster, targetDisaster]);
 
-  // Initialize start node if not set
+  // Initialize start node if not set (Fresh replay selects opening based on runSeed for gas_leak)
   useEffect(() => {
     if (scenario && !currentNodeId) {
-      advanceTo(scenario.startNodeId);
+      if (targetDisaster === 'gas_leak' && runSeed !== 0) {
+        const openingNodeId = getOpeningGasLeakNodeId(runSeed);
+        advanceTo(openingNodeId);
+      } else {
+        advanceTo(scenario.startNodeId);
+      }
     }
-  }, [scenario, currentNodeId, advanceTo]);
+  }, [scenario, currentNodeId, advanceTo, targetDisaster, runSeed]);
 
   const activeNodeId = currentNodeId || scenario?.startNodeId || '';
   const currentNode = scenario ? getNode(scenario, activeNodeId) : undefined;
@@ -199,11 +212,12 @@ export default function ScenarioScreen() {
     return arr;
   }, [decisionNode]);
 
-  // Reset timeout and submission states whenever activeNodeId changes
+  // Reset timeout, submission, and story states whenever activeNodeId changes
   const isSubmittingRef = useRef(false);
   useEffect(() => {
     setIsTimedOut(false);
     isSubmittingRef.current = false;
+    setStoryAcknowledged(false);
   }, [activeNodeId]);
 
   // Time limit hook — 15 seconds limit with Panic Engine & Adaptive Difficulty modifiers, clamped to strict 10s floor
@@ -222,11 +236,14 @@ export default function ScenarioScreen() {
     setIsTimedOut(true);
   }, []);
 
+  // For Gas Leakage, timer only runs once the player has absorbed the unfolding story and pressed Assess & Respond
+  const isActionActive = targetDisaster !== 'gas_leak' || storyAcknowledged;
+
   const { remaining, stop } = useCountdown({
     duration: timeLimit || 15,
-    autoStart: Boolean(timeLimit),
+    autoStart: Boolean(timeLimit) && isActionActive,
     onExpire: onTimerExpire,
-    resetKey: `${activeNodeId}_${retryCount}`,
+    resetKey: `${activeNodeId}_${retryCount}_${storyAcknowledged ? 'action' : 'story'}`,
   });
 
   // Track node-specific narrative to guarantee per-request attribution and prevent leak across nodes
@@ -376,19 +393,36 @@ export default function ScenarioScreen() {
           ? 'COOLDOWN_BLOCKED'
           : 'REJECTED';
 
+      // Batch Gas Leakage: Evaluate Next Dynamic Event via Gas Leak Event Director
+      if (targetDisaster === 'gas_leak') {
+        const sim = evalResult.nextSimulationState || simulationState;
+        if (sim) {
+          const nextGasEvent = evaluateNextGasLeakEvent(
+            sim,
+            decisionNode.id,
+            decisions.length + 1,
+            [...decisions.map((d) => d.nodeId), decisionNode.id],
+            runSeed
+          );
+          evalResult.nextNodeId = nextGasEvent.nodeId;
+        }
+      }
+
+      const currentGasEvent = targetDisaster === 'gas_leak' ? getGasLeakEventByNodeId(decisionNode.id) : null;
+
       const recordWithAi = {
         ...evalResult.record,
         aiDirectorEvent: directorEvent,
         aiTacticalAdvisory: directorAdvisory,
         aiNarrativeContext: effectiveNarrative,
         aiFallbackUsed: effectiveSource === 'deterministic-fallback' || currentDirector.fallbackCount > 0,
-        directorEventId: directorExecResult.eventId,
-        directorEventCategory: directorEventDef?.category,
-        directorSource: directorExecResult.source,
+        directorEventId: currentGasEvent?.eventId || directorExecResult.eventId,
+        directorEventCategory: currentGasEvent ? 'hazardous_materials' : directorEventDef?.category,
+        directorSource: currentGasEvent ? ('DETERMINISTIC' as const) : directorExecResult.source,
         directorValidation: validationState,
         directorExecutionStatus: directorExecResult.status,
-        directorTriggerReason: directorExecResult.triggerReason,
-        directorImpactSummary: directorExecResult.narrativeSummary,
+        directorTriggerReason: currentGasEvent?.defaultReason || directorExecResult.triggerReason,
+        directorImpactSummary: currentGasEvent ? `Severity: ${currentGasEvent.severity}` : directorExecResult.narrativeSummary,
       };
 
       recordDecision(recordWithAi);
@@ -459,6 +493,7 @@ export default function ScenarioScreen() {
       updateSimulationState,
       stop,
       language,
+      runSeed,
     ]
   );
 
@@ -794,48 +829,149 @@ export default function ScenarioScreen() {
           </div>
         )}
 
-        {/* Situation Card */}
-        <motion.div
-          key={decisionNode.id + language}
-          className={styles.situationCard}
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: 'easeOut' }}
-        >
-          <p className={styles.situation}>{decisionNode.situationText}</p>
+        {/* Dynamic Real-Time Event Banner (Gas Leakage Challenge) */}
+        {targetDisaster === 'gas_leak' && (
+          (() => {
+            const gasEvent = getGasLeakEventByNodeId(decisionNode.id);
+            if (!gasEvent) return null;
+            return (
+              <div className={styles.dynamicEventBanner}>
+                <div className={styles.dynamicEventHeader}>
+                  <span className={styles.directorActiveBadge}>DIRECTOR: ACTIVE</span>
+                  <span className={styles.realtimeEventBadge}>🚨 REAL-TIME EVENT</span>
+                  <span
+                    className={`${styles.dynamicSeverityBadge} ${
+                      styles['severity_' + gasEvent.severity.toLowerCase()]
+                    }`}
+                  >
+                    Severity: {gasEvent.severity}
+                  </span>
+                </div>
+                <div className={styles.dynamicEventTitle}>{gasEvent.label}</div>
+                <div className={styles.dynamicEventReason}>
+                  <span className={styles.dynamicReasonLabel}>Reason:</span>
+                  {gasEvent.defaultReason}
+                </div>
+              </div>
+            );
+          })()
+        )}
 
-          {decisionNode.contextHint && (
-            <div className={styles.contextHint}>
-              <span aria-hidden="true">⚡</span>
-              <span>{decisionNode.contextHint}</span>
-            </div>
-          )}
-        </motion.div>
+        {/* Story-First Gameplay Experience for Gas Leakage (Vizag 2020 Inspiration) */}
+        {targetDisaster === 'gas_leak' && !storyAcknowledged ? (
+          (() => {
+            const gasStory = getGasLeakStory(decisionNode.id);
+            const paragraphs = gasStory
+              ? language === 'hinglish'
+                ? gasStory.paragraphsHinglish
+                : gasStory.paragraphs
+              : [decisionNode.situationText];
+            const timestamp = gasStory?.timestamp || '03:07 AM';
+            const location = gasStory?.location || 'RR Venkatapuram, Visakhapatnam';
 
-        {/* Decision & Choice Section */}
-        <div className={styles.decisionSection}>
-          <div className={styles.decisionHeader}>
-            <span className={styles.decisionLabel}>{ui.selectAction}</span>
-          </div>
+            return (
+              <motion.div
+                key={'story-' + decisionNode.id}
+                className={styles.storyCard}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+              >
+                <div className={styles.storyHeader}>
+                  <span className={styles.storyTimeBadge}>{timestamp}</span>
+                  <span className={styles.storyLocationBadge}>{location}</span>
+                  <span className={styles.storyHistoricalTag}>
+                    {language === 'hinglish'
+                      ? 'ITIHASIK SANDARBH // VIZAG 2020 INSPIRATION'
+                      : 'HISTORICAL INSPIRATION // VIZAG MAY 2020'}
+                  </span>
+                </div>
 
-          {/* Countdown timer if node is timed (15s) */}
-          {timeLimit && (
-            <div style={{ marginBottom: '1rem' }}>
-              <CountdownTimer
-                remaining={remaining}
-                total={timeLimit}
-                label={ui.decideNow}
+                <div className={styles.storyNarrative}>
+                  {paragraphs.map((p, idx) => (
+                    <p key={idx} className={styles.storyParagraph}>
+                      {p}
+                    </p>
+                  ))}
+                </div>
+
+                <div className={styles.situationDeveloping}>
+                  <span className={styles.developingIcon} aria-hidden="true">
+                    ⚡
+                  </span>
+                  <div className={styles.developingContent}>
+                    <span className={styles.developingLabel}>
+                      {language === 'hinglish'
+                        ? 'STHITI VIKSIT HO RAHI HAI // DEVELOPING CRISIS:'
+                        : 'SITUATION DEVELOPING // ACTIVE THREAT:'}
+                    </span>
+                    <p className={styles.developingText}>{decisionNode.situationText}</p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className={styles.storyProceedButton}
+                  onClick={() => setStoryAcknowledged(true)}
+                >
+                  <span>
+                    {language === 'hinglish'
+                      ? 'SITUATION ASSESS KAREIN & ACTION LEIN'
+                      : 'ASSESS SITUATION & RESPOND'}
+                  </span>
+                  <span className={styles.proceedArrow} aria-hidden="true">
+                    ▶
+                  </span>
+                </button>
+              </motion.div>
+            );
+          })()
+        ) : (
+          <>
+            {/* Situation Card */}
+            <motion.div
+              key={decisionNode.id + language}
+              className={styles.situationCard}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+            >
+              <p className={styles.situation}>{decisionNode.situationText}</p>
+
+              {decisionNode.contextHint && (
+                <div className={styles.contextHint}>
+                  <span aria-hidden="true">⚡</span>
+                  <span>{decisionNode.contextHint}</span>
+                </div>
+              )}
+            </motion.div>
+
+            {/* Decision & Choice Section */}
+            <div className={styles.decisionSection}>
+              <div className={styles.decisionHeader}>
+                <span className={styles.decisionLabel}>{ui.selectAction}</span>
+              </div>
+
+              {/* Countdown timer if node is timed (15s) */}
+              {timeLimit && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <CountdownTimer
+                    remaining={remaining}
+                    total={timeLimit}
+                    label={ui.decideNow}
+                  />
+                </div>
+              )}
+
+              {/* Decision Choices — Randomized Presentation Order */}
+              <DecisionPanel
+                key={decisionNode.id + language}
+                choices={displayedChoices}
+                onSelect={(choiceId) => handleSelectChoice(choiceId, remaining)}
               />
             </div>
-          )}
-
-          {/* Decision Choices — Randomized Presentation Order */}
-          <DecisionPanel
-            key={decisionNode.id + language}
-            choices={displayedChoices}
-            onSelect={(choiceId) => handleSelectChoice(choiceId, remaining)}
-          />
-        </div>
+          </>
+        )}
       </main>
     </div>
   );

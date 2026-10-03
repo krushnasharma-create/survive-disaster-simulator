@@ -49,11 +49,24 @@ export const FLOOD_TAKEAWAYS: string[] = [
   'CONSERVE PHONE BATTERY & USE SMS: Extend mobile phone battery life by keeping screens dimmed and using concise SMS messages to communicate location coordinates to 112 ERSS.',
 ];
 
+export const GAS_LEAK_TAKEAWAYS: string[] = [
+  'NEVER TOUCH ELECTRICAL SWITCHES OR VEHICLES: A minute electrical contact arc from a light switch, doorbell, or starter motor can ignite a flammable gas cloud. Leave all electrical devices untouched.',
+  'ISOLATE PRIMARY VALVE WITH AN INSULATED TOOL: If safely accessible, turn the quarter-turn main gas supply cock or cylinder regulator perpendicular to the pipe immediately to halt discharge.',
+  'USE NATURAL CONVECTIVE CROSS-DRAFT ONLY: Prop open doors and windows to dilute flammable vapors. Never use powered mechanical fans or blowers, which generate hazardous brush sparks.',
+  'EVACUATE UPWIND & MAINTAIN EXCLUSION ZONE: Gas plumes disperse downwind. Direct all occupants upwind or crosswind, clear a 100-meter perimeter, and account for all personnel.',
+  'CALL 112 & GAS HELPLINE 1906: From a safe upwind distance, dial 112 ERSS for Fire & Hazmat and 1906 for the National City Gas Emergency Helpline.',
+];
+
 export const INDIA_EMERGENCY_HELPLINES = [
   {
     title: 'National Emergency Response Support System (ERSS)',
     number: '112',
     purpose: 'Unified emergency phone number for Police, Fire, and Medical emergency services across India.',
+  },
+  {
+    title: 'National Gas Leakage Helpline',
+    number: '1906',
+    purpose: '24/7 dedicated national emergency helpline for PNG/LPG gas leakage incidents.',
   },
   {
     title: 'Fire Emergency Service (Direct)',
@@ -95,12 +108,15 @@ export function buildReport(decisions: DecisionRecord[], disasterType?: Disaster
   // Infer disaster type from decision node IDs if not explicitly passed
   const isFire = disasterType === 'fire' || decisions.some((d) => d.nodeId.startsWith('fire-') || d.nodeId.startsWith('frc-'));
   const isFlood = disasterType === 'flood' || decisions.some((d) => d.nodeId.startsWith('flood-') || d.nodeId.startsWith('fls-'));
+  const isGasLeak = disasterType === 'gas_leak' || decisions.some((d) => d.nodeId.startsWith('gas-'));
 
   let keyTakeaways = EARTHQUAKE_TAKEAWAYS;
   if (isFire) {
     keyTakeaways = FIRE_TAKEAWAYS;
   } else if (isFlood) {
     keyTakeaways = FLOOD_TAKEAWAYS;
+  } else if (isGasLeak) {
+    keyTakeaways = GAS_LEAK_TAKEAWAYS;
   }
 
   return {

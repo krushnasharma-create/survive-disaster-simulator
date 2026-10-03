@@ -10,6 +10,7 @@ import './styles/animations.css';
 import './styles/themes/earthquake.css';
 import './styles/themes/fire.css';
 import './styles/themes/flood.css';
+import './styles/themes/gasLeak.css';
 
 const rootEl = document.getElementById('root');
 if (!rootEl) throw new Error('Root element not found');

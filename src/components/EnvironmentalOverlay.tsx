@@ -127,6 +127,14 @@ export function EnvironmentalOverlay({
           {isUrgent && <div className={styles.currentStream} />}
         </>
       )}
+
+      {/* Gas Leak: Chemical vapor haze & toxic alert pulse */}
+      {disasterType === 'gas_leak' && (
+        <>
+          <div className={styles.gasVaporHaze} />
+          {isUrgent && <div className={styles.gasWarningPulse} />}
+        </>
+      )}
     </div>
   );
 }

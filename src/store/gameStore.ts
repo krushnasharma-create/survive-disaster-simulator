@@ -163,6 +163,7 @@ interface GameState {
   authUserId: string | null;
   isAuthLoading: boolean;
   activeRunId: string | null;
+  runSeed: number;
 
   // ── AI Director (Layer 1 & 2 Two-Brain Telemetry) ────
   aiDirectorState: AiDirectorState;
@@ -171,6 +172,7 @@ interface GameState {
   setAuthUserId: (id: string | null) => void;
   setAuthLoading: (loading: boolean) => void;
   setActiveRunId: (runId: string | null) => void;
+  setRunSeed: (seed: number) => void;
   setLanguage: (language: 'en' | 'hinglish') => void;
   markIntroSeen: () => void;
   selectDisaster: (disaster: DisasterType) => void;
@@ -215,6 +217,7 @@ const initialState = {
   authUserId: null as string | null,
   isAuthLoading: isSupabaseConfigured,
   activeRunId: null as string | null,
+  runSeed: 0,
 };
 
 export const useGameStore = create<GameState>((set) => ({
@@ -238,12 +241,16 @@ export const useGameStore = create<GameState>((set) => ({
 
   setActiveRunId: (runId) => set({ activeRunId: runId }),
 
+  setRunSeed: (seed) => set({ runSeed: seed }),
+
   setLanguage: (language) => set({ language }),
 
   markIntroSeen: () => set({ hasSeenIntro: true }),
 
   selectDisaster: (disaster) => {
     adaptiveDirector.resetSession();
+    // Deterministic fresh seed per run (falls back to timestamp hash)
+    const newSeed = (Date.now() ^ Math.floor(Math.random() * 100000)) >>> 0;
     set({
       activeDisaster: disaster,
       activeScenarioId: null,
@@ -253,6 +260,7 @@ export const useGameStore = create<GameState>((set) => ({
       currentOutcome: null,
       decisions: [],
       totalScore: 0,
+      runSeed: newSeed,
       simulationState: createInitialSimulationState(disaster),
       activeRunId: null,
     });

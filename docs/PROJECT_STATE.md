@@ -8,11 +8,11 @@
 
 ## Current Phase
 
-**PHASE 3 (BATCH 11) — LIVE GEMINI PROVIDER INTEGRATION** — Complete, Verified, & Finalized for Checkpoint Commit
+**ROUND 2 OFFLINE CHALLENGE: GAS LEAKAGE DYNAMIC REAL-TIME EVENT ENGINE** — Complete, Verified, & Production-Ready
 
-**BASELINE COMMIT BEFORE PHASE 3 BATCH 11:** `7cde722` (feat: simplify player experience and complete hinglish ui)
+**BASELINE COMMIT BEFORE CHALLENGE:** `24e6ff1` (feat: live gemini provider integration)
 
-Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`. Baseline commit before Phase 3: `313d278`. Baseline commit before Phase 3 Batch 2: `b229cfe`. Baseline commit before Phase 3 Batch 3 & 4: `c74a095`. Baseline commit before Phase 3 Batch 5 & 6: `1be0097`. Baseline commit before Phase 3 Batch 7: `54ae1f4`. Baseline commit before Phase 3 Batch 8: `4b22f3e`. Baseline commit before Phase 3 Batch 9: `ee27e77`. Baseline commit before Phase 3 Batch 10: `4240d58`. Baseline commit before Phase 3 Batch 11: `7cde722`.
+Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseline tagged `pre-production-upgrade` at commit `d3b3755`.
 
 > **Agent handoff note:** `AGENTS.md` is the authoritative handoff source for any AI coding agent (Antigravity, Codex, or other) continuing this project. Read `AGENTS.md` first, then this file, before every task.
 
@@ -27,12 +27,14 @@ Venue date: **3 October 2026**. Production upgrade in progress on `main`. Baseli
 | Branch | `main` (single-branch workflow — all changes to `main`) |
 | Baseline tag | `pre-production-upgrade` → commit `d3b3755` |
 | Live production URL | https://survive-disaster-simulator.vercel.app/ (Vercel, auto-deploys from `main`) |
-| Application code | ✅ 7 complete playable disaster scenarios with enhanced cinematic game feel: zero-dependency procedural Web Audio API sound effects (hover ticks, select clicks, screen transitions, urgent timer pulse, disaster choice impact thud/whoosh/surge, and consequence reveal chimes); interactive choice commitment latching with 'ACTION COMMITTED' visual badge; staggered consequence reveal hierarchy; environmental dust motes, heat distortion, and water shimmer VFX; exact scenario replay; full English + Roman Hinglish localization across all shared gameplay UI and 7 scenario graphs; Supabase Auth & asynchronous FIFO persistence layer with full guest resilience |
-| Build system | ✅ Vite + React 18/19 + TypeScript (strict) |
-| Dependencies installed | ✅ react-router-dom, zustand, framer-motion, @supabase/supabase-js |
-| TypeScript errors | ✅ 0 errors |
-| Build status | ✅ Passes (`npm run build` — 536 modules, 0 errors in 685ms) |
-| Master visual language | ✅ Dark, cinematic, HUD-inspired aesthetic strictly preserved across all screens |
+| Application code | ✅ 4 standalone disasters (Earthquake, Fire, Flood, Gas Leakage) with dynamic real-time event generator for Gas Leakage (`gasLeakDirector.ts`); Story-First emergency narrative sequence (Vizag May 2020 inspired); deterministic seed-based fresh replay opening variation; 8 complete playable scenarios; zero-dependency procedural Web Audio API audio (including pressurized gas hiss); dynamic event banner and HUD telemetry; NDMA/PESO/112 ERSS guidance; full English + Roman Hinglish localization; 100% deterministic offline safety fallback |
+| Build system | ✅ Vite + React 19 + TypeScript (strict) |
+| Dependencies installed | ✅ @google/genai, react-router-dom, zustand, framer-motion, @supabase/supabase-js |
+| TypeScript errors | ✅ 0 errors (`tsc -b && vite build` passed) |
+| Build status | ✅ Passes (`npm run build` — 574 modules, 0 errors in 435ms) |
+| Linter status | ✅ Passes (`npm run lint` — 0 errors) |
+| Challenge Test Suite | ✅ 12/12 tests passed (`scratch/test_gas_leakage_challenge.ts`) |
+| Existing Regression Suite | ✅ 1301/1301 assertions passed (`scratch/test_all_scenarios_gameplay.ts`) |
 
 ---
 

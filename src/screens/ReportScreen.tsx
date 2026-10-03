@@ -7,7 +7,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { buildReport } from '../engine/reportBuilder';
-import { getUiStrings, FIRE_HINGLISH_TAKEAWAYS, FLOOD_HINGLISH_TAKEAWAYS } from '../i18n';
+import { getUiStrings, FIRE_HINGLISH_TAKEAWAYS, FLOOD_HINGLISH_TAKEAWAYS, GAS_LEAK_HINGLISH_TAKEAWAYS } from '../i18n';
 import { finalizeRun } from '../services/gamePersistenceService';
 import { OperatorBadge } from '../components/OperatorBadge';
 import {
@@ -84,16 +84,22 @@ export default function ReportScreen() {
     return scoreSummary.bandDescription;
   }, [language, scoreSummary]);
 
+  const isGasLeak = useMemo(
+    () => activeDisaster === 'gas_leak' || decisions.some((d) => d.nodeId.startsWith('gas-')),
+    [activeDisaster, decisions]
+  );
+
   const takeawaysToDisplay = useMemo(() => {
     const isFire = activeDisaster === 'fire' || decisions.some((d) => d.nodeId.startsWith('fire-') || d.nodeId.startsWith('frc-'));
     const isFlood = activeDisaster === 'flood' || decisions.some((d) => d.nodeId.startsWith('flood-') || d.nodeId.startsWith('fls-'));
     if (language === 'hinglish') {
       if (isFire) return FIRE_HINGLISH_TAKEAWAYS;
       if (isFlood) return FLOOD_HINGLISH_TAKEAWAYS;
+      if (isGasLeak) return GAS_LEAK_HINGLISH_TAKEAWAYS;
       return ui.takeawaysList;
     }
     return keyTakeaways;
-  }, [language, activeDisaster, decisions, ui, keyTakeaways]);
+  }, [language, activeDisaster, decisions, ui, keyTakeaways, isGasLeak]);
 
   const panicAudit = useMemo(() => {
     if (decisions.length === 0) {
@@ -663,8 +669,34 @@ export default function ReportScreen() {
       >
         {/* Report Header */}
         <header className={styles.header}>
-          <p className={styles.eyebrow}>{ui.simulationCompleted}</p>
+          <p className={styles.eyebrow}>
+            {isGasLeak ? 'GAS LEAKAGE // DYNAMIC INCIDENT RESPONSE' : ui.simulationCompleted}
+          </p>
           <h1 className={styles.title}>{ui.preparednessReport}</h1>
+          {isGasLeak && (
+            <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <span style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                color: '#34d399',
+                background: 'rgba(16, 185, 129, 0.15)',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
+                padding: '0.2rem 0.55rem',
+                borderRadius: '3px'
+              }}>
+                DISASTER: GAS LEAKAGE (DYNAMIC REAL-TIME SIMULATION)
+              </span>
+              <span style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.7rem',
+                color: 'var(--color-fog)',
+                letterSpacing: '0.05em'
+              }}>
+                DYNAMIC EVENTS TRIGGERED: {decisions.length}
+              </span>
+            </div>
+          )}
         </header>
 
         {/* Score Block */}
@@ -784,6 +816,21 @@ export default function ReportScreen() {
                         </span>
                       </div>
                     </div>
+
+                    {isGasLeak && dec?.directorTriggerReason && (
+                      <div style={{
+                        fontSize: '0.78rem',
+                        fontFamily: 'var(--font-mono)',
+                        color: '#6ee7b7',
+                        background: 'rgba(16, 185, 129, 0.08)',
+                        borderLeft: '3px solid #10b981',
+                        padding: '0.35rem 0.6rem',
+                        borderRadius: '2px',
+                        marginBottom: '0.45rem',
+                      }}>
+                        ⚡ DYNAMIC EVENT REASON: {dec.directorTriggerReason}
+                      </div>
+                    )}
 
                     <div className={styles.reviewChoice}>
                       <strong>{ui.actionLabel}</strong> {item.choiceLabel}

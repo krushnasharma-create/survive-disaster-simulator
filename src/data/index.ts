@@ -7,6 +7,7 @@ import { fireScenario } from './fire';
 import { fireCommercialScenario } from './fireCommercial';
 import { floodScenario } from './flood';
 import { floodStreetScenario } from './floodStreet';
+import { gasLeakScenario } from './gasLeak';
 
 export interface ScenarioCatalogueItem {
   id: string;
@@ -124,6 +125,18 @@ export const SCENARIO_CATALOGUE: Record<DisasterType, ScenarioCatalogueItem[]> =
       code: 'HIST-FL-2005',
     },
   ],
+  gas_leak: [
+    {
+      id: 'gas-leak-facility',
+      disasterType: 'gas_leak',
+      category: 'modern',
+      title: 'Gas Leakage & Atmospheric Vapor Surge',
+      subtitle: 'Dynamic Industrial & Residential Facility · 10:15 AM',
+      description: 'Pungent mercaptan odor detected from a severed pipeline. Real-time dynamic response: isolate supply, manage explosive atmospheric limits, and coordinate upwind evacuation.',
+      status: 'playable',
+      code: 'SCN-GL-04',
+    },
+  ],
 };
 
 export const SCENARIOS: Record<string, Scenario> = {
@@ -137,6 +150,11 @@ export const SCENARIOS: Record<string, Scenario> = {
   flood: floodScenario,
   'flood-urban': floodScenario,
   'flood-street': floodStreetScenario,
+  gas_leak: gasLeakScenario,
+  'gas-leak': gasLeakScenario,
+  gas_leakage: gasLeakScenario,
+  'gas-leakage': gasLeakScenario,
+  'gas-leak-facility': gasLeakScenario,
 };
 
 export function getScenario(idOrDisaster: string): Scenario | undefined {

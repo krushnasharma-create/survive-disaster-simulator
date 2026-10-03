@@ -282,6 +282,26 @@ export function playDisasterChoiceImpact(disaster: DisasterType) {
       gain.connect(masterGain);
       osc.start(now);
       osc.stop(now + 0.16);
+    } else if (disaster === 'gas_leak') {
+      // Pressurized gas discharge hiss
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(140, now + 0.16);
+
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(800, now);
+
+      gain.gain.setValueAtTime(0.09, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      osc.start(now);
+      osc.stop(now + 0.16);
     } else {
       // Flood fluid wave sweep
       const osc = ctx.createOscillator();

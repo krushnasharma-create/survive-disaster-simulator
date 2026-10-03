@@ -194,12 +194,13 @@ Displayed after each completed scenario:
 
 ### MVP (Required for Hackathon)
 - [ ] Cinematic game intro
-- [ ] Disaster selection screen (3 disasters)
+- [x] Disaster selection screen (4 disasters: Earthquake, Fire, Flood, Gas Leakage)
 - [ ] Per-disaster cinematic intro
 - [ ] Scenario engine (node traversal, decision/consequence)
 - [ ] Earthquake scenario (full, branching)
 - [ ] Fire scenario (full, branching)
 - [ ] Flood scenario (full, branching)
+- [x] Gas Leakage scenario (dynamic real-time event director)
 - [ ] Decision timer (at least on 1 node per scenario)
 - [ ] Preparedness score calculation
 - [ ] Preparedness report screen
